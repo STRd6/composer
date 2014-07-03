@@ -69,8 +69,18 @@ window.addEventListener <span class="string">"resize"</span>, handleResize, <spa
 document.body.appendChild canvas.element()
 
 <span class="function"><span class="title">paint</span></span> = -&gt;
+  width = canvas.width()/<span class="number">16</span>
+  hue = <span class="number">0</span>
+
+  canvas.drawRect
+    x: <span class="number">0</span>
+    y: <span class="number">0</span>
+    width: width
+    height: canvas.height()
+    color: <span class="string">"hsl(<span class="subst">#{hue}</span>, 75%, 50%)"</span>
+
   [<span class="number">1.</span><span class="number">.15</span>].forEach (i) -&gt;
-    width = canvas.width()/<span class="number">16</span>
+
     hue = Math.floor(i / <span class="number">16</span> * <span class="number">360</span>)
 
     canvas.drawRect
