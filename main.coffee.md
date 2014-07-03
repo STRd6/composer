@@ -37,7 +37,32 @@ Compose music on the internets?
     document.body.appendChild canvas.element()
 
     paint = ->
-      canvas.fill "orange"
+      [1..15].forEach (i) ->
+        width = canvas.width()/16
+        hue = Math.floor(i / 16 * 360)
+
+        canvas.drawRect
+          x: i * width
+          y: 0
+          width: width
+          height: canvas.height()
+          color: "hsl(#{hue}, 75%, 50%)"
+
+        canvas.drawRect
+          x: i * width
+          y: 0
+          width: 1
+          height: canvas.height()
+          color: "rgba(0, 0, 0, 0.25)"
+
+      [1..25].forEach (i) ->
+        canvas.drawRect
+          x: 0
+          y: i * canvas.height()/25
+          width: canvas.width()
+          height: 1
+          color: "rgba(0, 0, 0, 0.25)"
+
       # Draw notes
       # Draw cursor
 
