@@ -1,3 +1,4 @@
 version: "0.1.0"
 dependencies:
+  "touch-canvas": "distri/touch-canvas:v0.3.1"
   util: "distri/util:v0.1.0"
