@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>player</title>
+  <title>TODO</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,10 +18,10 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="player">Player</h1>
+              <h1 id="todo">TODO</h1>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">
+            <div class="content"><pre><code>
 </code></pre>
 </div>
         </li>
@@ -32,25 +32,11 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Super simple Audio player based on <a href="http://www.html5rocks.com/en/tutorials/webaudio/intro/">http://www.html5rocks.com/en/tutorials/webaudio/intro/</a></p>
+              <p>Specify additional resources to add to the cache manifest.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">AudioContext = window.AudioContext <span class="keyword">or</span> window.webkitAudioContext
-BufferLoader = require(<span class="string">"./lib/buffer_loader"</span>)
-
-module.<span class="function"><span class="title">exports</span></span> = -&gt;
-  context = <span class="keyword">new</span> AudioContext()
-  window.bufferLoader = <span class="keyword">new</span> BufferLoader(context)
-
-  load: (urls, callback) -&gt;
-    bufferLoader.load urls, callback
-
-  play: (index, rate=<span class="number">1</span>,  time=<span class="number">0</span>) -&gt;
-    source = context.createBufferSource()
-    source.buffer = bufferLoader.bufferList[index]
-    source.connect(context.destination)
-    source.start(time)
-    source.playbackRate.value = rate</code></pre>
+            <div class="content"><pre><code>
+</code></pre>
 </div>
         </li>
         

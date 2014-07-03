@@ -45,9 +45,37 @@ sounds = [<span class="number">1.</span><span class="number">.16</span>].map (n)
   <span class="string">"http://addressable.s3.amazonaws.com/mpc/musicnote<span class="subst">#{n}</span>.wav"</span>
 
 player.load sounds, -&gt;
-  setInterval -&gt;
-    player.play(<span class="number">0</span>)
-  , <span class="number">500</span></code></pre>
+  console.log <span class="string">"Loaded!"</span>
+
+Canvas = require <span class="string">"touch-canvas"</span>
+
+canvas = Canvas()
+
+canvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p) -&gt;
+  instrument = Math.floor p.x * <span class="number">16</span>
+  note = Math.floor (<span class="number">1</span> - p.y) * <span class="number">25</span>
+
+  rate = Math.pow <span class="number">2</span>, note / <span class="number">12</span>
+
+  player.play instrument, rate
+
+<span class="function"><span class="title">handleResize</span></span> =  -&gt;
+  canvas.width(window.innerWidth)
+  canvas.height(window.innerHeight)
+
+handleResize()
+window.addEventListener <span class="string">"resize"</span>, handleResize, <span class="literal">false</span>
+
+document.body.appendChild canvas.element()
+
+<span class="function"><span class="title">paint</span></span> = -&gt;
+  canvas.fill <span class="string">"orange"</span>
+  <span class="comment"># Draw notes</span>
+  <span class="comment"># Draw cursor</span>
+
+  requestAnimationFrame(paint)
+
+paint()</code></pre>
 </div>
         </li>
         
