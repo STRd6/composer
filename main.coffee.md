@@ -37,8 +37,18 @@ Compose music on the internets?
     document.body.appendChild canvas.element()
 
     paint = ->
+      width = canvas.width()/16
+      hue = 0
+
+      canvas.drawRect
+        x: 0
+        y: 0
+        width: width
+        height: canvas.height()
+        color: "hsl(#{hue}, 75%, 50%)"
+
       [1..15].forEach (i) ->
-        width = canvas.width()/16
+        
         hue = Math.floor(i / 16 * 360)
 
         canvas.drawRect
