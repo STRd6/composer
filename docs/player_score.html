@@ -39,7 +39,27 @@
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
   notes = []
 
-  <span class="keyword">debugger</span>
+  playing = <span class="literal">false</span>
+  playTime = <span class="number">0</span>
+  dt = <span class="number">1</span>/<span class="number">60</span>
+
+  <span class="function"><span class="title">playLoop</span></span> = -&gt;
+    <span class="keyword">if</span> playing
+      <span class="keyword">debugger</span>
+      <span class="comment"># Play upcoming sounds</span>
+      notes.filter ([time]) -&gt;
+        playTime &lt;= time &lt; playTime + dt
+      .forEach ([time, note, instrument]) -&gt;
+        self.playNote instrument, note, time - playTime
+
+      playTime += dt
+
+      <span class="keyword">if</span> playTime &gt;= <span class="number">1</span>
+        playTime = <span class="number">0</span>
+
+    requestAnimationFrame playLoop
+
+  playLoop()
 
   extend self,
     addNote: (note) -&gt;
@@ -49,14 +69,18 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       notes
 
     playTime: -&gt;
-      <span class="number">0.5</span></code></pre>
+      playTime
+
+    play: -&gt;
+      playing = !playing</code></pre>
 </div>
         </li>
         
     </ul>
   </div>
   <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script><script>
   (function() {
   var ErrorReporter, bindUpdates, createEditor, exec, findInteractiveElements, readShebang, runners;
 

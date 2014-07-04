@@ -192,19 +192,19 @@
     },
     "main.coffee.md": {
       "path": "main.coffee.md",
-      "content": "Composer\n========\n\n\nCompose music on the internets?\n    {applyStylesheet} = require \"util\"\n\n    applyStylesheet require \"./style\"\n\n    player = require(\"./player\")()\n\n    sounds = [1..16].map (n) ->\n      \"http://addressable.s3.amazonaws.com/mpc/musicnote#{n}.wav\"\n\n    player.load sounds, ->\n      console.log \"Loaded!\"\n\n    player.include require \"./player_score\"\n    player.include require \"./player_view\"\n",
+      "content": "Composer\n========\n\n    require \"jquery-utils\"\n\nCompose music on the internets?\n    {applyStylesheet} = require \"util\"\n\n    applyStylesheet require \"./style\"\n\n    player = require(\"./player\")()\n\n    sounds = [1..16].map (n) ->\n      \"http://addressable.s3.amazonaws.com/mpc/musicnote#{n}.wav\"\n\n    player.load sounds, ->\n      console.log \"Loaded!\"\n\n    player.include require \"./player_score\"\n    player.include require \"./player_view\"\n    player.include require \"./player_hotkeys\"\n",
       "mode": "100644",
       "type": "blob"
     },
     "pixie.cson": {
       "path": "pixie.cson",
-      "content": "version: \"0.1.0\"\ndependencies:\n  \"touch-canvas\": \"distri/touch-canvas:v0.3.1\"\n  util: \"distri/util:v0.1.0\"\n",
+      "content": "version: \"0.1.0\"\nremoteDependencies: [\n  \"https://code.jquery.com/jquery-1.11.0.min.js\"\n]\ndependencies:\n  \"hotkeys\": \"distri/hotkeys:v0.2.0\"\n  \"jquery-utils\": \"distri/jquery-utils:v0.2.0\"\n  \"touch-canvas\": \"distri/touch-canvas:v0.3.1\"\n  util: \"distri/util:v0.1.0\"\n",
       "mode": "100644",
       "type": "blob"
     },
     "player.coffee.md": {
       "path": "player.coffee.md",
-      "content": "Player\n======\n\nSuper simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/\n\n    AudioContext = window.AudioContext or window.webkitAudioContext\n    BufferLoader = require(\"./lib/buffer_loader\")\n\n    module.exports = (I, self) ->\n      context = new AudioContext()\n      window.bufferLoader = new BufferLoader(context)\n\n      self =\n        load: (urls, callback) ->\n          bufferLoader.load urls, callback\n  \n        playNote: (index, rate=1,  time=0) ->\n          source = context.createBufferSource()\n          source.buffer = bufferLoader.bufferList[index]\n          source.connect(context.destination)\n          source.start(time)\n          source.playbackRate.value = rate\n  \n        include: (module) ->\n          module(I, self)\n  \n          return self\n",
+      "content": "Player\n======\n\nSuper simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/\n\n    AudioContext = window.AudioContext or window.webkitAudioContext\n    BufferLoader = require(\"./lib/buffer_loader\")\n\n    {extend} = require \"util\"\n\n    module.exports = (I, self) ->\n      context = new AudioContext()\n      window.bufferLoader = new BufferLoader(context)\n\n      self =\n        load: (urls, callback) ->\n          bufferLoader.load urls, callback\n  \n        playNote: (index, note=0,  time=0) ->\n          rate = Math.pow 2, note / 12\n\n          source = context.createBufferSource()\n          source.buffer = bufferLoader.bufferList[index]\n          source.connect(context.destination)\n          source.start(time + context.currentTime)\n          source.playbackRate.value = rate\n  \n        include: (module) ->\n          module(I, self)\n  \n          return self\n\n        extend: (args...) ->\n          extend self, args...",
       "mode": "100644",
       "type": "blob"
     },
@@ -216,12 +216,17 @@
     },
     "player_view.coffee.md": {
       "path": "player_view.coffee.md",
-      "content": "Player View\n===========\n\n    module.exports = (I, self) ->\n      Canvas = require \"touch-canvas\"\n  \n      canvas = Canvas()\n  \n      canvas.on \"touch\", ({x, y}) ->\n        # Add Note to Score\n        instrument = 0\n\n        # TODO: Quantize\n        time = x\n        note = Math.floor (1 - y) * 25\n        \n        self.addNote [time, note, instrument]\n\n        rate = Math.pow 2, note / 12\n\n        self.playNote instrument, rate\n  \n      handleResize =  ->\n        canvas.width(window.innerWidth)\n        canvas.height(window.innerHeight)\n\n      handleResize()\n      window.addEventListener \"resize\", handleResize, false\n\n      document.body.appendChild canvas.element()\n\n      paint = ->\n        [1..25].forEach (i) ->\n          canvas.drawRect\n            x: 0\n            y: i * canvas.height()/25\n            width: canvas.width()\n            height: 1\n            color: \"rgba(0, 0, 0, 0.25)\"\n\n        # Draw notes\n        self.notes().forEach ([time, note, instrument]) ->\n          canvas.drawRect\n            x: time * canvas.width() - 12\n            y: (24 - note) * canvas.height() / 25\n            width: 25\n            height: 25\n            color: \"black\"\n\n        # Draw cursor\n        canvas.drawRect\n          x: self.playTime()\n          y: 0\n          width: 1\n          height: canvas.height()\n          color: \"#F0F\"\n\n        requestAnimationFrame(paint)\n  \n      paint()",
+      "content": "Player View\n===========\n\n    module.exports = (I, self) ->\n      Canvas = require \"touch-canvas\"\n  \n      canvas = Canvas()\n  \n      canvas.on \"touch\", ({x, y}) ->\n        # Add Note to Score\n        instrument = 0\n\n        # TODO: Quantize\n        time = x\n        note = Math.floor (1 - y) * 25\n        \n        self.addNote [time, note, instrument]\n\n        self.playNote instrument, note\n  \n      handleResize =  ->\n        canvas.width(window.innerWidth)\n        canvas.height(window.innerHeight)\n\n      handleResize()\n      window.addEventListener \"resize\", handleResize, false\n\n      document.body.appendChild canvas.element()\n\n      paint = ->\n        canvas.fill \"white\"\n\n        [1..25].forEach (i) ->\n          canvas.drawRect\n            x: 0\n            y: i * canvas.height()/25\n            width: canvas.width()\n            height: 1\n            color: \"rgba(0, 0, 0, 0.25)\"\n\n        # Draw notes\n        self.notes().forEach ([time, note, instrument]) ->\n          canvas.drawRect\n            x: time * canvas.width() - 12\n            y: (24 - note) * canvas.height() / 25\n            width: 25\n            height: 25\n            color: \"black\"\n\n        # Draw cursor\n        canvas.drawRect\n          x: self.playTime() * canvas.width()\n          y: 0\n          width: 1\n          height: canvas.height()\n          color: \"#F0F\"\n\n        requestAnimationFrame(paint)\n  \n      paint()",
       "mode": "100644"
     },
     "player_score.coffee.md": {
       "path": "player_score.coffee.md",
-      "content": "Player Score\n============\n\n    {extend} = require \"util\"\n\n    module.exports = (I, self) ->\n      notes = []\n      \n      debugger\n\n      extend self,\n        addNote: (note) ->\n          notes.push(note)\n\n        notes: ->\n          notes\n\n        playTime: ->\n          0.5\n",
+      "content": "Player Score\n============\n\n    {extend} = require \"util\"\n\n    module.exports = (I, self) ->\n      notes = []\n      \n      playing = false\n      playTime = 0\n      dt = 1/60\n      \n      playLoop = ->\n        if playing\n          debugger\n          # Play upcoming sounds\n          notes.filter ([time]) ->\n            playTime <= time < playTime + dt\n          .forEach ([time, note, instrument]) ->\n            self.playNote instrument, note, time - playTime\n\n          playTime += dt\n\n          if playTime >= 1\n            playTime = 0\n\n        requestAnimationFrame playLoop\n\n      playLoop()\n\n      extend self,\n        addNote: (note) ->\n          notes.push(note)\n\n        notes: ->\n          notes\n\n        playTime: ->\n          playTime\n\n        play: ->\n          playing = !playing\n",
+      "mode": "100644"
+    },
+    "player_hotkeys.coffee.md": {
+      "path": "player_hotkeys.coffee.md",
+      "content": "Hotkeys\n=======\n\n    module.exports = (I, self) ->\n      self.include require \"hotkeys\"\n\n      self.addHotkey \"space\", \"play\"\n",
       "mode": "100644"
     }
   },
@@ -233,17 +238,17 @@
     },
     "main": {
       "path": "main",
-      "content": "(function() {\n  var applyStylesheet, player, sounds;\n\n  applyStylesheet = require(\"util\").applyStylesheet;\n\n  applyStylesheet(require(\"./style\"));\n\n  player = require(\"./player\")();\n\n  sounds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(function(n) {\n    return \"http://addressable.s3.amazonaws.com/mpc/musicnote\" + n + \".wav\";\n  });\n\n  player.load(sounds, function() {\n    return console.log(\"Loaded!\");\n  });\n\n  player.include(require(\"./player_score\"));\n\n  player.include(require(\"./player_view\"));\n\n}).call(this);\n",
+      "content": "(function() {\n  var applyStylesheet, player, sounds;\n\n  require(\"jquery-utils\");\n\n  applyStylesheet = require(\"util\").applyStylesheet;\n\n  applyStylesheet(require(\"./style\"));\n\n  player = require(\"./player\")();\n\n  sounds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(function(n) {\n    return \"http://addressable.s3.amazonaws.com/mpc/musicnote\" + n + \".wav\";\n  });\n\n  player.load(sounds, function() {\n    return console.log(\"Loaded!\");\n  });\n\n  player.include(require(\"./player_score\"));\n\n  player.include(require(\"./player_view\"));\n\n  player.include(require(\"./player_hotkeys\"));\n\n}).call(this);\n",
       "type": "blob"
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.1.0\",\"dependencies\":{\"touch-canvas\":\"distri/touch-canvas:v0.3.1\",\"util\":\"distri/util:v0.1.0\"}};",
+      "content": "module.exports = {\"version\":\"0.1.0\",\"remoteDependencies\":[\"https://code.jquery.com/jquery-1.11.0.min.js\"],\"dependencies\":{\"hotkeys\":\"distri/hotkeys:v0.2.0\",\"jquery-utils\":\"distri/jquery-utils:v0.2.0\",\"touch-canvas\":\"distri/touch-canvas:v0.3.1\",\"util\":\"distri/util:v0.1.0\"}};",
       "type": "blob"
     },
     "player": {
       "path": "player",
-      "content": "(function() {\n  var AudioContext, BufferLoader;\n\n  AudioContext = window.AudioContext || window.webkitAudioContext;\n\n  BufferLoader = require(\"./lib/buffer_loader\");\n\n  module.exports = function(I, self) {\n    var context;\n    context = new AudioContext();\n    window.bufferLoader = new BufferLoader(context);\n    return self = {\n      load: function(urls, callback) {\n        return bufferLoader.load(urls, callback);\n      },\n      playNote: function(index, rate, time) {\n        var source;\n        if (rate == null) {\n          rate = 1;\n        }\n        if (time == null) {\n          time = 0;\n        }\n        source = context.createBufferSource();\n        source.buffer = bufferLoader.bufferList[index];\n        source.connect(context.destination);\n        source.start(time);\n        return source.playbackRate.value = rate;\n      },\n      include: function(module) {\n        module(I, self);\n        return self;\n      }\n    };\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var AudioContext, BufferLoader, extend,\n    __slice = [].slice;\n\n  AudioContext = window.AudioContext || window.webkitAudioContext;\n\n  BufferLoader = require(\"./lib/buffer_loader\");\n\n  extend = require(\"util\").extend;\n\n  module.exports = function(I, self) {\n    var context;\n    context = new AudioContext();\n    window.bufferLoader = new BufferLoader(context);\n    return self = {\n      load: function(urls, callback) {\n        return bufferLoader.load(urls, callback);\n      },\n      playNote: function(index, note, time) {\n        var rate, source;\n        if (note == null) {\n          note = 0;\n        }\n        if (time == null) {\n          time = 0;\n        }\n        rate = Math.pow(2, note / 12);\n        source = context.createBufferSource();\n        source.buffer = bufferLoader.bufferList[index];\n        source.connect(context.destination);\n        source.start(time + context.currentTime);\n        return source.playbackRate.value = rate;\n      },\n      include: function(module) {\n        module(I, self);\n        return self;\n      },\n      extend: function() {\n        var args;\n        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n        return extend.apply(null, [self].concat(__slice.call(args)));\n      }\n    };\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "style": {
@@ -253,12 +258,17 @@
     },
     "player_view": {
       "path": "player_view",
-      "content": "(function() {\n  module.exports = function(I, self) {\n    var Canvas, canvas, handleResize, paint;\n    Canvas = require(\"touch-canvas\");\n    canvas = Canvas();\n    canvas.on(\"touch\", function(_arg) {\n      var instrument, note, rate, time, x, y;\n      x = _arg.x, y = _arg.y;\n      instrument = 0;\n      time = x;\n      note = Math.floor((1 - y) * 25);\n      self.addNote([time, note, instrument]);\n      rate = Math.pow(2, note / 12);\n      return self.playNote(instrument, rate);\n    });\n    handleResize = function() {\n      canvas.width(window.innerWidth);\n      return canvas.height(window.innerHeight);\n    };\n    handleResize();\n    window.addEventListener(\"resize\", handleResize, false);\n    document.body.appendChild(canvas.element());\n    paint = function() {\n      var _i, _results;\n      (function() {\n        _results = [];\n        for (_i = 1; _i <= 25; _i++){ _results.push(_i); }\n        return _results;\n      }).apply(this).forEach(function(i) {\n        return canvas.drawRect({\n          x: 0,\n          y: i * canvas.height() / 25,\n          width: canvas.width(),\n          height: 1,\n          color: \"rgba(0, 0, 0, 0.25)\"\n        });\n      });\n      self.notes().forEach(function(_arg) {\n        var instrument, note, time;\n        time = _arg[0], note = _arg[1], instrument = _arg[2];\n        return canvas.drawRect({\n          x: time * canvas.width() - 12,\n          y: (24 - note) * canvas.height() / 25,\n          width: 25,\n          height: 25,\n          color: \"black\"\n        });\n      });\n      canvas.drawRect({\n        x: self.playTime(),\n        y: 0,\n        width: 1,\n        height: canvas.height(),\n        color: \"#F0F\"\n      });\n      return requestAnimationFrame(paint);\n    };\n    return paint();\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  module.exports = function(I, self) {\n    var Canvas, canvas, handleResize, paint;\n    Canvas = require(\"touch-canvas\");\n    canvas = Canvas();\n    canvas.on(\"touch\", function(_arg) {\n      var instrument, note, time, x, y;\n      x = _arg.x, y = _arg.y;\n      instrument = 0;\n      time = x;\n      note = Math.floor((1 - y) * 25);\n      self.addNote([time, note, instrument]);\n      return self.playNote(instrument, note);\n    });\n    handleResize = function() {\n      canvas.width(window.innerWidth);\n      return canvas.height(window.innerHeight);\n    };\n    handleResize();\n    window.addEventListener(\"resize\", handleResize, false);\n    document.body.appendChild(canvas.element());\n    paint = function() {\n      var _i, _results;\n      canvas.fill(\"white\");\n      (function() {\n        _results = [];\n        for (_i = 1; _i <= 25; _i++){ _results.push(_i); }\n        return _results;\n      }).apply(this).forEach(function(i) {\n        return canvas.drawRect({\n          x: 0,\n          y: i * canvas.height() / 25,\n          width: canvas.width(),\n          height: 1,\n          color: \"rgba(0, 0, 0, 0.25)\"\n        });\n      });\n      self.notes().forEach(function(_arg) {\n        var instrument, note, time;\n        time = _arg[0], note = _arg[1], instrument = _arg[2];\n        return canvas.drawRect({\n          x: time * canvas.width() - 12,\n          y: (24 - note) * canvas.height() / 25,\n          width: 25,\n          height: 25,\n          color: \"black\"\n        });\n      });\n      canvas.drawRect({\n        x: self.playTime() * canvas.width(),\n        y: 0,\n        width: 1,\n        height: canvas.height(),\n        color: \"#F0F\"\n      });\n      return requestAnimationFrame(paint);\n    };\n    return paint();\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "player_score": {
       "path": "player_score",
-      "content": "(function() {\n  var extend;\n\n  extend = require(\"util\").extend;\n\n  module.exports = function(I, self) {\n    var notes;\n    notes = [];\n    debugger;\n    return extend(self, {\n      addNote: function(note) {\n        return notes.push(note);\n      },\n      notes: function() {\n        return notes;\n      },\n      playTime: function() {\n        return 0.5;\n      }\n    });\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var extend;\n\n  extend = require(\"util\").extend;\n\n  module.exports = function(I, self) {\n    var dt, notes, playLoop, playTime, playing;\n    notes = [];\n    playing = false;\n    playTime = 0;\n    dt = 1 / 60;\n    playLoop = function() {\n      if (playing) {\n        debugger;\n        notes.filter(function(_arg) {\n          var time;\n          time = _arg[0];\n          return (playTime <= time && time < playTime + dt);\n        }).forEach(function(_arg) {\n          var instrument, note, time;\n          time = _arg[0], note = _arg[1], instrument = _arg[2];\n          return self.playNote(instrument, note, time - playTime);\n        });\n        playTime += dt;\n        if (playTime >= 1) {\n          playTime = 0;\n        }\n      }\n      return requestAnimationFrame(playLoop);\n    };\n    playLoop();\n    return extend(self, {\n      addNote: function(note) {\n        return notes.push(note);\n      },\n      notes: function() {\n        return notes;\n      },\n      playTime: function() {\n        return playTime;\n      },\n      play: function() {\n        return playing = !playing;\n      }\n    });\n  };\n\n}).call(this);\n",
+      "type": "blob"
+    },
+    "player_hotkeys": {
+      "path": "player_hotkeys",
+      "content": "(function() {\n  module.exports = function(I, self) {\n    self.include(require(\"hotkeys\"));\n    return self.addHotkey(\"space\", \"play\");\n  };\n\n}).call(this);\n",
       "type": "blob"
     }
   },
@@ -267,6 +277,9 @@
   },
   "version": "0.1.0",
   "entryPoint": "main",
+  "remoteDependencies": [
+    "https://code.jquery.com/jquery-1.11.0.min.js"
+  ],
   "repository": {
     "branch": "master",
     "default_branch": "master",
@@ -278,6 +291,752 @@
     "publishBranch": "gh-pages"
   },
   "dependencies": {
+    "hotkeys": {
+      "source": {
+        "LICENSE": {
+          "path": "LICENSE",
+          "mode": "100644",
+          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 distri\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+          "type": "blob"
+        },
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "hotkeys\n=======\n\nHotkeys module for editors\n",
+          "type": "blob"
+        },
+        "main.coffee.md": {
+          "path": "main.coffee.md",
+          "mode": "100644",
+          "content": "Hotkeys\n=======\n\nHotkeys module for the editors.\n\n    module.exports = (I={}, self=Core(I)) ->\n      self.extend\n        addHotkey: (key, method) ->\n          $(document).bind \"keydown\", key, (event) ->\n            if typeof method is \"function\"\n              method\n                editor: self\n            else\n              self[method]()\n\n            event.preventDefault()\n\n      return self\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"0.2.0\"\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js\"\n]\n",
+          "type": "blob"
+        },
+        "test/hotkeys.coffee": {
+          "path": "test/hotkeys.coffee",
+          "mode": "100644",
+          "content": "Hotkeys = require \"../main\"\n\ndescribe \"hotkeys\", ->\n  it \"should be hot\", (done) ->\n    hotkeys = Hotkeys()\n    \n    hotkeys.addHotkey \"a\", ->\n      done()\n\n    $(document).trigger $.Event \"keydown\",\n      which: 65 # a\n      keyCode: 65\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "main": {
+          "path": "main",
+          "content": "(function() {\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    self.extend({\n      addHotkey: function(key, method) {\n        return $(document).bind(\"keydown\", key, function(event) {\n          if (typeof method === \"function\") {\n            method({\n              editor: self\n            });\n          } else {\n            self[method]();\n          }\n          return event.preventDefault();\n        });\n      }\n    });\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"0.2.0\",\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js\"]};",
+          "type": "blob"
+        },
+        "test/hotkeys": {
+          "path": "test/hotkeys",
+          "content": "(function() {\n  var Hotkeys;\n\n  Hotkeys = require(\"../main\");\n\n  describe(\"hotkeys\", function() {\n    return it(\"should be hot\", function(done) {\n      var hotkeys;\n      hotkeys = Hotkeys();\n      hotkeys.addHotkey(\"a\", function() {\n        return done();\n      });\n      return $(document).trigger($.Event(\"keydown\", {\n        which: 65,\n        keyCode: 65\n      }));\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/hotkeys.coffee",
+          "type": "blob"
+        }
+      },
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "version": "0.2.0",
+      "entryPoint": "main",
+      "remoteDependencies": [
+        "//code.jquery.com/jquery-1.10.1.min.js",
+        "http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"
+      ],
+      "repository": {
+        "id": 14673639,
+        "name": "hotkeys",
+        "full_name": "distri/hotkeys",
+        "owner": {
+          "login": "distri",
+          "id": 6005125,
+          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+          "gravatar_id": null,
+          "url": "https://api.github.com/users/distri",
+          "html_url": "https://github.com/distri",
+          "followers_url": "https://api.github.com/users/distri/followers",
+          "following_url": "https://api.github.com/users/distri/following{/other_user}",
+          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+          "organizations_url": "https://api.github.com/users/distri/orgs",
+          "repos_url": "https://api.github.com/users/distri/repos",
+          "events_url": "https://api.github.com/users/distri/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/distri/received_events",
+          "type": "Organization",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/distri/hotkeys",
+        "description": "Hotkeys module for editors",
+        "fork": false,
+        "url": "https://api.github.com/repos/distri/hotkeys",
+        "forks_url": "https://api.github.com/repos/distri/hotkeys/forks",
+        "keys_url": "https://api.github.com/repos/distri/hotkeys/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/distri/hotkeys/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/distri/hotkeys/teams",
+        "hooks_url": "https://api.github.com/repos/distri/hotkeys/hooks",
+        "issue_events_url": "https://api.github.com/repos/distri/hotkeys/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/distri/hotkeys/events",
+        "assignees_url": "https://api.github.com/repos/distri/hotkeys/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/distri/hotkeys/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/distri/hotkeys/tags",
+        "blobs_url": "https://api.github.com/repos/distri/hotkeys/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/distri/hotkeys/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/distri/hotkeys/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/distri/hotkeys/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/distri/hotkeys/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/distri/hotkeys/languages",
+        "stargazers_url": "https://api.github.com/repos/distri/hotkeys/stargazers",
+        "contributors_url": "https://api.github.com/repos/distri/hotkeys/contributors",
+        "subscribers_url": "https://api.github.com/repos/distri/hotkeys/subscribers",
+        "subscription_url": "https://api.github.com/repos/distri/hotkeys/subscription",
+        "commits_url": "https://api.github.com/repos/distri/hotkeys/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/distri/hotkeys/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/distri/hotkeys/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/distri/hotkeys/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/distri/hotkeys/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/distri/hotkeys/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/distri/hotkeys/merges",
+        "archive_url": "https://api.github.com/repos/distri/hotkeys/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/distri/hotkeys/downloads",
+        "issues_url": "https://api.github.com/repos/distri/hotkeys/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/distri/hotkeys/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/distri/hotkeys/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/distri/hotkeys/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/distri/hotkeys/labels{/name}",
+        "releases_url": "https://api.github.com/repos/distri/hotkeys/releases{/id}",
+        "created_at": "2013-11-25T01:55:42Z",
+        "updated_at": "2013-11-25T02:03:57Z",
+        "pushed_at": "2013-11-25T02:03:56Z",
+        "git_url": "git://github.com/distri/hotkeys.git",
+        "ssh_url": "git@github.com:distri/hotkeys.git",
+        "clone_url": "https://github.com/distri/hotkeys.git",
+        "svn_url": "https://github.com/distri/hotkeys",
+        "homepage": null,
+        "size": 264,
+        "stargazers_count": 0,
+        "watchers_count": 0,
+        "language": "CoffeeScript",
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "default_branch": "master",
+        "master_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "organization": {
+          "login": "distri",
+          "id": 6005125,
+          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+          "gravatar_id": null,
+          "url": "https://api.github.com/users/distri",
+          "html_url": "https://github.com/distri",
+          "followers_url": "https://api.github.com/users/distri/followers",
+          "following_url": "https://api.github.com/users/distri/following{/other_user}",
+          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+          "organizations_url": "https://api.github.com/users/distri/orgs",
+          "repos_url": "https://api.github.com/users/distri/repos",
+          "events_url": "https://api.github.com/users/distri/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/distri/received_events",
+          "type": "Organization",
+          "site_admin": false
+        },
+        "network_count": 0,
+        "subscribers_count": 2,
+        "branch": "v0.2.0",
+        "defaultBranch": "master"
+      },
+      "dependencies": {}
+    },
+    "jquery-utils": {
+      "source": {
+        "LICENSE": {
+          "path": "LICENSE",
+          "mode": "100644",
+          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+          "type": "blob"
+        },
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "jquery-utils\n============\n",
+          "type": "blob"
+        },
+        "main.coffee.md": {
+          "path": "main.coffee.md",
+          "mode": "100644",
+          "content": "    require \"hotkeys\"\n    require \"image-reader\"\n    require \"./take_class\"\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"0.2.0\"\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n]\ndependencies:\n  hotkeys: \"distri/jquery-hotkeys:v0.9.2\"\n  \"image-reader\": \"distri/jquery-image_reader:v0.2.0\"\n",
+          "type": "blob"
+        },
+        "take_class.coffee.md": {
+          "path": "take_class.coffee.md",
+          "mode": "100644",
+          "content": "Take Class\n==========\n\nTake the named class from all the sibling elements. Perfect for something like\nradio buttons.\n\n    (($) ->\n      $.fn.takeClass = (name) ->\n        @addClass(name).siblings().removeClass(name)\n\n        return this\n    )(jQuery)\n",
+          "type": "blob"
+        },
+        "test/image_reader.coffee": {
+          "path": "test/image_reader.coffee",
+          "mode": "100644",
+          "content": "require \"../main\"\n\ndescribe \"jQuery#pasteImageReader\", ->\n  it \"should exist\", ->\n    assert $.fn.pasteImageReader\n\ndescribe \"jQuery#dropImageReader\", ->\n  it \"should exist\", ->\n    assert $.fn.dropImageReader\n",
+          "type": "blob"
+        },
+        "test/take_class.coffee": {
+          "path": "test/take_class.coffee",
+          "mode": "100644",
+          "content": "require \"../main\"\n\ndescribe \"jQuery#takeClass\", ->\n  it \"should exist\", ->\n    assert $.fn.takeClass\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "main": {
+          "path": "main",
+          "content": "(function() {\n  require(\"hotkeys\");\n\n  require(\"image-reader\");\n\n  require(\"./take_class\");\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"0.2.0\",\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\"],\"dependencies\":{\"hotkeys\":\"distri/jquery-hotkeys:v0.9.2\",\"image-reader\":\"distri/jquery-image_reader:v0.2.0\"}};",
+          "type": "blob"
+        },
+        "take_class": {
+          "path": "take_class",
+          "content": "(function() {\n  (function($) {\n    return $.fn.takeClass = function(name) {\n      this.addClass(name).siblings().removeClass(name);\n      return this;\n    };\n  })(jQuery);\n\n}).call(this);\n\n//# sourceURL=take_class.coffee",
+          "type": "blob"
+        },
+        "test/image_reader": {
+          "path": "test/image_reader",
+          "content": "(function() {\n  require(\"../main\");\n\n  describe(\"jQuery#pasteImageReader\", function() {\n    return it(\"should exist\", function() {\n      return assert($.fn.pasteImageReader);\n    });\n  });\n\n  describe(\"jQuery#dropImageReader\", function() {\n    return it(\"should exist\", function() {\n      return assert($.fn.dropImageReader);\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/image_reader.coffee",
+          "type": "blob"
+        },
+        "test/take_class": {
+          "path": "test/take_class",
+          "content": "(function() {\n  require(\"../main\");\n\n  describe(\"jQuery#takeClass\", function() {\n    return it(\"should exist\", function() {\n      return assert($.fn.takeClass);\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/take_class.coffee",
+          "type": "blob"
+        }
+      },
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "version": "0.2.0",
+      "entryPoint": "main",
+      "remoteDependencies": [
+        "//code.jquery.com/jquery-1.10.1.min.js"
+      ],
+      "repository": {
+        "id": 13183366,
+        "name": "jquery-utils",
+        "full_name": "distri/jquery-utils",
+        "owner": {
+          "login": "distri",
+          "id": 6005125,
+          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+          "gravatar_id": null,
+          "url": "https://api.github.com/users/distri",
+          "html_url": "https://github.com/distri",
+          "followers_url": "https://api.github.com/users/distri/followers",
+          "following_url": "https://api.github.com/users/distri/following{/other_user}",
+          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+          "organizations_url": "https://api.github.com/users/distri/orgs",
+          "repos_url": "https://api.github.com/users/distri/repos",
+          "events_url": "https://api.github.com/users/distri/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/distri/received_events",
+          "type": "Organization",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/distri/jquery-utils",
+        "description": "",
+        "fork": false,
+        "url": "https://api.github.com/repos/distri/jquery-utils",
+        "forks_url": "https://api.github.com/repos/distri/jquery-utils/forks",
+        "keys_url": "https://api.github.com/repos/distri/jquery-utils/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/distri/jquery-utils/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/distri/jquery-utils/teams",
+        "hooks_url": "https://api.github.com/repos/distri/jquery-utils/hooks",
+        "issue_events_url": "https://api.github.com/repos/distri/jquery-utils/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/distri/jquery-utils/events",
+        "assignees_url": "https://api.github.com/repos/distri/jquery-utils/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/distri/jquery-utils/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/distri/jquery-utils/tags",
+        "blobs_url": "https://api.github.com/repos/distri/jquery-utils/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/distri/jquery-utils/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/distri/jquery-utils/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/distri/jquery-utils/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/distri/jquery-utils/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/distri/jquery-utils/languages",
+        "stargazers_url": "https://api.github.com/repos/distri/jquery-utils/stargazers",
+        "contributors_url": "https://api.github.com/repos/distri/jquery-utils/contributors",
+        "subscribers_url": "https://api.github.com/repos/distri/jquery-utils/subscribers",
+        "subscription_url": "https://api.github.com/repos/distri/jquery-utils/subscription",
+        "commits_url": "https://api.github.com/repos/distri/jquery-utils/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/distri/jquery-utils/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/distri/jquery-utils/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/distri/jquery-utils/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/distri/jquery-utils/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/distri/jquery-utils/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/distri/jquery-utils/merges",
+        "archive_url": "https://api.github.com/repos/distri/jquery-utils/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/distri/jquery-utils/downloads",
+        "issues_url": "https://api.github.com/repos/distri/jquery-utils/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/distri/jquery-utils/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/distri/jquery-utils/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/distri/jquery-utils/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/distri/jquery-utils/labels{/name}",
+        "releases_url": "https://api.github.com/repos/distri/jquery-utils/releases{/id}",
+        "created_at": "2013-09-29T00:25:09Z",
+        "updated_at": "2013-11-29T20:57:42Z",
+        "pushed_at": "2013-10-25T17:28:57Z",
+        "git_url": "git://github.com/distri/jquery-utils.git",
+        "ssh_url": "git@github.com:distri/jquery-utils.git",
+        "clone_url": "https://github.com/distri/jquery-utils.git",
+        "svn_url": "https://github.com/distri/jquery-utils",
+        "homepage": null,
+        "size": 592,
+        "stargazers_count": 0,
+        "watchers_count": 0,
+        "language": "CoffeeScript",
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "default_branch": "master",
+        "master_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "organization": {
+          "login": "distri",
+          "id": 6005125,
+          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+          "gravatar_id": null,
+          "url": "https://api.github.com/users/distri",
+          "html_url": "https://github.com/distri",
+          "followers_url": "https://api.github.com/users/distri/followers",
+          "following_url": "https://api.github.com/users/distri/following{/other_user}",
+          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+          "organizations_url": "https://api.github.com/users/distri/orgs",
+          "repos_url": "https://api.github.com/users/distri/repos",
+          "events_url": "https://api.github.com/users/distri/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/distri/received_events",
+          "type": "Organization",
+          "site_admin": false
+        },
+        "network_count": 0,
+        "subscribers_count": 1,
+        "branch": "v0.2.0",
+        "defaultBranch": "master"
+      },
+      "dependencies": {
+        "hotkeys": {
+          "source": {
+            "LICENSE": {
+              "path": "LICENSE",
+              "mode": "100644",
+              "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+              "type": "blob"
+            },
+            "README.md": {
+              "path": "README.md",
+              "mode": "100644",
+              "content": "jquery.hotkeys\n==============\n\njQuery hotkeys plugin\n",
+              "type": "blob"
+            },
+            "hotkeys.coffee.md": {
+              "path": "hotkeys.coffee.md",
+              "mode": "100644",
+              "content": "jQuery Hotkeys Plugin\n=====================\n\nCopyright 2010, John Resig\nDual licensed under the MIT or GPL Version 2 licenses.\n\nBased upon the plugin by Tzury Bar Yochay:\nhttp://github.com/tzuryby/hotkeys\n\nOriginal idea by:\nBinny V A, http://www.openjs.com/scripts/events/keyboard_shortcuts/\n\n    if jQuery?\n      ((jQuery) ->\n        isTextAcceptingInput = (element) ->\n          /textarea|select/i.test(element.nodeName) or element.type is \"text\" or element.type is \"password\"\n\n        isFunctionKey = (event) ->\n          (event.type != \"keypress\") && (112 <= event.which <= 123)\n\n        jQuery.hotkeys =\n          version: \"0.9.0\"\n\n          specialKeys:\n            8: \"backspace\"\n            9: \"tab\"\n            13: \"return\"\n            16: \"shift\"\n            17: \"ctrl\"\n            18: \"alt\"\n            19: \"pause\"\n            20: \"capslock\"\n            27: \"esc\"\n            32: \"space\"\n            33: \"pageup\"\n            34: \"pagedown\"\n            35: \"end\"\n            36: \"home\"\n            37: \"left\"\n            38: \"up\"\n            39: \"right\"\n            40: \"down\"\n            45: \"insert\"\n            46: \"del\"\n            96: \"0\"\n            97: \"1\"\n            98: \"2\"\n            99: \"3\"\n            100: \"4\"\n            101: \"5\"\n            102: \"6\"\n            103: \"7\"\n            104: \"8\"\n            105: \"9\"\n            106: \"*\"\n            107: \"+\"\n            109: \"-\"\n            110: \".\"\n            111 : \"/\"\n            112: \"f1\"\n            113: \"f2\"\n            114: \"f3\"\n            115: \"f4\"\n            116: \"f5\"\n            117: \"f6\"\n            118: \"f7\"\n            119: \"f8\"\n            120: \"f9\"\n            121: \"f10\"\n            122: \"f11\"\n            123: \"f12\"\n            144: \"numlock\"\n            145: \"scroll\"\n            186: \";\"\n            187: \"=\"\n            188: \",\"\n            189: \"-\"\n            190: \".\"\n            191: \"/\"\n            219: \"[\"\n            220: \"\\\\\"\n            221: \"]\"\n            222: \"'\"\n            224: \"meta\"\n\n          shiftNums:\n            \"`\": \"~\"\n            \"1\": \"!\"\n            \"2\": \"@\"\n            \"3\": \"#\"\n            \"4\": \"$\"\n            \"5\": \"%\"\n            \"6\": \"^\"\n            \"7\": \"&\"\n            \"8\": \"*\"\n            \"9\": \"(\"\n            \"0\": \")\"\n            \"-\": \"_\"\n            \"=\": \"+\"\n            \";\": \":\"\n            \"'\": \"\\\"\"\n            \",\": \"<\"\n            \".\": \">\"\n            \"/\": \"?\"\n            \"\\\\\": \"|\"\n\n        keyHandler = (handleObj) ->\n          # Only care when a possible input has been specified\n          if typeof handleObj.data != \"string\"\n            return\n\n          origHandler = handleObj.handler\n          keys = handleObj.data.toLowerCase().split(\" \")\n\n          handleObj.handler = (event) ->\n            # Keypress represents characters, not special keys\n            special = event.type != \"keypress\" && jQuery.hotkeys.specialKeys[ event.which ]\n            character = String.fromCharCode( event.which ).toLowerCase()\n            modif = \"\"\n            possible = {}\n            target = event.target\n\n            # check combinations (alt|ctrl|shift+anything)\n            if event.altKey && special != \"alt\"\n              modif += \"alt+\"\n\n            if event.ctrlKey && special != \"ctrl\"\n              modif += \"ctrl+\"\n\n            # TODO: Need to make sure this works consistently across platforms\n            if event.metaKey && !event.ctrlKey && special != \"meta\"\n              modif += \"meta+\"\n\n            # Don't fire in text-accepting inputs that we didn't directly bind to\n            # unless a non-shift modifier key or function key is pressed\n            unless this == target\n              if isTextAcceptingInput(target) && !modif && !isFunctionKey(event)\n                return\n\n            if event.shiftKey && special != \"shift\"\n              modif += \"shift+\"\n\n            if special\n              possible[ modif + special ] = true\n            else\n              possible[ modif + character ] = true\n              possible[ modif + jQuery.hotkeys.shiftNums[ character ] ] = true\n\n              # \"$\" can be triggered as \"Shift+4\" or \"Shift+$\" or just \"$\"\n              if modif == \"shift+\"\n                possible[ jQuery.hotkeys.shiftNums[ character ] ] = true\n\n            for key in keys\n              if possible[key]\n                return origHandler.apply( this, arguments )\n\n        jQuery.each [ \"keydown\", \"keyup\", \"keypress\" ], ->\n          jQuery.event.special[ this ] = { add: keyHandler }\n\n      )(jQuery)\n    else\n      console.warn \"jQuery not found, no hotkeys added :(\"\n",
+              "type": "blob"
+            },
+            "pixie.cson": {
+              "path": "pixie.cson",
+              "mode": "100644",
+              "content": "version: \"0.9.2\"\nentryPoint: \"hotkeys\"\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n]\n",
+              "type": "blob"
+            },
+            "test/hotkeys.coffee": {
+              "path": "test/hotkeys.coffee",
+              "mode": "100644",
+              "content": "require \"../hotkeys\"\n\ndescribe \"hotkeys binding\", ->\n  it \"should bind a hotkey\", (done) ->\n    $(document).bind \"keydown\", \"a\", ->\n      done()\n\n    $(document).trigger $.Event \"keydown\",\n      which: 65 # a\n      keyCode: 65\n",
+              "type": "blob"
+            }
+          },
+          "distribution": {
+            "hotkeys": {
+              "path": "hotkeys",
+              "content": "(function() {\n  if (typeof jQuery !== \"undefined\" && jQuery !== null) {\n    (function(jQuery) {\n      var isFunctionKey, isTextAcceptingInput, keyHandler;\n      isTextAcceptingInput = function(element) {\n        return /textarea|select/i.test(element.nodeName) || element.type === \"text\" || element.type === \"password\";\n      };\n      isFunctionKey = function(event) {\n        var _ref;\n        return (event.type !== \"keypress\") && ((112 <= (_ref = event.which) && _ref <= 123));\n      };\n      jQuery.hotkeys = {\n        version: \"0.9.0\",\n        specialKeys: {\n          8: \"backspace\",\n          9: \"tab\",\n          13: \"return\",\n          16: \"shift\",\n          17: \"ctrl\",\n          18: \"alt\",\n          19: \"pause\",\n          20: \"capslock\",\n          27: \"esc\",\n          32: \"space\",\n          33: \"pageup\",\n          34: \"pagedown\",\n          35: \"end\",\n          36: \"home\",\n          37: \"left\",\n          38: \"up\",\n          39: \"right\",\n          40: \"down\",\n          45: \"insert\",\n          46: \"del\",\n          96: \"0\",\n          97: \"1\",\n          98: \"2\",\n          99: \"3\",\n          100: \"4\",\n          101: \"5\",\n          102: \"6\",\n          103: \"7\",\n          104: \"8\",\n          105: \"9\",\n          106: \"*\",\n          107: \"+\",\n          109: \"-\",\n          110: \".\",\n          111: \"/\",\n          112: \"f1\",\n          113: \"f2\",\n          114: \"f3\",\n          115: \"f4\",\n          116: \"f5\",\n          117: \"f6\",\n          118: \"f7\",\n          119: \"f8\",\n          120: \"f9\",\n          121: \"f10\",\n          122: \"f11\",\n          123: \"f12\",\n          144: \"numlock\",\n          145: \"scroll\",\n          186: \";\",\n          187: \"=\",\n          188: \",\",\n          189: \"-\",\n          190: \".\",\n          191: \"/\",\n          219: \"[\",\n          220: \"\\\\\",\n          221: \"]\",\n          222: \"'\",\n          224: \"meta\"\n        },\n        shiftNums: {\n          \"`\": \"~\",\n          \"1\": \"!\",\n          \"2\": \"@\",\n          \"3\": \"#\",\n          \"4\": \"$\",\n          \"5\": \"%\",\n          \"6\": \"^\",\n          \"7\": \"&\",\n          \"8\": \"*\",\n          \"9\": \"(\",\n          \"0\": \")\",\n          \"-\": \"_\",\n          \"=\": \"+\",\n          \";\": \":\",\n          \"'\": \"\\\"\",\n          \",\": \"<\",\n          \".\": \">\",\n          \"/\": \"?\",\n          \"\\\\\": \"|\"\n        }\n      };\n      keyHandler = function(handleObj) {\n        var keys, origHandler;\n        if (typeof handleObj.data !== \"string\") {\n          return;\n        }\n        origHandler = handleObj.handler;\n        keys = handleObj.data.toLowerCase().split(\" \");\n        return handleObj.handler = function(event) {\n          var character, key, modif, possible, special, target, _i, _len;\n          special = event.type !== \"keypress\" && jQuery.hotkeys.specialKeys[event.which];\n          character = String.fromCharCode(event.which).toLowerCase();\n          modif = \"\";\n          possible = {};\n          target = event.target;\n          if (event.altKey && special !== \"alt\") {\n            modif += \"alt+\";\n          }\n          if (event.ctrlKey && special !== \"ctrl\") {\n            modif += \"ctrl+\";\n          }\n          if (event.metaKey && !event.ctrlKey && special !== \"meta\") {\n            modif += \"meta+\";\n          }\n          if (this !== target) {\n            if (isTextAcceptingInput(target) && !modif && !isFunctionKey(event)) {\n              return;\n            }\n          }\n          if (event.shiftKey && special !== \"shift\") {\n            modif += \"shift+\";\n          }\n          if (special) {\n            possible[modif + special] = true;\n          } else {\n            possible[modif + character] = true;\n            possible[modif + jQuery.hotkeys.shiftNums[character]] = true;\n            if (modif === \"shift+\") {\n              possible[jQuery.hotkeys.shiftNums[character]] = true;\n            }\n          }\n          for (_i = 0, _len = keys.length; _i < _len; _i++) {\n            key = keys[_i];\n            if (possible[key]) {\n              return origHandler.apply(this, arguments);\n            }\n          }\n        };\n      };\n      return jQuery.each([\"keydown\", \"keyup\", \"keypress\"], function() {\n        return jQuery.event.special[this] = {\n          add: keyHandler\n        };\n      });\n    })(jQuery);\n  } else {\n    console.warn(\"jQuery not found, no hotkeys added :(\");\n  }\n\n}).call(this);\n\n//# sourceURL=hotkeys.coffee",
+              "type": "blob"
+            },
+            "pixie": {
+              "path": "pixie",
+              "content": "module.exports = {\"version\":\"0.9.2\",\"entryPoint\":\"hotkeys\",\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\"]};",
+              "type": "blob"
+            },
+            "test/hotkeys": {
+              "path": "test/hotkeys",
+              "content": "(function() {\n  require(\"../hotkeys\");\n\n  describe(\"hotkeys binding\", function() {\n    return it(\"should bind a hotkey\", function(done) {\n      $(document).bind(\"keydown\", \"a\", function() {\n        return done();\n      });\n      return $(document).trigger($.Event(\"keydown\", {\n        which: 65,\n        keyCode: 65\n      }));\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/hotkeys.coffee",
+              "type": "blob"
+            }
+          },
+          "progenitor": {
+            "url": "http://strd6.github.io/editor/"
+          },
+          "version": "0.9.2",
+          "entryPoint": "hotkeys",
+          "remoteDependencies": [
+            "//code.jquery.com/jquery-1.10.1.min.js"
+          ],
+          "repository": {
+            "id": 13182272,
+            "name": "jquery-hotkeys",
+            "full_name": "distri/jquery-hotkeys",
+            "owner": {
+              "login": "distri",
+              "id": 6005125,
+              "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+              "gravatar_id": null,
+              "url": "https://api.github.com/users/distri",
+              "html_url": "https://github.com/distri",
+              "followers_url": "https://api.github.com/users/distri/followers",
+              "following_url": "https://api.github.com/users/distri/following{/other_user}",
+              "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+              "organizations_url": "https://api.github.com/users/distri/orgs",
+              "repos_url": "https://api.github.com/users/distri/repos",
+              "events_url": "https://api.github.com/users/distri/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/distri/received_events",
+              "type": "Organization",
+              "site_admin": false
+            },
+            "private": false,
+            "html_url": "https://github.com/distri/jquery-hotkeys",
+            "description": "jQuery hotkeys plugin",
+            "fork": false,
+            "url": "https://api.github.com/repos/distri/jquery-hotkeys",
+            "forks_url": "https://api.github.com/repos/distri/jquery-hotkeys/forks",
+            "keys_url": "https://api.github.com/repos/distri/jquery-hotkeys/keys{/key_id}",
+            "collaborators_url": "https://api.github.com/repos/distri/jquery-hotkeys/collaborators{/collaborator}",
+            "teams_url": "https://api.github.com/repos/distri/jquery-hotkeys/teams",
+            "hooks_url": "https://api.github.com/repos/distri/jquery-hotkeys/hooks",
+            "issue_events_url": "https://api.github.com/repos/distri/jquery-hotkeys/issues/events{/number}",
+            "events_url": "https://api.github.com/repos/distri/jquery-hotkeys/events",
+            "assignees_url": "https://api.github.com/repos/distri/jquery-hotkeys/assignees{/user}",
+            "branches_url": "https://api.github.com/repos/distri/jquery-hotkeys/branches{/branch}",
+            "tags_url": "https://api.github.com/repos/distri/jquery-hotkeys/tags",
+            "blobs_url": "https://api.github.com/repos/distri/jquery-hotkeys/git/blobs{/sha}",
+            "git_tags_url": "https://api.github.com/repos/distri/jquery-hotkeys/git/tags{/sha}",
+            "git_refs_url": "https://api.github.com/repos/distri/jquery-hotkeys/git/refs{/sha}",
+            "trees_url": "https://api.github.com/repos/distri/jquery-hotkeys/git/trees{/sha}",
+            "statuses_url": "https://api.github.com/repos/distri/jquery-hotkeys/statuses/{sha}",
+            "languages_url": "https://api.github.com/repos/distri/jquery-hotkeys/languages",
+            "stargazers_url": "https://api.github.com/repos/distri/jquery-hotkeys/stargazers",
+            "contributors_url": "https://api.github.com/repos/distri/jquery-hotkeys/contributors",
+            "subscribers_url": "https://api.github.com/repos/distri/jquery-hotkeys/subscribers",
+            "subscription_url": "https://api.github.com/repos/distri/jquery-hotkeys/subscription",
+            "commits_url": "https://api.github.com/repos/distri/jquery-hotkeys/commits{/sha}",
+            "git_commits_url": "https://api.github.com/repos/distri/jquery-hotkeys/git/commits{/sha}",
+            "comments_url": "https://api.github.com/repos/distri/jquery-hotkeys/comments{/number}",
+            "issue_comment_url": "https://api.github.com/repos/distri/jquery-hotkeys/issues/comments/{number}",
+            "contents_url": "https://api.github.com/repos/distri/jquery-hotkeys/contents/{+path}",
+            "compare_url": "https://api.github.com/repos/distri/jquery-hotkeys/compare/{base}...{head}",
+            "merges_url": "https://api.github.com/repos/distri/jquery-hotkeys/merges",
+            "archive_url": "https://api.github.com/repos/distri/jquery-hotkeys/{archive_format}{/ref}",
+            "downloads_url": "https://api.github.com/repos/distri/jquery-hotkeys/downloads",
+            "issues_url": "https://api.github.com/repos/distri/jquery-hotkeys/issues{/number}",
+            "pulls_url": "https://api.github.com/repos/distri/jquery-hotkeys/pulls{/number}",
+            "milestones_url": "https://api.github.com/repos/distri/jquery-hotkeys/milestones{/number}",
+            "notifications_url": "https://api.github.com/repos/distri/jquery-hotkeys/notifications{?since,all,participating}",
+            "labels_url": "https://api.github.com/repos/distri/jquery-hotkeys/labels{/name}",
+            "releases_url": "https://api.github.com/repos/distri/jquery-hotkeys/releases{/id}",
+            "created_at": "2013-09-28T22:58:08Z",
+            "updated_at": "2013-11-29T20:59:45Z",
+            "pushed_at": "2013-09-29T23:55:14Z",
+            "git_url": "git://github.com/distri/jquery-hotkeys.git",
+            "ssh_url": "git@github.com:distri/jquery-hotkeys.git",
+            "clone_url": "https://github.com/distri/jquery-hotkeys.git",
+            "svn_url": "https://github.com/distri/jquery-hotkeys",
+            "homepage": null,
+            "size": 608,
+            "stargazers_count": 0,
+            "watchers_count": 0,
+            "language": "CoffeeScript",
+            "has_issues": true,
+            "has_downloads": true,
+            "has_wiki": true,
+            "forks_count": 0,
+            "mirror_url": null,
+            "open_issues_count": 0,
+            "forks": 0,
+            "open_issues": 0,
+            "watchers": 0,
+            "default_branch": "master",
+            "master_branch": "master",
+            "permissions": {
+              "admin": true,
+              "push": true,
+              "pull": true
+            },
+            "organization": {
+              "login": "distri",
+              "id": 6005125,
+              "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+              "gravatar_id": null,
+              "url": "https://api.github.com/users/distri",
+              "html_url": "https://github.com/distri",
+              "followers_url": "https://api.github.com/users/distri/followers",
+              "following_url": "https://api.github.com/users/distri/following{/other_user}",
+              "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+              "organizations_url": "https://api.github.com/users/distri/orgs",
+              "repos_url": "https://api.github.com/users/distri/repos",
+              "events_url": "https://api.github.com/users/distri/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/distri/received_events",
+              "type": "Organization",
+              "site_admin": false
+            },
+            "network_count": 0,
+            "subscribers_count": 1,
+            "branch": "v0.9.2",
+            "defaultBranch": "master"
+          },
+          "dependencies": {}
+        },
+        "image-reader": {
+          "source": {
+            "LICENSE": {
+              "path": "LICENSE",
+              "mode": "100644",
+              "content": "Copyright (c) 2012 Daniel X. Moore\n\nMIT License\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\nLIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\nWITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
+              "type": "blob"
+            },
+            "README.md": {
+              "path": "README.md",
+              "mode": "100644",
+              "content": "# Jquery::ImageReader\n\nHelpful jQuery plugins for dropping and pasting image data.\n\n## Usage\n\n```coffeescript\n$(\"html\").pasteImageReader ({name, dataURL, file, event}) ->\n  $(\"body\").css\n    backgroundImage: \"url(#{dataURL})\"\n\n$(\"html\").dropImageReader ({name, dataURL, file, event}) ->\n  $(\"body\").css\n    backgroundImage: \"url(#{dataURL})\"\n```\n\n## Contributing\n\n1. Fork it\n2. Create your feature branch (`git checkout -b my-new-feature`)\n3. Commit your changes (`git commit -am 'Added some feature'`)\n4. Push to the branch (`git push origin my-new-feature`)\n5. Create new Pull Request\n",
+              "type": "blob"
+            },
+            "drop.coffee.md": {
+              "path": "drop.coffee.md",
+              "mode": "100644",
+              "content": "Drop\n====\n\n    (($) ->\n      $.event.fix = ((originalFix) ->\n        (event) ->\n          event = originalFix.apply(this, arguments)\n\n          if event.type.indexOf('drag') == 0 || event.type.indexOf('drop') == 0\n            event.dataTransfer = event.originalEvent.dataTransfer\n\n          event\n\n      )($.event.fix)\n\n      defaults =\n        callback: $.noop\n        matchType: /image.*/\n\n      $.fn.dropImageReader = (options) ->\n        if typeof options == \"function\"\n          options =\n            callback: options\n\n        options = $.extend({}, defaults, options)\n\n        stopFn = (event) ->\n          event.stopPropagation()\n          event.preventDefault()\n\n        this.each ->\n          element = this\n          $this = $(this)\n\n          $this.bind 'dragenter dragover dragleave', stopFn\n\n          $this.bind 'drop', (event) ->\n            stopFn(event)\n\n            Array::forEach.call event.dataTransfer.files, (file) ->\n              return unless file.type.match(options.matchType)\n\n              reader = new FileReader()\n\n              reader.onload = (evt) ->\n                options.callback.call element,\n                  dataURL: evt.target.result\n                  event: evt\n                  file: file\n                  name: file.name\n\n              reader.readAsDataURL(file)\n\n    )(jQuery)\n",
+              "type": "blob"
+            },
+            "main.coffee.md": {
+              "path": "main.coffee.md",
+              "mode": "100644",
+              "content": "\n    require \"./paste\"\n    require \"./drop\"\n",
+              "type": "blob"
+            },
+            "paste.coffee.md": {
+              "path": "paste.coffee.md",
+              "mode": "100644",
+              "content": "Paste\n=====\n\n    (($) ->\n      $.event.fix = ((originalFix) ->\n        (event) ->\n          event = originalFix.apply(this, arguments)\n\n          if event.type.indexOf('copy') == 0 || event.type.indexOf('paste') == 0\n            event.clipboardData = event.originalEvent.clipboardData\n\n          return event\n\n      )($.event.fix)\n\n      defaults =\n        callback: $.noop\n        matchType: /image.*/\n\n      $.fn.pasteImageReader = (options) ->\n        if typeof options == \"function\"\n          options =\n            callback: options\n\n        options = $.extend({}, defaults, options)\n\n        @each ->\n          element = this\n          $this = $(this)\n\n          $this.bind 'paste', (event) ->\n            found = false\n            clipboardData = event.clipboardData\n\n            Array::forEach.call clipboardData.types, (type, i) ->\n              return if found\n\n              if type.match(options.matchType) or (clipboardData.items && clipboardData.items[i].type.match(options.matchType))\n                file = clipboardData.items[i].getAsFile()\n\n                reader = new FileReader()\n\n                reader.onload = (evt) ->\n                  options.callback.call element,\n                    dataURL: evt.target.result\n                    event: evt\n                    file: file\n                    name: file.name\n\n                reader.readAsDataURL(file)\n\n                found = true\n\n    )(jQuery)\n",
+              "type": "blob"
+            },
+            "pixie.cson": {
+              "path": "pixie.cson",
+              "mode": "100644",
+              "content": "version: \"0.2.0\"\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n]\n",
+              "type": "blob"
+            },
+            "test/image_reader.coffee": {
+              "path": "test/image_reader.coffee",
+              "mode": "100644",
+              "content": "require \"../main\"\n\n$(\"html\").pasteImageReader ({name, dataURL, file, event}) ->\n  $(\"body\").css\n    backgroundImage: \"url(#{dataURL})\"\n\n$(\"html\").dropImageReader ({name, dataURL, file, event}) ->\n  $(\"body\").css\n    backgroundImage: \"url(#{dataURL})\"\n",
+              "type": "blob"
+            }
+          },
+          "distribution": {
+            "drop": {
+              "path": "drop",
+              "content": "(function() {\n  (function($) {\n    var defaults;\n    $.event.fix = (function(originalFix) {\n      return function(event) {\n        event = originalFix.apply(this, arguments);\n        if (event.type.indexOf('drag') === 0 || event.type.indexOf('drop') === 0) {\n          event.dataTransfer = event.originalEvent.dataTransfer;\n        }\n        return event;\n      };\n    })($.event.fix);\n    defaults = {\n      callback: $.noop,\n      matchType: /image.*/\n    };\n    return $.fn.dropImageReader = function(options) {\n      var stopFn;\n      if (typeof options === \"function\") {\n        options = {\n          callback: options\n        };\n      }\n      options = $.extend({}, defaults, options);\n      stopFn = function(event) {\n        event.stopPropagation();\n        return event.preventDefault();\n      };\n      return this.each(function() {\n        var $this, element;\n        element = this;\n        $this = $(this);\n        $this.bind('dragenter dragover dragleave', stopFn);\n        return $this.bind('drop', function(event) {\n          stopFn(event);\n          return Array.prototype.forEach.call(event.dataTransfer.files, function(file) {\n            var reader;\n            if (!file.type.match(options.matchType)) {\n              return;\n            }\n            reader = new FileReader();\n            reader.onload = function(evt) {\n              return options.callback.call(element, {\n                dataURL: evt.target.result,\n                event: evt,\n                file: file,\n                name: file.name\n              });\n            };\n            return reader.readAsDataURL(file);\n          });\n        });\n      });\n    };\n  })(jQuery);\n\n}).call(this);\n\n//# sourceURL=drop.coffee",
+              "type": "blob"
+            },
+            "main": {
+              "path": "main",
+              "content": "(function() {\n  require(\"./paste\");\n\n  require(\"./drop\");\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+              "type": "blob"
+            },
+            "paste": {
+              "path": "paste",
+              "content": "(function() {\n  (function($) {\n    var defaults;\n    $.event.fix = (function(originalFix) {\n      return function(event) {\n        event = originalFix.apply(this, arguments);\n        if (event.type.indexOf('copy') === 0 || event.type.indexOf('paste') === 0) {\n          event.clipboardData = event.originalEvent.clipboardData;\n        }\n        return event;\n      };\n    })($.event.fix);\n    defaults = {\n      callback: $.noop,\n      matchType: /image.*/\n    };\n    return $.fn.pasteImageReader = function(options) {\n      if (typeof options === \"function\") {\n        options = {\n          callback: options\n        };\n      }\n      options = $.extend({}, defaults, options);\n      return this.each(function() {\n        var $this, element;\n        element = this;\n        $this = $(this);\n        return $this.bind('paste', function(event) {\n          var clipboardData, found;\n          found = false;\n          clipboardData = event.clipboardData;\n          return Array.prototype.forEach.call(clipboardData.types, function(type, i) {\n            var file, reader;\n            if (found) {\n              return;\n            }\n            if (type.match(options.matchType) || (clipboardData.items && clipboardData.items[i].type.match(options.matchType))) {\n              file = clipboardData.items[i].getAsFile();\n              reader = new FileReader();\n              reader.onload = function(evt) {\n                return options.callback.call(element, {\n                  dataURL: evt.target.result,\n                  event: evt,\n                  file: file,\n                  name: file.name\n                });\n              };\n              reader.readAsDataURL(file);\n              return found = true;\n            }\n          });\n        });\n      });\n    };\n  })(jQuery);\n\n}).call(this);\n\n//# sourceURL=paste.coffee",
+              "type": "blob"
+            },
+            "pixie": {
+              "path": "pixie",
+              "content": "module.exports = {\"version\":\"0.2.0\",\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\"]};",
+              "type": "blob"
+            },
+            "test/image_reader": {
+              "path": "test/image_reader",
+              "content": "(function() {\n  require(\"../main\");\n\n  $(\"html\").pasteImageReader(function(_arg) {\n    var dataURL, event, file, name;\n    name = _arg.name, dataURL = _arg.dataURL, file = _arg.file, event = _arg.event;\n    return $(\"body\").css({\n      backgroundImage: \"url(\" + dataURL + \")\"\n    });\n  });\n\n  $(\"html\").dropImageReader(function(_arg) {\n    var dataURL, event, file, name;\n    name = _arg.name, dataURL = _arg.dataURL, file = _arg.file, event = _arg.event;\n    return $(\"body\").css({\n      backgroundImage: \"url(\" + dataURL + \")\"\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/image_reader.coffee",
+              "type": "blob"
+            }
+          },
+          "progenitor": {
+            "url": "http://strd6.github.io/editor/"
+          },
+          "version": "0.2.0",
+          "entryPoint": "main",
+          "remoteDependencies": [
+            "//code.jquery.com/jquery-1.10.1.min.js"
+          ],
+          "repository": {
+            "id": 4527535,
+            "name": "jquery-image_reader",
+            "full_name": "distri/jquery-image_reader",
+            "owner": {
+              "login": "distri",
+              "id": 6005125,
+              "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+              "gravatar_id": null,
+              "url": "https://api.github.com/users/distri",
+              "html_url": "https://github.com/distri",
+              "followers_url": "https://api.github.com/users/distri/followers",
+              "following_url": "https://api.github.com/users/distri/following{/other_user}",
+              "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+              "organizations_url": "https://api.github.com/users/distri/orgs",
+              "repos_url": "https://api.github.com/users/distri/repos",
+              "events_url": "https://api.github.com/users/distri/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/distri/received_events",
+              "type": "Organization",
+              "site_admin": false
+            },
+            "private": false,
+            "html_url": "https://github.com/distri/jquery-image_reader",
+            "description": "Paste and Drop images into web apps",
+            "fork": false,
+            "url": "https://api.github.com/repos/distri/jquery-image_reader",
+            "forks_url": "https://api.github.com/repos/distri/jquery-image_reader/forks",
+            "keys_url": "https://api.github.com/repos/distri/jquery-image_reader/keys{/key_id}",
+            "collaborators_url": "https://api.github.com/repos/distri/jquery-image_reader/collaborators{/collaborator}",
+            "teams_url": "https://api.github.com/repos/distri/jquery-image_reader/teams",
+            "hooks_url": "https://api.github.com/repos/distri/jquery-image_reader/hooks",
+            "issue_events_url": "https://api.github.com/repos/distri/jquery-image_reader/issues/events{/number}",
+            "events_url": "https://api.github.com/repos/distri/jquery-image_reader/events",
+            "assignees_url": "https://api.github.com/repos/distri/jquery-image_reader/assignees{/user}",
+            "branches_url": "https://api.github.com/repos/distri/jquery-image_reader/branches{/branch}",
+            "tags_url": "https://api.github.com/repos/distri/jquery-image_reader/tags",
+            "blobs_url": "https://api.github.com/repos/distri/jquery-image_reader/git/blobs{/sha}",
+            "git_tags_url": "https://api.github.com/repos/distri/jquery-image_reader/git/tags{/sha}",
+            "git_refs_url": "https://api.github.com/repos/distri/jquery-image_reader/git/refs{/sha}",
+            "trees_url": "https://api.github.com/repos/distri/jquery-image_reader/git/trees{/sha}",
+            "statuses_url": "https://api.github.com/repos/distri/jquery-image_reader/statuses/{sha}",
+            "languages_url": "https://api.github.com/repos/distri/jquery-image_reader/languages",
+            "stargazers_url": "https://api.github.com/repos/distri/jquery-image_reader/stargazers",
+            "contributors_url": "https://api.github.com/repos/distri/jquery-image_reader/contributors",
+            "subscribers_url": "https://api.github.com/repos/distri/jquery-image_reader/subscribers",
+            "subscription_url": "https://api.github.com/repos/distri/jquery-image_reader/subscription",
+            "commits_url": "https://api.github.com/repos/distri/jquery-image_reader/commits{/sha}",
+            "git_commits_url": "https://api.github.com/repos/distri/jquery-image_reader/git/commits{/sha}",
+            "comments_url": "https://api.github.com/repos/distri/jquery-image_reader/comments{/number}",
+            "issue_comment_url": "https://api.github.com/repos/distri/jquery-image_reader/issues/comments/{number}",
+            "contents_url": "https://api.github.com/repos/distri/jquery-image_reader/contents/{+path}",
+            "compare_url": "https://api.github.com/repos/distri/jquery-image_reader/compare/{base}...{head}",
+            "merges_url": "https://api.github.com/repos/distri/jquery-image_reader/merges",
+            "archive_url": "https://api.github.com/repos/distri/jquery-image_reader/{archive_format}{/ref}",
+            "downloads_url": "https://api.github.com/repos/distri/jquery-image_reader/downloads",
+            "issues_url": "https://api.github.com/repos/distri/jquery-image_reader/issues{/number}",
+            "pulls_url": "https://api.github.com/repos/distri/jquery-image_reader/pulls{/number}",
+            "milestones_url": "https://api.github.com/repos/distri/jquery-image_reader/milestones{/number}",
+            "notifications_url": "https://api.github.com/repos/distri/jquery-image_reader/notifications{?since,all,participating}",
+            "labels_url": "https://api.github.com/repos/distri/jquery-image_reader/labels{/name}",
+            "releases_url": "https://api.github.com/repos/distri/jquery-image_reader/releases{/id}",
+            "created_at": "2012-06-02T07:12:27Z",
+            "updated_at": "2013-11-29T21:02:52Z",
+            "pushed_at": "2013-10-30T15:54:19Z",
+            "git_url": "git://github.com/distri/jquery-image_reader.git",
+            "ssh_url": "git@github.com:distri/jquery-image_reader.git",
+            "clone_url": "https://github.com/distri/jquery-image_reader.git",
+            "svn_url": "https://github.com/distri/jquery-image_reader",
+            "homepage": null,
+            "size": 142,
+            "stargazers_count": 5,
+            "watchers_count": 5,
+            "language": "CoffeeScript",
+            "has_issues": true,
+            "has_downloads": true,
+            "has_wiki": true,
+            "forks_count": 1,
+            "mirror_url": null,
+            "open_issues_count": 0,
+            "forks": 1,
+            "open_issues": 0,
+            "watchers": 5,
+            "default_branch": "master",
+            "master_branch": "master",
+            "permissions": {
+              "admin": true,
+              "push": true,
+              "pull": true
+            },
+            "organization": {
+              "login": "distri",
+              "id": 6005125,
+              "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+              "gravatar_id": null,
+              "url": "https://api.github.com/users/distri",
+              "html_url": "https://github.com/distri",
+              "followers_url": "https://api.github.com/users/distri/followers",
+              "following_url": "https://api.github.com/users/distri/following{/other_user}",
+              "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+              "organizations_url": "https://api.github.com/users/distri/orgs",
+              "repos_url": "https://api.github.com/users/distri/repos",
+              "events_url": "https://api.github.com/users/distri/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/distri/received_events",
+              "type": "Organization",
+              "site_admin": false
+            },
+            "network_count": 1,
+            "subscribers_count": 1,
+            "branch": "v0.2.0",
+            "defaultBranch": "master"
+          },
+          "dependencies": {}
+        }
+      }
+    },
     "touch-canvas": {
       "source": {
         "LICENSE": {

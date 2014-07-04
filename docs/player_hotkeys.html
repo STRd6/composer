@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>player_view</title>
+  <title>player_hotkeys</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="player-view">Player View</h1>
+              <h1 id="hotkeys">Hotkeys</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -35,62 +35,9 @@
               
             </div>
             <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
-  Canvas = require <span class="string">"touch-canvas"</span>
+  self.include require <span class="string">"hotkeys"</span>
 
-  canvas = Canvas()
-
-  canvas.<span class="literal">on</span> <span class="string">"touch"</span>, ({x, y}) -&gt;
-    <span class="comment"># Add Note to Score</span>
-    instrument = <span class="number">0</span>
-
-    <span class="comment"># TODO: Quantize</span>
-    time = x
-    note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span>
-
-    self.addNote [time, note, instrument]
-
-    self.playNote instrument, note
-
-  <span class="function"><span class="title">handleResize</span></span> =  -&gt;
-    canvas.width(window.innerWidth)
-    canvas.height(window.innerHeight)
-
-  handleResize()
-  window.addEventListener <span class="string">"resize"</span>, handleResize, <span class="literal">false</span>
-
-  document.body.appendChild canvas.element()
-
-  <span class="function"><span class="title">paint</span></span> = -&gt;
-    canvas.fill <span class="string">"white"</span>
-
-    [<span class="number">1.</span><span class="number">.25</span>].forEach (i) -&gt;
-      canvas.drawRect
-        x: <span class="number">0</span>
-        y: i * canvas.height()/<span class="number">25</span>
-        width: canvas.width()
-        height: <span class="number">1</span>
-        color: <span class="string">"rgba(0, 0, 0, 0.25)"</span>
-
-    <span class="comment"># Draw notes</span>
-    self.notes().forEach ([time, note, instrument]) -&gt;
-      canvas.drawRect
-        x: time * canvas.width() - <span class="number">12</span>
-        y: (<span class="number">24</span> - note) * canvas.height() / <span class="number">25</span>
-        width: <span class="number">25</span>
-        height: <span class="number">25</span>
-        color: <span class="string">"black"</span>
-
-    <span class="comment"># Draw cursor</span>
-    canvas.drawRect
-      x: self.playTime() * canvas.width()
-      y: <span class="number">0</span>
-      width: <span class="number">1</span>
-      height: canvas.height()
-      color: <span class="string">"#F0F"</span>
-
-    requestAnimationFrame(paint)
-
-  paint()</code></pre>
+  self.addHotkey <span class="string">"space"</span>, <span class="string">"play"</span></code></pre>
 </div>
         </li>
         

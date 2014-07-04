@@ -38,6 +38,8 @@
             <div class="content"><pre><code class="lang-coffeescript">AudioContext = window.AudioContext <span class="keyword">or</span> window.webkitAudioContext
 BufferLoader = require(<span class="string">"./lib/buffer_loader"</span>)
 
+{extend} = require <span class="string">"util"</span>
+
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
   context = <span class="keyword">new</span> AudioContext()
   window.bufferLoader = <span class="keyword">new</span> BufferLoader(context)
@@ -46,24 +48,30 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     load: (urls, callback) -&gt;
       bufferLoader.load urls, callback
 
-    playNote: (index, rate=<span class="number">1</span>,  time=<span class="number">0</span>) -&gt;
+    playNote: (index, note=<span class="number">0</span>,  time=<span class="number">0</span>) -&gt;
+      rate = Math.pow <span class="number">2</span>, note / <span class="number">12</span>
+
       source = context.createBufferSource()
       source.buffer = bufferLoader.bufferList[index]
       source.connect(context.destination)
-      source.start(time)
+      source.start(time + context.currentTime)
       source.playbackRate.value = rate
 
     include: (module) -&gt;
       module(I, self)
 
-      <span class="keyword">return</span> self</code></pre>
+      <span class="keyword">return</span> self
+
+    extend: (args...) -&gt;
+      extend self, args...</code></pre>
 </div>
         </li>
         
     </ul>
   </div>
   <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script><script>
   (function() {
   var ErrorReporter, bindUpdates, createEditor, exec, findInteractiveElements, readShebang, runners;
 
