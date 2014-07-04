@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>player</title>
+  <title>player_view</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="player">Player</h1>
+              <h1 id="player-view">Player View</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,31 +32,65 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Super simple Audio player based on <a href="http://www.html5rocks.com/en/tutorials/webaudio/intro/">http://www.html5rocks.com/en/tutorials/webaudio/intro/</a></p>
-
+              
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">AudioContext = window.AudioContext <span class="keyword">or</span> window.webkitAudioContext
-BufferLoader = require(<span class="string">"./lib/buffer_loader"</span>)
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
+  Canvas = require <span class="string">"touch-canvas"</span>
 
-module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
-  context = <span class="keyword">new</span> AudioContext()
-  window.bufferLoader = <span class="keyword">new</span> BufferLoader(context)
+  canvas = Canvas()
 
-  self =
-    load: (urls, callback) -&gt;
-      bufferLoader.load urls, callback
+  canvas.<span class="literal">on</span> <span class="string">"touch"</span>, ({x, y}) -&gt;
+    <span class="comment"># Add Note to Score</span>
+    instrument = <span class="number">0</span>
 
-    playNote: (index, rate=<span class="number">1</span>,  time=<span class="number">0</span>) -&gt;
-      source = context.createBufferSource()
-      source.buffer = bufferLoader.bufferList[index]
-      source.connect(context.destination)
-      source.start(time)
-      source.playbackRate.value = rate
+    <span class="comment"># TODO: Quantize</span>
+    time = x
+    note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span>
 
-    include: (module) -&gt;
-      module(I, self)
+    self.addNote [time, note, instrument]
 
-      <span class="keyword">return</span> self</code></pre>
+    rate = Math.pow <span class="number">2</span>, note / <span class="number">12</span>
+
+    self.playNote instrument, rate
+
+  <span class="function"><span class="title">handleResize</span></span> =  -&gt;
+    canvas.width(window.innerWidth)
+    canvas.height(window.innerHeight)
+
+  handleResize()
+  window.addEventListener <span class="string">"resize"</span>, handleResize, <span class="literal">false</span>
+
+  document.body.appendChild canvas.element()
+
+  <span class="function"><span class="title">paint</span></span> = -&gt;
+    [<span class="number">1.</span><span class="number">.25</span>].forEach (i) -&gt;
+      canvas.drawRect
+        x: <span class="number">0</span>
+        y: i * canvas.height()/<span class="number">25</span>
+        width: canvas.width()
+        height: <span class="number">1</span>
+        color: <span class="string">"rgba(0, 0, 0, 0.25)"</span>
+
+    <span class="comment"># Draw notes</span>
+    self.notes().forEach ([time, note, instrument]) -&gt;
+      canvas.drawRect
+        x: time * canvas.width() - <span class="number">12</span>
+        y: (<span class="number">24</span> - note) * canvas.height() / <span class="number">25</span>
+        width: <span class="number">25</span>
+        height: <span class="number">25</span>
+        color: <span class="string">"black"</span>
+
+    <span class="comment"># Draw cursor</span>
+    canvas.drawRect
+      x: self.playTime()
+      y: <span class="number">0</span>
+      width: <span class="number">1</span>
+      height: canvas.height()
+      color: <span class="string">"#F0F"</span>
+
+    requestAnimationFrame(paint)
+
+  paint()</code></pre>
 </div>
         </li>
         

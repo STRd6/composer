@@ -178,41 +178,62 @@
       "mode": "100644",
       "type": "blob"
     },
-    "main.coffee.md": {
-      "path": "main.coffee.md",
-      "content": "Composer\n========\n\n\nCompose music on the internets?\n    {applyStylesheet} = require \"util\"\n\n    applyStylesheet require \"./style\"\n\n    player = require(\"./player\")()\n\n    sounds = [1..16].map (n) ->\n      \"http://addressable.s3.amazonaws.com/mpc/musicnote#{n}.wav\"\n\n    player.load sounds, ->\n      console.log \"Loaded!\"\n\n    Canvas = require \"touch-canvas\"\n\n    canvas = Canvas()\n\n    canvas.on \"touch\", (p) ->\n      instrument = Math.floor p.x * 16\n      note = Math.floor (1 - p.y) * 25\n\n      rate = Math.pow 2, note / 12\n\n      player.play instrument, rate\n\n    handleResize =  ->\n      canvas.width(window.innerWidth)\n      canvas.height(window.innerHeight)\n  \n    handleResize()\n    window.addEventListener \"resize\", handleResize, false\n\n    document.body.appendChild canvas.element()\n\n    paint = ->\n      width = canvas.width()/16\n      hue = 0\n\n      canvas.drawRect\n        x: 0\n        y: 0\n        width: width\n        height: canvas.height()\n        color: \"hsl(#{hue}, 75%, 50%)\"\n\n      [1..15].forEach (i) ->\n        \n        hue = Math.floor(i / 16 * 360)\n\n        canvas.drawRect\n          x: i * width\n          y: 0\n          width: width\n          height: canvas.height()\n          color: \"hsl(#{hue}, 75%, 50%)\"\n\n        canvas.drawRect\n          x: i * width\n          y: 0\n          width: 1\n          height: canvas.height()\n          color: \"rgba(0, 0, 0, 0.25)\"\n\n      [1..25].forEach (i) ->\n        canvas.drawRect\n          x: 0\n          y: i * canvas.height()/25\n          width: canvas.width()\n          height: 1\n          color: \"rgba(0, 0, 0, 0.25)\"\n\n      # Draw notes\n      # Draw cursor\n\n      requestAnimationFrame(paint)\n\n    paint()\n",
-      "mode": "100644"
-    },
-    "pixie.cson": {
-      "path": "pixie.cson",
-      "content": "version: \"0.1.0\"\ndependencies:\n  \"touch-canvas\": \"distri/touch-canvas:v0.3.1\"\n  util: \"distri/util:v0.1.0\"\n",
-      "mode": "100644"
-    },
-    "player.coffee.md": {
-      "path": "player.coffee.md",
-      "content": "Player\n======\n\nSuper simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/\n\n    AudioContext = window.AudioContext or window.webkitAudioContext\n    BufferLoader = require(\"./lib/buffer_loader\")\n\n    module.exports = ->\n      context = new AudioContext()\n      window.bufferLoader = new BufferLoader(context)\n\n      load: (urls, callback) ->\n        bufferLoader.load urls, callback\n\n      play: (index, rate=1,  time=0) ->\n        source = context.createBufferSource()\n        source.buffer = bufferLoader.bufferList[index]\n        source.connect(context.destination)\n        source.start(time)\n        source.playbackRate.value = rate\n",
-      "mode": "100644"
+    "TODO.md": {
+      "path": "TODO.md",
+      "content": "TODO\n====\n\nSpecify additional resources to add to the cache manifest.\n\n",
+      "mode": "100644",
+      "type": "blob"
     },
     "lib/buffer_loader.js": {
       "path": "lib/buffer_loader.js",
       "content": "function BufferLoader(context) {\n  this.context = context;\n  this.bufferList = [];\n  this.loadCount = 0;\n}\n\nBufferLoader.prototype.loadBuffer = function(url, index) {\n  // Load buffer asynchronously\n  var request = new XMLHttpRequest();\n  request.open(\"GET\", url, true);\n  request.responseType = \"arraybuffer\";\n\n  var loader = this;\n\n  request.onload = function() {\n    // Asynchronously decode the audio file data in request.response\n    loader.context.decodeAudioData(\n      request.response,\n      function(buffer) {\n        if (!buffer) {\n          alert('error decoding file data: ' + url);\n          return;\n        }\n        loader.bufferList[index] = buffer;\n        if (++loader.loadCount == loader.urlList.length)\n          loader.onload(loader.bufferList);\n      },\n      function(error) {\n        console.error('decodeAudioData error', error);\n      }\n    );\n  }\n\n  request.onerror = function() {\n    alert('BufferLoader: XHR error');\n  }\n\n  request.send();\n}\n\nBufferLoader.prototype.load = function(urlList, callback) {\n  this.onload = callback;\n  this.urlList = urlList;\n\n  for (var i = 0; i < this.urlList.length; ++i) {\n    this.loadBuffer(this.urlList[i], i);\n  }\n}\n\nmodule.exports = BufferLoader\n",
-      "mode": "100644"
+      "mode": "100644",
+      "type": "blob"
+    },
+    "main.coffee.md": {
+      "path": "main.coffee.md",
+      "content": "Composer\n========\n\n\nCompose music on the internets?\n    {applyStylesheet} = require \"util\"\n\n    applyStylesheet require \"./style\"\n\n    player = require(\"./player\")()\n\n    sounds = [1..16].map (n) ->\n      \"http://addressable.s3.amazonaws.com/mpc/musicnote#{n}.wav\"\n\n    player.load sounds, ->\n      console.log \"Loaded!\"\n\n    player.include require \"./player_score\"\n    player.include require \"./player_view\"\n",
+      "mode": "100644",
+      "type": "blob"
+    },
+    "pixie.cson": {
+      "path": "pixie.cson",
+      "content": "version: \"0.1.0\"\ndependencies:\n  \"touch-canvas\": \"distri/touch-canvas:v0.3.1\"\n  util: \"distri/util:v0.1.0\"\n",
+      "mode": "100644",
+      "type": "blob"
+    },
+    "player.coffee.md": {
+      "path": "player.coffee.md",
+      "content": "Player\n======\n\nSuper simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/\n\n    AudioContext = window.AudioContext or window.webkitAudioContext\n    BufferLoader = require(\"./lib/buffer_loader\")\n\n    module.exports = (I, self) ->\n      context = new AudioContext()\n      window.bufferLoader = new BufferLoader(context)\n\n      self =\n        load: (urls, callback) ->\n          bufferLoader.load urls, callback\n  \n        playNote: (index, rate=1,  time=0) ->\n          source = context.createBufferSource()\n          source.buffer = bufferLoader.bufferList[index]\n          source.connect(context.destination)\n          source.start(time)\n          source.playbackRate.value = rate\n  \n        include: (module) ->\n          module(I, self)\n  \n          return self\n",
+      "mode": "100644",
+      "type": "blob"
     },
     "style.styl": {
       "path": "style.styl",
       "content": "html, body\n  height: 100%\n\nbody\n  margin: 0\n  overflow: hidden\n",
+      "mode": "100644",
+      "type": "blob"
+    },
+    "player_view.coffee.md": {
+      "path": "player_view.coffee.md",
+      "content": "Player View\n===========\n\n    module.exports = (I, self) ->\n      Canvas = require \"touch-canvas\"\n  \n      canvas = Canvas()\n  \n      canvas.on \"touch\", ({x, y}) ->\n        # Add Note to Score\n        instrument = 0\n\n        # TODO: Quantize\n        time = x\n        note = Math.floor (1 - y) * 25\n        \n        self.addNote [time, note, instrument]\n\n        rate = Math.pow 2, note / 12\n\n        self.playNote instrument, rate\n  \n      handleResize =  ->\n        canvas.width(window.innerWidth)\n        canvas.height(window.innerHeight)\n\n      handleResize()\n      window.addEventListener \"resize\", handleResize, false\n\n      document.body.appendChild canvas.element()\n\n      paint = ->\n        [1..25].forEach (i) ->\n          canvas.drawRect\n            x: 0\n            y: i * canvas.height()/25\n            width: canvas.width()\n            height: 1\n            color: \"rgba(0, 0, 0, 0.25)\"\n\n        # Draw notes\n        self.notes().forEach ([time, note, instrument]) ->\n          canvas.drawRect\n            x: time * canvas.width() - 12\n            y: (24 - note) * canvas.height() / 25\n            width: 25\n            height: 25\n            color: \"black\"\n\n        # Draw cursor\n        canvas.drawRect\n          x: self.playTime()\n          y: 0\n          width: 1\n          height: canvas.height()\n          color: \"#F0F\"\n\n        requestAnimationFrame(paint)\n  \n      paint()",
       "mode": "100644"
     },
-    "TODO.md": {
-      "path": "TODO.md",
-      "content": "TODO\n====\n\nSpecify additional resources to add to the cache manifest.\n\n",
+    "player_score.coffee.md": {
+      "path": "player_score.coffee.md",
+      "content": "Player Score\n============\n\n    {extend} = require \"util\"\n\n    module.exports = (I, self) ->\n      notes = []\n      \n      debugger\n\n      extend self,\n        addNote: (note) ->\n          notes.push(note)\n\n        notes: ->\n          notes\n\n        playTime: ->\n          0.5\n",
       "mode": "100644"
     }
   },
   "distribution": {
+    "lib/buffer_loader": {
+      "path": "lib/buffer_loader",
+      "content": "function BufferLoader(context) {\n  this.context = context;\n  this.bufferList = [];\n  this.loadCount = 0;\n}\n\nBufferLoader.prototype.loadBuffer = function(url, index) {\n  // Load buffer asynchronously\n  var request = new XMLHttpRequest();\n  request.open(\"GET\", url, true);\n  request.responseType = \"arraybuffer\";\n\n  var loader = this;\n\n  request.onload = function() {\n    // Asynchronously decode the audio file data in request.response\n    loader.context.decodeAudioData(\n      request.response,\n      function(buffer) {\n        if (!buffer) {\n          alert('error decoding file data: ' + url);\n          return;\n        }\n        loader.bufferList[index] = buffer;\n        if (++loader.loadCount == loader.urlList.length)\n          loader.onload(loader.bufferList);\n      },\n      function(error) {\n        console.error('decodeAudioData error', error);\n      }\n    );\n  }\n\n  request.onerror = function() {\n    alert('BufferLoader: XHR error');\n  }\n\n  request.send();\n}\n\nBufferLoader.prototype.load = function(urlList, callback) {\n  this.onload = callback;\n  this.urlList = urlList;\n\n  for (var i = 0; i < this.urlList.length; ++i) {\n    this.loadBuffer(this.urlList[i], i);\n  }\n}\n\nmodule.exports = BufferLoader\n",
+      "type": "blob"
+    },
     "main": {
       "path": "main",
-      "content": "(function() {\n  var Canvas, applyStylesheet, canvas, handleResize, paint, player, sounds;\n\n  applyStylesheet = require(\"util\").applyStylesheet;\n\n  applyStylesheet(require(\"./style\"));\n\n  player = require(\"./player\")();\n\n  sounds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(function(n) {\n    return \"http://addressable.s3.amazonaws.com/mpc/musicnote\" + n + \".wav\";\n  });\n\n  player.load(sounds, function() {\n    return console.log(\"Loaded!\");\n  });\n\n  Canvas = require(\"touch-canvas\");\n\n  canvas = Canvas();\n\n  canvas.on(\"touch\", function(p) {\n    var instrument, note, rate;\n    instrument = Math.floor(p.x * 16);\n    note = Math.floor((1 - p.y) * 25);\n    rate = Math.pow(2, note / 12);\n    return player.play(instrument, rate);\n  });\n\n  handleResize = function() {\n    canvas.width(window.innerWidth);\n    return canvas.height(window.innerHeight);\n  };\n\n  handleResize();\n\n  window.addEventListener(\"resize\", handleResize, false);\n\n  document.body.appendChild(canvas.element());\n\n  paint = function() {\n    var hue, width, _i, _results;\n    width = canvas.width() / 16;\n    hue = 0;\n    canvas.drawRect({\n      x: 0,\n      y: 0,\n      width: width,\n      height: canvas.height(),\n      color: \"hsl(\" + hue + \", 75%, 50%)\"\n    });\n    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].forEach(function(i) {\n      hue = Math.floor(i / 16 * 360);\n      canvas.drawRect({\n        x: i * width,\n        y: 0,\n        width: width,\n        height: canvas.height(),\n        color: \"hsl(\" + hue + \", 75%, 50%)\"\n      });\n      return canvas.drawRect({\n        x: i * width,\n        y: 0,\n        width: 1,\n        height: canvas.height(),\n        color: \"rgba(0, 0, 0, 0.25)\"\n      });\n    });\n    (function() {\n      _results = [];\n      for (_i = 1; _i <= 25; _i++){ _results.push(_i); }\n      return _results;\n    }).apply(this).forEach(function(i) {\n      return canvas.drawRect({\n        x: 0,\n        y: i * canvas.height() / 25,\n        width: canvas.width(),\n        height: 1,\n        color: \"rgba(0, 0, 0, 0.25)\"\n      });\n    });\n    return requestAnimationFrame(paint);\n  };\n\n  paint();\n\n}).call(this);\n",
+      "content": "(function() {\n  var applyStylesheet, player, sounds;\n\n  applyStylesheet = require(\"util\").applyStylesheet;\n\n  applyStylesheet(require(\"./style\"));\n\n  player = require(\"./player\")();\n\n  sounds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(function(n) {\n    return \"http://addressable.s3.amazonaws.com/mpc/musicnote\" + n + \".wav\";\n  });\n\n  player.load(sounds, function() {\n    return console.log(\"Loaded!\");\n  });\n\n  player.include(require(\"./player_score\"));\n\n  player.include(require(\"./player_view\"));\n\n}).call(this);\n",
       "type": "blob"
     },
     "pixie": {
@@ -222,17 +243,22 @@
     },
     "player": {
       "path": "player",
-      "content": "(function() {\n  var AudioContext, BufferLoader;\n\n  AudioContext = window.AudioContext || window.webkitAudioContext;\n\n  BufferLoader = require(\"./lib/buffer_loader\");\n\n  module.exports = function() {\n    var context;\n    context = new AudioContext();\n    window.bufferLoader = new BufferLoader(context);\n    return {\n      load: function(urls, callback) {\n        return bufferLoader.load(urls, callback);\n      },\n      play: function(index, rate, time) {\n        var source;\n        if (rate == null) {\n          rate = 1;\n        }\n        if (time == null) {\n          time = 0;\n        }\n        source = context.createBufferSource();\n        source.buffer = bufferLoader.bufferList[index];\n        source.connect(context.destination);\n        source.start(time);\n        return source.playbackRate.value = rate;\n      }\n    };\n  };\n\n}).call(this);\n",
-      "type": "blob"
-    },
-    "lib/buffer_loader": {
-      "path": "lib/buffer_loader",
-      "content": "function BufferLoader(context) {\n  this.context = context;\n  this.bufferList = [];\n  this.loadCount = 0;\n}\n\nBufferLoader.prototype.loadBuffer = function(url, index) {\n  // Load buffer asynchronously\n  var request = new XMLHttpRequest();\n  request.open(\"GET\", url, true);\n  request.responseType = \"arraybuffer\";\n\n  var loader = this;\n\n  request.onload = function() {\n    // Asynchronously decode the audio file data in request.response\n    loader.context.decodeAudioData(\n      request.response,\n      function(buffer) {\n        if (!buffer) {\n          alert('error decoding file data: ' + url);\n          return;\n        }\n        loader.bufferList[index] = buffer;\n        if (++loader.loadCount == loader.urlList.length)\n          loader.onload(loader.bufferList);\n      },\n      function(error) {\n        console.error('decodeAudioData error', error);\n      }\n    );\n  }\n\n  request.onerror = function() {\n    alert('BufferLoader: XHR error');\n  }\n\n  request.send();\n}\n\nBufferLoader.prototype.load = function(urlList, callback) {\n  this.onload = callback;\n  this.urlList = urlList;\n\n  for (var i = 0; i < this.urlList.length; ++i) {\n    this.loadBuffer(this.urlList[i], i);\n  }\n}\n\nmodule.exports = BufferLoader\n",
+      "content": "(function() {\n  var AudioContext, BufferLoader;\n\n  AudioContext = window.AudioContext || window.webkitAudioContext;\n\n  BufferLoader = require(\"./lib/buffer_loader\");\n\n  module.exports = function(I, self) {\n    var context;\n    context = new AudioContext();\n    window.bufferLoader = new BufferLoader(context);\n    return self = {\n      load: function(urls, callback) {\n        return bufferLoader.load(urls, callback);\n      },\n      playNote: function(index, rate, time) {\n        var source;\n        if (rate == null) {\n          rate = 1;\n        }\n        if (time == null) {\n          time = 0;\n        }\n        source = context.createBufferSource();\n        source.buffer = bufferLoader.bufferList[index];\n        source.connect(context.destination);\n        source.start(time);\n        return source.playbackRate.value = rate;\n      },\n      include: function(module) {\n        module(I, self);\n        return self;\n      }\n    };\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "style": {
       "path": "style",
       "content": "module.exports = \"html,\\nbody {\\n  height: 100%;\\n}\\n\\nbody {\\n  margin: 0;\\n  overflow: hidden;\\n}\";",
+      "type": "blob"
+    },
+    "player_view": {
+      "path": "player_view",
+      "content": "(function() {\n  module.exports = function(I, self) {\n    var Canvas, canvas, handleResize, paint;\n    Canvas = require(\"touch-canvas\");\n    canvas = Canvas();\n    canvas.on(\"touch\", function(_arg) {\n      var instrument, note, rate, time, x, y;\n      x = _arg.x, y = _arg.y;\n      instrument = 0;\n      time = x;\n      note = Math.floor((1 - y) * 25);\n      self.addNote([time, note, instrument]);\n      rate = Math.pow(2, note / 12);\n      return self.playNote(instrument, rate);\n    });\n    handleResize = function() {\n      canvas.width(window.innerWidth);\n      return canvas.height(window.innerHeight);\n    };\n    handleResize();\n    window.addEventListener(\"resize\", handleResize, false);\n    document.body.appendChild(canvas.element());\n    paint = function() {\n      var _i, _results;\n      (function() {\n        _results = [];\n        for (_i = 1; _i <= 25; _i++){ _results.push(_i); }\n        return _results;\n      }).apply(this).forEach(function(i) {\n        return canvas.drawRect({\n          x: 0,\n          y: i * canvas.height() / 25,\n          width: canvas.width(),\n          height: 1,\n          color: \"rgba(0, 0, 0, 0.25)\"\n        });\n      });\n      self.notes().forEach(function(_arg) {\n        var instrument, note, time;\n        time = _arg[0], note = _arg[1], instrument = _arg[2];\n        return canvas.drawRect({\n          x: time * canvas.width() - 12,\n          y: (24 - note) * canvas.height() / 25,\n          width: 25,\n          height: 25,\n          color: \"black\"\n        });\n      });\n      canvas.drawRect({\n        x: self.playTime(),\n        y: 0,\n        width: 1,\n        height: canvas.height(),\n        color: \"#F0F\"\n      });\n      return requestAnimationFrame(paint);\n    };\n    return paint();\n  };\n\n}).call(this);\n",
+      "type": "blob"
+    },
+    "player_score": {
+      "path": "player_score",
+      "content": "(function() {\n  var extend;\n\n  extend = require(\"util\").extend;\n\n  module.exports = function(I, self) {\n    var notes;\n    notes = [];\n    debugger;\n    return extend(self, {\n      addNote: function(note) {\n        return notes.push(note);\n      },\n      notes: function() {\n        return notes;\n      },\n      playTime: function() {\n        return 0.5;\n      }\n    });\n  };\n\n}).call(this);\n",
       "type": "blob"
     }
   },
