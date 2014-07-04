@@ -1,4 +1,9 @@
 version: "0.1.0"
+remoteDependencies: [
+  "https://code.jquery.com/jquery-1.11.0.min.js"
+]
 dependencies:
+  "hotkeys": "distri/hotkeys:v0.2.0"
+  "jquery-utils": "distri/jquery-utils:v0.2.0"
   "touch-canvas": "distri/touch-canvas:v0.3.1"
   util: "distri/util:v0.1.0"

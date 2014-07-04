@@ -1,6 +1,7 @@
 Composer
 ========
 
+    require "jquery-utils"
 
 Compose music on the internets?
     {applyStylesheet} = require "util"
@@ -17,3 +18,4 @@ Compose music on the internets?
 
     player.include require "./player_score"
     player.include require "./player_view"
+    player.include require "./player_hotkeys"

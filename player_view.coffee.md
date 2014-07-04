@@ -16,9 +16,7 @@ Player View
         
         self.addNote [time, note, instrument]
 
-        rate = Math.pow 2, note / 12
-
-        self.playNote instrument, rate
+        self.playNote instrument, note
   
       handleResize =  ->
         canvas.width(window.innerWidth)
@@ -30,6 +28,8 @@ Player View
       document.body.appendChild canvas.element()
 
       paint = ->
+        canvas.fill "white"
+
         [1..25].forEach (i) ->
           canvas.drawRect
             x: 0
@@ -49,7 +49,7 @@ Player View
 
         # Draw cursor
         canvas.drawRect
-          x: self.playTime()
+          x: self.playTime() * canvas.width()
           y: 0
           width: 1
           height: canvas.height()
