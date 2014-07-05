@@ -13,12 +13,8 @@ Player View
 
       img
 
-    module.exports = (I, self) ->
-      Canvas = require "touch-canvas"
-
-      canvas = Canvas()
-
-      canvas.on "touch", ({x, y}) ->
+    tools = [
+      (editor, {x, y}) ->
         # Add Note to Score
         instrument = 0
 
@@ -26,10 +22,26 @@ Player View
         time = quantize(x, 8)
         note = Math.floor (1 - y) * 25
 
-        self.addNote [time, note, instrument]
+        editor.addNote [time, note, instrument]
 
-        self.playNote instrument, note
-  
+        editor.playNote instrument, note
+      (editor, {x, y}) ->
+        time = quantize(x, 8)
+        note = Math.floor (1 - y) * 25
+
+        editor.removeNote [time, note]
+        
+        # TODO: Play remove sound
+    ]
+
+    module.exports = (I, self) ->
+      Canvas = require "touch-canvas"
+
+      canvas = Canvas()
+
+      canvas.on "touch", (p) ->
+        self.activeTool()(self, p)
+
       handleResize =  ->
         canvas.width(window.innerWidth)
         canvas.height(window.innerHeight)
@@ -75,3 +87,10 @@ Player View
         requestAnimationFrame(paint)
   
       paint()
+
+      self.extend
+        activeTool: ->
+          tools[0]
+          
+        activeInstrument: ->
+          0

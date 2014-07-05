@@ -32,6 +32,13 @@ Player Score
         addNote: (note) ->
           notes.push(note)
 
+        removeNote: ([time, note]) ->
+          # TODO: Some leeway to pick nearby note
+          matched = notes.filter ([t, n]) ->
+            time is t and note is n
+
+          remove notes, matched[0]
+
         notes: ->
           notes
 
@@ -40,3 +47,12 @@ Player Score
 
         play: ->
           playing = !playing
+
+Helpers
+-------
+
+    remove = (array, value) ->
+      index = array.indexOf(value)
+
+      if index >= 0
+        @splice(index, 1)[0]
