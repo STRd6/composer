@@ -56,6 +56,8 @@ applyStylesheet require <span class="string">"./style"</span>
 player = require(<span class="string">"./player"</span>)()
 
 sounds = [<span class="number">1.</span><span class="number">.16</span>].map (n) -&gt;
+  n = <span class="number">11</span> <span class="keyword">if</span> n <span class="keyword">is</span> <span class="number">7</span>
+
   <span class="string">"http://addressable.s3.amazonaws.com/mpc/musicnote<span class="subst">#{n}</span>.wav"</span>
 
 player.load sounds, -&gt;
