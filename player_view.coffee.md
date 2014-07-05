@@ -1,10 +1,6 @@
 Player View
 ===========
 
-    quantize = (x, n) ->
-      (((x + 1/(2*n)) * n)|0)/n
-      
-
     images = [
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAgCAYAAACYTcH3AAABeElEQVRYR+2XMU4DMRBF7RtEoky7J8iSLiIlDR1HoIMT5AQ5QdLlCOloUoLSQTjBtpRI3AD4K0006/V4xxuvguS4WmntmTffM2Pb/vwN80+GvcAIO9GpjLX2pE2MyYIWDDmHEXxP3lYnwXxMnwzZgqEQXAMGzu8/N2Y7fjgaSAnDbfsiVMMgwphBQXBlksDAYFVVMSymKIp6i/OAQbRdCtGcZMpgP5DEGCS1C8HBfJAcBnaQL2RXqihvafOFEgwMwyGGTy0OowGBHW/T4yUegglltAtD7SK0RuzA1Px4icaUk7tO04mDx0HKDqwJRA0jNb2uDk19JimMxphvTt4wh+tHU76vveLloczh6tmUX3di+sxHr+bl+6bxfxBlAELDBdrNFvWv2/2yBToIDLxIypwFpk95D6bM2WH6ALhrNOeSeGpLAO6Fnc8L/dMG1Plu0jrMD8Z9UUrPDa4MV1ObL6qcISfcge/Wpp3X66ZHi6S3thuxdl4I5hcgNeqwgiRFxgAAAABJRU5ErkJggg=="
     ].map (src) ->
@@ -12,27 +8,6 @@ Player View
       img.src = src
 
       img
-
-    tools = [
-      (editor, {x, y}) ->
-        # Add Note to Score
-        instrument = 0
-
-        # Quantize
-        time = quantize(x, 8)
-        note = Math.floor (1 - y) * 25
-
-        editor.addNote [time, note, instrument]
-
-        editor.playNote instrument, note
-      (editor, {x, y}) ->
-        time = quantize(x, 8)
-        note = Math.floor (1 - y) * 25
-
-        editor.removeNote [time, note]
-        
-        # TODO: Play remove sound
-    ]
 
     module.exports = (I, self) ->
       Canvas = require "touch-canvas"
@@ -87,10 +62,3 @@ Player View
         requestAnimationFrame(paint)
   
       paint()
-
-      self.extend
-        activeTool: ->
-          tools[0]
-          
-        activeInstrument: ->
-          0
