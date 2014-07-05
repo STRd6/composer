@@ -14,7 +14,6 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
       self.extend
         load: (urls, callback) ->
-          console.log "Loading..."
           bufferLoader.load urls, callback
 
         playNote: (index, note=0,  time=0) ->
