@@ -46,12 +46,8 @@ images = [
 
   img
 
-module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
-  Canvas = require <span class="string">"touch-canvas"</span>
-
-  canvas = Canvas()
-
-  canvas.<span class="literal">on</span> <span class="string">"touch"</span>, ({x, y}) -&gt;
+tools = [
+  (editor, {x, y}) -&gt;
     <span class="comment"># Add Note to Score</span>
     instrument = <span class="number">0</span>
 
@@ -59,9 +55,25 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     time = quantize(x, <span class="number">8</span>)
     note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span>
 
-    self.addNote [time, note, instrument]
+    editor.addNote [time, note, instrument]
 
-    self.playNote instrument, note
+    editor.playNote instrument, note
+  (editor, {x, y}) -&gt;
+    time = quantize(x, <span class="number">8</span>)
+    note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span>
+
+    editor.removeNote [time, note]
+
+    <span class="comment"># TODO: Play remove sound</span>
+]
+
+module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
+  Canvas = require <span class="string">"touch-canvas"</span>
+
+  canvas = Canvas()
+
+  canvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p) -&gt;
+    self.activeTool()(self, p)
 
   <span class="function"><span class="title">handleResize</span></span> =  -&gt;
     canvas.width(window.innerWidth)
@@ -107,7 +119,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
     requestAnimationFrame(paint)
 
-  paint()</code></pre>
+  paint()
+
+  self.extend
+    activeTool: -&gt;
+      tools[<span class="number">0</span>]
+
+    activeInstrument: -&gt;
+      <span class="number">0</span></code></pre>
 </div>
         </li>
         
