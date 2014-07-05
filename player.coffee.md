@@ -8,14 +8,14 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
     {extend} = require "util"
 
-    module.exports = (I, self) ->
+    module.exports = (I, self=Core(I)) ->
       context = new AudioContext()
       window.bufferLoader = new BufferLoader(context)
 
-      self =
+      self.extend
         load: (urls, callback) ->
           bufferLoader.load urls, callback
-  
+
         playNote: (index, note=0,  time=0) ->
           rate = Math.pow 2, note / 12
 
@@ -24,11 +24,3 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
           source.connect(context.destination)
           source.start(time + context.currentTime)
           source.playbackRate.value = rate
-  
-        include: (module) ->
-          module(I, self)
-  
-          return self
-
-        extend: (args...) ->
-          extend self, args...

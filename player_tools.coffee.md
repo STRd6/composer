@@ -1,10 +1,12 @@
 Tools
 =====
 
+    {defaults} = require "util"
+
     tools = [
       (editor, {x, y}) ->
         # Add Note to Score
-        instrument = 0
+        instrument = editor.activeInstrument()
 
         # Quantize
         time = quantize(x, 8)
@@ -24,6 +26,10 @@ Tools
     ]
 
     module.exports = (I, self) ->
+      defaults I,
+        activeInstrument: 1
+
+      self.attrAccessor "activeInstrument"
 
       self.extend
         activeToolIndex: ->
@@ -31,9 +37,6 @@ Tools
 
         activeTool: ->
           tools[self.activeToolIndex()]
-
-        activeInstrument: ->
-          0
 
 Helpers
 -------

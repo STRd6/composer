@@ -1,9 +1,13 @@
 Composer
 ========
 
+Setup
+
+    require "cornerstone"
     require "jquery-utils"
 
 Compose music on the internets?
+
     {applyStylesheet} = require "util"
 
     applyStylesheet require "./style"
