@@ -10,7 +10,8 @@ Tools
 
         # Quantize
         time = quantize(x, 8)
-        note = Math.floor (1 - y) * 25
+        # TODO: Fix these offset hacks!
+        note = Math.floor (1 - y) * 25 - 0.65
 
         editor.addNote [time, note, instrument]
 
