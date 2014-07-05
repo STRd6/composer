@@ -53,7 +53,7 @@ Player View
         self.notes().forEach (note) ->
           drawNote(canvas, note)
 
-        # Draw cursor
+        # Draw player cursor
         canvas.drawRect
           x: self.playTime() * canvas.width()
           y: 0
@@ -64,3 +64,13 @@ Player View
         requestAnimationFrame(paint)
   
       paint()
+      
+      self.setCursor = ->
+        if img = images[self.activeInstrument()]
+          {width, height, src:url} = img
+  
+          x = -width/2
+          y = -height/2
+  
+          $(canvas.element()).css
+            cursor: "url(#{url}) #{x} #{y}, default"

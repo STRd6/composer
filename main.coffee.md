@@ -19,8 +19,3 @@ Compose music on the internets?
 
     player.load sounds, ->
       console.log "Loaded!"
-
-    player.include require "./player_tools"
-    player.include require "./player_score"
-    player.include require "./player_view"
-    player.include require "./player_hotkeys"

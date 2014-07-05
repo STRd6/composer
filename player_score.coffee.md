@@ -12,7 +12,6 @@ Player Score
 
       playLoop = ->
         if playing
-          debugger
           # Play upcoming sounds
           notes.filter ([time]) ->
             playTime <= time < playTime + dt

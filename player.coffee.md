@@ -24,3 +24,10 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
           source.connect(context.destination)
           source.start(time + context.currentTime)
           source.playbackRate.value = rate
+
+      self.include require "./player_tools"
+      self.include require "./player_score"
+      self.include require "./player_view"
+      self.include require "./player_hotkeys"
+
+      self.setCursor()
