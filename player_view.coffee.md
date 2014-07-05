@@ -5,7 +5,7 @@ Player View
       Canvas = require "touch-canvas"
   
       canvas = Canvas()
-  
+
       canvas.on "touch", ({x, y}) ->
         # Add Note to Score
         instrument = 0

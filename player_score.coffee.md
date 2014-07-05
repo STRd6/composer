@@ -9,7 +9,7 @@ Player Score
       playing = false
       playTime = 0
       dt = 1/60
-      
+
       playLoop = ->
         if playing
           debugger
