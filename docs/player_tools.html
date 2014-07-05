@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>player_view</title>
+  <title>player_tools</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="player-view">Player View</h1>
+              <h1 id="tools">Tools</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -34,67 +34,66 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">images = [
-  <span class="string">"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAgCAYAAACYTcH3AAABeElEQVRYR+2XMU4DMRBF7RtEoky7J8iSLiIlDR1HoIMT5AQ5QdLlCOloUoLSQTjBtpRI3AD4K0006/V4xxuvguS4WmntmTffM2Pb/vwN80+GvcAIO9GpjLX2pE2MyYIWDDmHEXxP3lYnwXxMnwzZgqEQXAMGzu8/N2Y7fjgaSAnDbfsiVMMgwphBQXBlksDAYFVVMSymKIp6i/OAQbRdCtGcZMpgP5DEGCS1C8HBfJAcBnaQL2RXqihvafOFEgwMwyGGTy0OowGBHW/T4yUegglltAtD7SK0RuzA1Px4icaUk7tO04mDx0HKDqwJRA0jNb2uDk19JimMxphvTt4wh+tHU76vveLloczh6tmUX3di+sxHr+bl+6bxfxBlAELDBdrNFvWv2/2yBToIDLxIypwFpk95D6bM2WH6ALhrNOeSeGpLAO6Fnc8L/dMG1Plu0jrMD8Z9UUrPDa4MV1ObL6qcISfcge/Wpp3X66ZHi6S3thuxdl4I5hcgNeqwgiRFxgAAAABJRU5ErkJggg=="</span>
-].map (src) -&gt;
-  img = <span class="keyword">new</span> Image
-  img.src = src
+            <div class="content"><pre><code class="lang-coffeescript">tools = [
+  (editor, {x, y}) -&gt;
+    <span class="comment"># Add Note to Score</span>
+    instrument = <span class="number">0</span>
 
-  img
+    <span class="comment"># Quantize</span>
+    time = quantize(x, <span class="number">8</span>)
+    note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span>
+
+    editor.addNote [time, note, instrument]
+
+    editor.playNote instrument, note
+
+  (editor, {x, y}) -&gt;
+    time = quantize(x, <span class="number">8</span>)
+    note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span>
+
+    editor.removeNote [time, note]
+
+    <span class="comment"># TODO: Play remove sound</span>
+]
 
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
-  Canvas = require <span class="string">"touch-canvas"</span>
 
-  canvas = Canvas()
+  self.extend
+    activeToolIndex: -&gt;
+      <span class="number">0</span>
 
-  canvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p) -&gt;
-    self.activeTool()(self, p)
+    activeTool: -&gt;
+      tools[self.activeToolIndex()]
 
-  <span class="function"><span class="title">handleResize</span></span> =  -&gt;
-    canvas.width(window.innerWidth)
-    canvas.height(window.innerHeight)
+    activeInstrument: -&gt;
+      <span class="number">0</span></code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2 id="helpers">Helpers</h2>
 
-  handleResize()
-  window.addEventListener <span class="string">"resize"</span>, handleResize, <span class="literal">false</span>
-
-  document.body.appendChild canvas.element()
-
-  <span class="function"><span class="title">drawNote</span></span> = (canvas, note) -&gt;
-    [time, note, instrument] = note
-
-    {width, height} = img = images[instrument]
-
-    x = time * canvas.width() - width/<span class="number">2</span>
-    y = (<span class="number">24</span> - note) * canvas.height() / <span class="number">25</span> - height/<span class="number">2</span>
-
-    canvas.drawImage img, x, y
-
-  <span class="function"><span class="title">paint</span></span> = -&gt;
-    canvas.fill <span class="string">"white"</span>
-
-    [<span class="number">1.</span><span class="number">.25</span>].forEach (i) -&gt;
-      canvas.drawRect
-        x: <span class="number">0</span>
-        y: i * canvas.height()/<span class="number">25</span>
-        width: canvas.width()
-        height: <span class="number">1</span>
-        color: <span class="string">"rgba(0, 0, 0, 0.25)"</span>
-
-    <span class="comment"># Draw notes</span>
-    self.notes().forEach (note) -&gt;
-      drawNote(canvas, note)
-
-    <span class="comment"># Draw cursor</span>
-    canvas.drawRect
-      x: self.playTime() * canvas.width()
-      y: <span class="number">0</span>
-      width: <span class="number">1</span>
-      height: canvas.height()
-      color: <span class="string">"#F0F"</span>
-
-    requestAnimationFrame(paint)
-
-  paint()</code></pre>
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">quantize</span></span> = (x, n) -&gt;
+  (((x + <span class="number">1</span><span class="regexp">/(2*n)) * n)|0)/</span>n</code></pre>
 </div>
         </li>
         
