@@ -58,6 +58,9 @@ player = require(<span class="string">"./player"</span>)()
 sounds = [<span class="number">1.</span><span class="number">.16</span>].map (n) -&gt;
   <span class="string">"http://addressable.s3.amazonaws.com/mpc/musicnote<span class="subst">#{n}</span>.wav"</span>
 
+console.log <span class="string">"wat"</span>
+console.log player.load
+
 player.load sounds, -&gt;
   console.log <span class="string">"Loaded!"</span></code></pre>
 </div>

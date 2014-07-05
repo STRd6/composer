@@ -46,6 +46,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   self.extend
     load: (urls, callback) -&gt;
+      console.log <span class="string">"Loading..."</span>
       bufferLoader.load urls, callback
 
     playNote: (index, note=<span class="number">0</span>,  time=<span class="number">0</span>) -&gt;
@@ -62,7 +63,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   self.include require <span class="string">"./player_view"</span>
   self.include require <span class="string">"./player_hotkeys"</span>
 
-  self.setCursor()</code></pre>
+  self.setCursor()
+
+  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         
