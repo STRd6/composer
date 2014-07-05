@@ -34,10 +34,12 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">tools = [
+            <div class="content"><pre><code class="lang-coffeescript">{defaults} = require <span class="string">"util"</span>
+
+tools = [
   (editor, {x, y}) -&gt;
     <span class="comment"># Add Note to Score</span>
-    instrument = <span class="number">0</span>
+    instrument = editor.activeInstrument()
 
     <span class="comment"># Quantize</span>
     time = quantize(x, <span class="number">8</span>)
@@ -57,16 +59,17 @@
 ]
 
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
+  defaults I,
+    activeInstrument: <span class="number">1</span>
+
+  self.attrAccessor <span class="string">"activeInstrument"</span>
 
   self.extend
     activeToolIndex: -&gt;
       <span class="number">0</span>
 
     activeTool: -&gt;
-      tools[self.activeToolIndex()]
-
-    activeInstrument: -&gt;
-      <span class="number">0</span></code></pre>
+      tools[self.activeToolIndex()]</code></pre>
 </div>
         </li>
         

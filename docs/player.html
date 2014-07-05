@@ -40,11 +40,11 @@ BufferLoader = require(<span class="string">"./lib/buffer_loader"</span>)
 
 {extend} = require <span class="string">"util"</span>
 
-module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
+module.<span class="function"><span class="title">exports</span></span> = (I, self=Core(I)) -&gt;
   context = <span class="keyword">new</span> AudioContext()
   window.bufferLoader = <span class="keyword">new</span> BufferLoader(context)
 
-  self =
+  self.extend
     load: (urls, callback) -&gt;
       bufferLoader.load urls, callback
 
@@ -55,15 +55,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       source.buffer = bufferLoader.bufferList[index]
       source.connect(context.destination)
       source.start(time + context.currentTime)
-      source.playbackRate.value = rate
-
-    include: (module) -&gt;
-      module(I, self)
-
-      <span class="keyword">return</span> self
-
-    extend: (args...) -&gt;
-      extend self, args...</code></pre>
+      source.playbackRate.value = rate</code></pre>
 </div>
         </li>
         
