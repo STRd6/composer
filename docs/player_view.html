@@ -34,7 +34,19 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">quantize</span></span> = (x, n) -&gt;
+  (((x + <span class="number">1</span><span class="regexp">/(2*n)) * n)|0)/</span>n
+
+
+images = [
+  <span class="string">"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAgCAYAAACYTcH3AAABeElEQVRYR+2XMU4DMRBF7RtEoky7J8iSLiIlDR1HoIMT5AQ5QdLlCOloUoLSQTjBtpRI3AD4K0006/V4xxuvguS4WmntmTffM2Pb/vwN80+GvcAIO9GpjLX2pE2MyYIWDDmHEXxP3lYnwXxMnwzZgqEQXAMGzu8/N2Y7fjgaSAnDbfsiVMMgwphBQXBlksDAYFVVMSymKIp6i/OAQbRdCtGcZMpgP5DEGCS1C8HBfJAcBnaQL2RXqihvafOFEgwMwyGGTy0OowGBHW/T4yUegglltAtD7SK0RuzA1Px4icaUk7tO04mDx0HKDqwJRA0jNb2uDk19JimMxphvTt4wh+tHU76vveLloczh6tmUX3di+sxHr+bl+6bxfxBlAELDBdrNFvWv2/2yBToIDLxIypwFpk95D6bM2WH6ALhrNOeSeGpLAO6Fnc8L/dMG1Plu0jrMD8Z9UUrPDa4MV1ObL6qcISfcge/Wpp3X66ZHi6S3thuxdl4I5hcgNeqwgiRFxgAAAABJRU5ErkJggg=="</span>
+].map (src) -&gt;
+  img = <span class="keyword">new</span> Image
+  img.src = src
+
+  img
+
+module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
   Canvas = require <span class="string">"touch-canvas"</span>
 
   canvas = Canvas()
@@ -43,8 +55,8 @@
     <span class="comment"># Add Note to Score</span>
     instrument = <span class="number">0</span>
 
-    <span class="comment"># TODO: Quantize</span>
-    time = x
+    <span class="comment"># Quantize</span>
+    time = quantize(x, <span class="number">8</span>)
     note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span>
 
     self.addNote [time, note, instrument]
@@ -60,6 +72,16 @@
 
   document.body.appendChild canvas.element()
 
+  <span class="function"><span class="title">drawNote</span></span> = (canvas, note) -&gt;
+    [time, note, instrument] = note
+
+    {width, height} = img = images[instrument]
+
+    x = time * canvas.width() - width/<span class="number">2</span>
+    y = (<span class="number">24</span> - note) * canvas.height() / <span class="number">25</span> - height/<span class="number">2</span>
+
+    canvas.drawImage img, x, y
+
   <span class="function"><span class="title">paint</span></span> = -&gt;
     canvas.fill <span class="string">"white"</span>
 
@@ -72,13 +94,8 @@
         color: <span class="string">"rgba(0, 0, 0, 0.25)"</span>
 
     <span class="comment"># Draw notes</span>
-    self.notes().forEach ([time, note, instrument]) -&gt;
-      canvas.drawRect
-        x: time * canvas.width() - <span class="number">12</span>
-        y: (<span class="number">24</span> - note) * canvas.height() / <span class="number">25</span>
-        width: <span class="number">25</span>
-        height: <span class="number">25</span>
-        color: <span class="string">"black"</span>
+    self.notes().forEach (note) -&gt;
+      drawNote(canvas, note)
 
     <span class="comment"># Draw cursor</span>
     canvas.drawRect
