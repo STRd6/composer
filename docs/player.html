@@ -55,7 +55,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       source.buffer = bufferLoader.bufferList[index]
       source.connect(context.destination)
       source.start(time + context.currentTime)
-      source.playbackRate.value = rate</code></pre>
+      source.playbackRate.value = rate
+
+  self.include require <span class="string">"./player_tools"</span>
+  self.include require <span class="string">"./player_score"</span>
+  self.include require <span class="string">"./player_view"</span>
+  self.include require <span class="string">"./player_hotkeys"</span>
+
+  self.setCursor()</code></pre>
 </div>
         </li>
         

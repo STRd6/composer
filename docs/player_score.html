@@ -45,7 +45,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   <span class="function"><span class="title">playLoop</span></span> = -&gt;
     <span class="keyword">if</span> playing
-      <span class="keyword">debugger</span>
       <span class="comment"># Play upcoming sounds</span>
       notes.filter ([time]) -&gt;
         playTime &lt;= time &lt; playTime + dt

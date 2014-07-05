@@ -86,7 +86,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     self.notes().forEach (note) -&gt;
       drawNote(canvas, note)
 
-    <span class="comment"># Draw cursor</span>
+    <span class="comment"># Draw player cursor</span>
     canvas.drawRect
       x: self.playTime() * canvas.width()
       y: <span class="number">0</span>
@@ -96,7 +96,17 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
     requestAnimationFrame(paint)
 
-  paint()</code></pre>
+  paint()
+
+  self.<span class="function"><span class="title">setCursor</span></span> = -&gt;
+    <span class="keyword">if</span> img = images[self.activeInstrument()]
+      {width, height, src:url} = img
+
+      x = -width/<span class="number">2</span>
+      y = -height/<span class="number">2</span>
+
+      $(canvas.element()).css
+        cursor: <span class="string">"url(<span class="subst">#{url}</span>) <span class="subst">#{x}</span> <span class="subst">#{y}</span>, default"</span></code></pre>
 </div>
         </li>
         
