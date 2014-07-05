@@ -43,7 +43,8 @@ tools = [
 
     <span class="comment"># Quantize</span>
     time = quantize(x, <span class="number">8</span>)
-    note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span>
+    <span class="comment"># TODO: Fix these offset hacks!</span>
+    note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span> - <span class="number">0.65</span>
 
     editor.addNote [time, note, instrument]
 
