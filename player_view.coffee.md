@@ -20,6 +20,8 @@ Player View
 
     LIGHT = "rgba(0, 0, 0, 0.125)"
     DARK = "rgba(0, 0, 0, 0.25)"
+    
+    BEATS = 4
 
     module.exports = (I, self) ->
       Canvas = require "touch-canvas"
@@ -27,7 +29,7 @@ Player View
       canvas = Canvas()
 
       # Y is inverted and begins at center
-      transform = Matrix(1, 0, 0, -1, 0, 1)
+      transform = Matrix(BEATS, 0, 0, -1, 0, 1)
       inverseTransform = transform.inverse()
 
       canvas.on "touch", (p) ->
@@ -47,7 +49,7 @@ Player View
 
         {width, height} = img = images[instrument]
 
-        x = time * canvas.width() - width/2
+        x = time * (canvas.width()/BEATS) - width/2
         y = (24 - note) * canvas.height() / 25 - height/2
 
         canvas.drawImage img, x, y
@@ -89,7 +91,7 @@ Player View
 
         # Draw guides
         drawGuides(canvas, self.quantize())
-        drawGuides(canvas, 4, DARK)
+        drawGuides(canvas, BEATS, DARK)
 
         # Draw notes
         self.notes().forEach (note) ->
@@ -97,7 +99,7 @@ Player View
 
         # Draw player cursor
         canvas.drawRect
-          x: self.playTime() * canvas.width()
+          x: self.playTime() * canvas.width() / BEATS
           y: 0
           width: 1
           height: canvas.height()
@@ -116,7 +118,6 @@ Player View
   
           $(canvas.element()).css
             cursor: "url(#{url}) #{x} #{y}, default"
-
 
 Helpers
 -------

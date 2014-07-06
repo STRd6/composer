@@ -5,12 +5,17 @@ Player Score
 
     module.exports = (I, self) ->
       notes = []
-      
+
       playing = false
       playTime = 0
-      dt = 1/60
+      timestep = 1/60 # Animation Frame timestep, seconds
+      minute = 60 # seconds
+
+      tempo = 60 # BPM
 
       playLoop = ->
+        dt = timestep * tempo / minute
+
         if playing
           # Play upcoming sounds
           notes.filter ([time]) ->
@@ -20,7 +25,7 @@ Player Score
 
           playTime += dt
 
-          if playTime >= 1
+          if playTime >= 4
             playTime = 0
 
         requestAnimationFrame playLoop
