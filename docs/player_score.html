@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="player-score">Player Score</h1>
+              <h1 id="phrase">Phrase</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -34,9 +34,15 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">{extend} = require <span class="string">"util"</span>
+            <div class="content"><pre><code class="lang-coffeescript">{defaults, extend} = require <span class="string">"util"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
+  defaults I,
+    tempo: <span class="number">90</span> <span class="comment"># BPM</span>
+    beats: <span class="number">4</span>
+
+  self.attrAccessor <span class="string">"beats"</span>, <span class="string">"tempo"</span>
+
   notes = []
 
   playing = <span class="literal">false</span>
@@ -44,10 +50,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   timestep = <span class="number">1</span>/<span class="number">60</span> <span class="comment"># Animation Frame timestep, seconds</span>
   minute = <span class="number">60</span> <span class="comment"># seconds</span>
 
-  tempo = <span class="number">60</span> <span class="comment"># BPM</span>
-
   <span class="function"><span class="title">playLoop</span></span> = -&gt;
-    dt = timestep * tempo / minute
+    <span class="comment"># dt is measured in beats</span>
+    dt = timestep * self.tempo() / minute
 
     <span class="keyword">if</span> playing
       <span class="comment"># Play upcoming sounds</span>
@@ -58,7 +63,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
       playTime += dt
 
-      <span class="keyword">if</span> playTime &gt;= <span class="number">4</span>
+      <span class="comment"># TODO Handle remainder?</span>
+      <span class="keyword">if</span> playTime &gt;= self.beats()
         playTime = <span class="number">0</span>
 
     requestAnimationFrame playLoop
