@@ -26,7 +26,7 @@ Player View
 
       canvas = Canvas()
 
-      # Y is inverted and begins at bottom
+      # Y is inverted and begins at center
       transform = Matrix(1, 0, 0, -1, 0, 1)
       inverseTransform = transform.inverse()
 
@@ -69,17 +69,15 @@ Player View
           else
             color = LIGHT
 
-          y = i * canvas.height() / 25
-
           canvas.drawRect
             x: 0
-            y: canvas.height() - y
+            y: canvas.height() - i * canvas.height() / 25
             width: canvas.width()
             height: 1
             color: color
 
       inScale = (i) ->
-        i = i % 12
+        i = mod i, 12
 
         [0, 2, 4, 5, 7, 9, 11].some (n) ->
           n is i
@@ -118,3 +116,10 @@ Player View
   
           $(canvas.element()).css
             cursor: "url(#{url}) #{x} #{y}, default"
+
+
+Helpers
+-------
+
+    mod = (n, k) ->
+      (n % k + k) % k
