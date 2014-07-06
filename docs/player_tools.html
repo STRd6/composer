@@ -42,9 +42,9 @@ tools = [
     instrument = editor.activeInstrument()
 
     <span class="comment"># Quantize</span>
-    time = quantize(x, <span class="number">8</span>)
+    time = quantize(x, editor.quantize())
     <span class="comment"># TODO: Fix these offset hacks!</span>
-    note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span> - <span class="number">0.65</span>
+    note = Math.floor y * <span class="number">25</span> - <span class="number">0.5</span>
 
     editor.addNote [time, note, instrument]
 
@@ -62,8 +62,9 @@ tools = [
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
   defaults I,
     activeInstrument: <span class="number">1</span>
+    quantize: <span class="number">8</span>
 
-  self.attrAccessor <span class="string">"activeInstrument"</span>
+  self.attrAccessor <span class="string">"activeInstrument"</span>, <span class="string">"quantize"</span>
 
   self.extend
     activeToolIndex: -&gt;

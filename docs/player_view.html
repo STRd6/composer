@@ -51,13 +51,20 @@
 
   img
 
+LIGHT = <span class="string">"rgba(0, 0, 0, 0.125)"</span>
+DARK = <span class="string">"rgba(0, 0, 0, 0.25)"</span>
+
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
   Canvas = require <span class="string">"touch-canvas"</span>
 
   canvas = Canvas()
 
+  <span class="comment"># Y is inverted and begins at bottom</span>
+  transform = Matrix(<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>)
+  inverseTransform = transform.inverse()
+
   canvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p) -&gt;
-    self.activeTool()(self, p)
+    self.activeTool()(self, transform.transformPoint(p))
 
   <span class="function"><span class="title">handleResize</span></span> =  -&gt;
     canvas.width(window.innerWidth)
@@ -78,16 +85,46 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
     canvas.drawImage img, x, y
 
+  <span class="function"><span class="title">drawGuides</span></span> = (canvas, n, color=LIGHT) -&gt;
+    width = canvas.width()/n
+    [<span class="number">1.</span>.n-<span class="number">1</span>].forEach (i) -&gt;
+      canvas.drawRect
+        x: width * i
+        y: <span class="number">0</span>
+        width: <span class="number">1</span>
+        height: canvas.height()
+        color: color
+
+  <span class="function"><span class="title">drawNoteLines</span></span> = (canvas) -&gt;
+    [<span class="number">1.</span><span class="number">.25</span>].forEach (i) -&gt;
+      <span class="keyword">if</span> inScale(i)
+        color = DARK
+      <span class="keyword">else</span>
+        color = LIGHT
+
+      y = i * canvas.height() / <span class="number">25</span>
+
+      canvas.drawRect
+        x: <span class="number">0</span>
+        y: canvas.height() - y
+        width: canvas.width()
+        height: <span class="number">1</span>
+        color: color
+
+  <span class="function"><span class="title">inScale</span></span> = (i) -&gt;
+    i = i % <span class="number">12</span>
+
+    [<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>].some (n) -&gt;
+      n <span class="keyword">is</span> i
+
   <span class="function"><span class="title">paint</span></span> = -&gt;
     canvas.fill <span class="string">"white"</span>
 
-    [<span class="number">1.</span><span class="number">.25</span>].forEach (i) -&gt;
-      canvas.drawRect
-        x: <span class="number">0</span>
-        y: i * canvas.height()/<span class="number">25</span>
-        width: canvas.width()
-        height: <span class="number">1</span>
-        color: <span class="string">"rgba(0, 0, 0, 0.25)"</span>
+    drawNoteLines(canvas)
+
+    <span class="comment"># Draw guides</span>
+    drawGuides(canvas, self.quantize())
+    drawGuides(canvas, <span class="number">4</span>, DARK)
 
     <span class="comment"># Draw notes</span>
     self.notes().forEach (note) -&gt;
@@ -109,8 +146,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     <span class="keyword">if</span> img = images[self.activeInstrument()]
       {width, height, src:url} = img
 
-      x = -width/<span class="number">2</span>
-      y = -height/<span class="number">2</span>
+      x = width/<span class="number">2</span>
+      y = height/<span class="number">2</span>
 
       $(canvas.element()).css
         cursor: <span class="string">"url(<span class="subst">#{url}</span>) <span class="subst">#{x}</span> <span class="subst">#{y}</span>, default"</span></code></pre>
