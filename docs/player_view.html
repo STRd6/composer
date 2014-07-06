@@ -59,7 +59,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   canvas = Canvas()
 
-  <span class="comment"># Y is inverted and begins at bottom</span>
+  <span class="comment"># Y is inverted and begins at center</span>
   transform = Matrix(<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>)
   inverseTransform = transform.inverse()
 
@@ -102,17 +102,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       <span class="keyword">else</span>
         color = LIGHT
 
-      y = i * canvas.height() / <span class="number">25</span>
-
       canvas.drawRect
         x: <span class="number">0</span>
-        y: canvas.height() - y
+        y: canvas.height() - i * canvas.height() / <span class="number">25</span>
         width: canvas.width()
         height: <span class="number">1</span>
         color: color
 
   <span class="function"><span class="title">inScale</span></span> = (i) -&gt;
-    i = i % <span class="number">12</span>
+    i = mod i, <span class="number">12</span>
 
     [<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>].some (n) -&gt;
       n <span class="keyword">is</span> i
@@ -151,6 +149,33 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
       $(canvas.element()).css
         cursor: <span class="string">"url(<span class="subst">#{url}</span>) <span class="subst">#{x}</span> <span class="subst">#{y}</span>, default"</span></code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2 id="helpers">Helpers</h2>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">mod</span></span> = (n, k) -&gt;
+  (n % k + k) % k</code></pre>
 </div>
         </li>
         
