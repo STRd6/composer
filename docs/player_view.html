@@ -54,13 +54,15 @@
 LIGHT = <span class="string">"rgba(0, 0, 0, 0.125)"</span>
 DARK = <span class="string">"rgba(0, 0, 0, 0.25)"</span>
 
+BEATS = <span class="number">4</span>
+
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
   Canvas = require <span class="string">"touch-canvas"</span>
 
   canvas = Canvas()
 
   <span class="comment"># Y is inverted and begins at center</span>
-  transform = Matrix(<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>)
+  transform = Matrix(BEATS, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>)
   inverseTransform = transform.inverse()
 
   canvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p) -&gt;
@@ -80,7 +82,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
     {width, height} = img = images[instrument]
 
-    x = time * canvas.width() - width/<span class="number">2</span>
+    x = time * (canvas.width()<span class="regexp">/BEATS) - width/</span><span class="number">2</span>
     y = (<span class="number">24</span> - note) * canvas.height() / <span class="number">25</span> - height/<span class="number">2</span>
 
     canvas.drawImage img, x, y
@@ -122,7 +124,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
     <span class="comment"># Draw guides</span>
     drawGuides(canvas, self.quantize())
-    drawGuides(canvas, <span class="number">4</span>, DARK)
+    drawGuides(canvas, BEATS, DARK)
 
     <span class="comment"># Draw notes</span>
     self.notes().forEach (note) -&gt;
@@ -130,7 +132,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
     <span class="comment"># Draw player cursor</span>
     canvas.drawRect
-      x: self.playTime() * canvas.width()
+      x: self.playTime() * canvas.width() / BEATS
       y: <span class="number">0</span>
       width: <span class="number">1</span>
       height: canvas.height()

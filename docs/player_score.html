@@ -41,9 +41,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   playing = <span class="literal">false</span>
   playTime = <span class="number">0</span>
-  dt = <span class="number">1</span>/<span class="number">60</span>
+  timestep = <span class="number">1</span>/<span class="number">60</span> <span class="comment"># Animation Frame timestep, seconds</span>
+  minute = <span class="number">60</span> <span class="comment"># seconds</span>
+
+  tempo = <span class="number">60</span> <span class="comment"># BPM</span>
 
   <span class="function"><span class="title">playLoop</span></span> = -&gt;
+    dt = timestep * tempo / minute
+
     <span class="keyword">if</span> playing
       <span class="comment"># Play upcoming sounds</span>
       notes.filter ([time]) -&gt;
@@ -53,7 +58,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
       playTime += dt
 
-      <span class="keyword">if</span> playTime &gt;= <span class="number">1</span>
+      <span class="keyword">if</span> playTime &gt;= <span class="number">4</span>
         playTime = <span class="number">0</span>
 
     requestAnimationFrame playLoop
