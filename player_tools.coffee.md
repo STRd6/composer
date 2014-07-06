@@ -9,9 +9,9 @@ Tools
         instrument = editor.activeInstrument()
 
         # Quantize
-        time = quantize(x, 8)
+        time = quantize(x, editor.quantize())
         # TODO: Fix these offset hacks!
-        note = Math.floor (1 - y) * 25 - 0.65
+        note = Math.floor y * 25 - 0.5
 
         editor.addNote [time, note, instrument]
 
@@ -29,8 +29,9 @@ Tools
     module.exports = (I, self) ->
       defaults I,
         activeInstrument: 1
+        quantize: 8
 
-      self.attrAccessor "activeInstrument"
+      self.attrAccessor "activeInstrument", "quantize"
 
       self.extend
         activeToolIndex: ->

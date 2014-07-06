@@ -18,13 +18,20 @@ Player View
 
       img
 
+    LIGHT = "rgba(0, 0, 0, 0.125)"
+    DARK = "rgba(0, 0, 0, 0.25)"
+
     module.exports = (I, self) ->
       Canvas = require "touch-canvas"
 
       canvas = Canvas()
 
+      # Y is inverted and begins at bottom
+      transform = Matrix(1, 0, 0, -1, 0, 1)
+      inverseTransform = transform.inverse()
+
       canvas.on "touch", (p) ->
-        self.activeTool()(self, p)
+        self.activeTool()(self, transform.transformPoint(p))
 
       handleResize =  ->
         canvas.width(window.innerWidth)
@@ -45,16 +52,46 @@ Player View
 
         canvas.drawImage img, x, y
 
+      drawGuides = (canvas, n, color=LIGHT) ->
+        width = canvas.width()/n
+        [1..n-1].forEach (i) ->
+          canvas.drawRect
+            x: width * i
+            y: 0
+            width: 1
+            height: canvas.height()
+            color: color
+
+      drawNoteLines = (canvas) ->
+        [1..25].forEach (i) ->
+          if inScale(i)
+            color = DARK
+          else
+            color = LIGHT
+
+          y = i * canvas.height() / 25
+
+          canvas.drawRect
+            x: 0
+            y: canvas.height() - y
+            width: canvas.width()
+            height: 1
+            color: color
+
+      inScale = (i) ->
+        i = i % 12
+
+        [0, 2, 4, 5, 7, 9, 11].some (n) ->
+          n is i
+
       paint = ->
         canvas.fill "white"
 
-        [1..25].forEach (i) ->
-          canvas.drawRect
-            x: 0
-            y: i * canvas.height()/25
-            width: canvas.width()
-            height: 1
-            color: "rgba(0, 0, 0, 0.25)"
+        drawNoteLines(canvas)
+
+        # Draw guides
+        drawGuides(canvas, self.quantize())
+        drawGuides(canvas, 4, DARK)
 
         # Draw notes
         self.notes().forEach (note) ->
@@ -76,8 +113,8 @@ Player View
         if img = images[self.activeInstrument()]
           {width, height, src:url} = img
   
-          x = -width/2
-          y = -height/2
+          x = width/2
+          y = height/2
   
           $(canvas.element()).css
             cursor: "url(#{url}) #{x} #{y}, default"
