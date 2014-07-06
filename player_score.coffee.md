@@ -1,9 +1,15 @@
-Player Score
-============
+Phrase
+======
 
-    {extend} = require "util"
+    {defaults, extend} = require "util"
 
     module.exports = (I, self) ->
+      defaults I,
+        tempo: 90 # BPM
+        beats: 4
+
+      self.attrAccessor "beats", "tempo"
+
       notes = []
 
       playing = false
@@ -11,10 +17,9 @@ Player Score
       timestep = 1/60 # Animation Frame timestep, seconds
       minute = 60 # seconds
 
-      tempo = 60 # BPM
-
       playLoop = ->
-        dt = timestep * tempo / minute
+        # dt is measured in beats
+        dt = timestep * self.tempo() / minute
 
         if playing
           # Play upcoming sounds
@@ -25,7 +30,8 @@ Player Score
 
           playTime += dt
 
-          if playTime >= 4
+          # TODO Handle remainder?
+          if playTime >= self.beats()
             playTime = 0
 
         requestAnimationFrame playLoop
