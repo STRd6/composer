@@ -50,16 +50,21 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   timestep = <span class="number">1</span>/<span class="number">60</span> <span class="comment"># Animation Frame timestep, seconds</span>
   minute = <span class="number">60</span> <span class="comment"># seconds</span>
 
-  <span class="function"><span class="title">playLoop</span></span> = -&gt;
-    <span class="comment"># dt is measured in beats</span>
-    dt = timestep * self.tempo() / minute
+  <span class="function"><span class="title">upcomingSounds</span></span> = (dt) -&gt;
+    notes.filter ([time]) -&gt;
+      playTime &lt;= time &lt; playTime + dt
 
+  <span class="comment"># Schedules upcoming sounds to play</span>
+  <span class="function"><span class="title">playUpcomingSounds</span></span> = (dt) -&gt;
+    upcomingSounds(dt)
+    .forEach ([time, note, instrument]) -&gt;
+      self.playNote instrument, note, time - playTime
+
+  <span class="function"><span class="title">playLoop</span></span> = -&gt;
     <span class="keyword">if</span> playing
-      <span class="comment"># Play upcoming sounds</span>
-      notes.filter ([time]) -&gt;
-        playTime &lt;= time &lt; playTime + dt
-      .forEach ([time, note, instrument]) -&gt;
-        self.playNote instrument, note, time - playTime
+      <span class="comment"># dt is measured in beats</span>
+      dt = timestep * self.tempo() / minute
+      playUpcomingSounds(dt)
 
       playTime += dt
 

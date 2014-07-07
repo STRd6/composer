@@ -68,7 +68,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   self.attrObservable <span class="string">"activeInstrument"</span>, <span class="string">"activeToolIndex"</span>, <span class="string">"quantize"</span>
 
-  self.activeInstrument.observe -&gt;
+  self.activeInstrument.observe (instrument) -&gt;
+    self.playNote instrument
     self.setCursor()
 
   self.activeToolIndex.observe -&gt;
