@@ -21,3 +21,5 @@ Compose music on the internets?
 
     player.load sounds, ->
       console.log "Loaded!"
+
+    document.body.appendChild require("./tools")(player)

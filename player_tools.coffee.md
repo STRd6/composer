@@ -18,18 +18,18 @@ Tools
         editor.playNote instrument, note
 
       (editor, {x, y}) ->
-        time = quantize(x, 8)
+        time = quantize(x, editor.quantize())
         note = Math.floor (1 - y) * 25
 
         editor.removeNote [time, note]
-        
+
         # TODO: Play remove sound
     ]
 
     module.exports = (I, self) ->
       defaults I,
         activeInstrument: 1
-        quantize: 8
+        quantize: 4
 
       self.attrAccessor "activeInstrument", "quantize"
 

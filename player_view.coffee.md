@@ -18,7 +18,7 @@ Player View
 
       img
 
-    LIGHT = "rgba(0, 0, 0, 0.125)"
+    LIGHT = "rgba(0, 0, 0, 0.0625)"
     DARK = "rgba(0, 0, 0, 0.25)"
 
     module.exports = (I, self) ->
@@ -87,7 +87,7 @@ Player View
         drawNoteLines(canvas)
 
         # Draw guides
-        drawGuides(canvas, self.quantize())
+        drawGuides(canvas, self.quantize() * self.beats())
         drawGuides(canvas, self.beats(), DARK)
 
         # Draw notes
@@ -103,16 +103,16 @@ Player View
           color: "#F0F"
 
         requestAnimationFrame(paint)
-  
+
       paint()
-      
+
       self.setCursor = ->
         if img = images[self.activeInstrument()]
           {width, height, src:url} = img
-  
+
           x = width/2
           y = height/2
-  
+
           $(canvas.element()).css
             cursor: "url(#{url}) #{x} #{y}, default"
 
