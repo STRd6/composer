@@ -51,7 +51,7 @@
 
   img
 
-LIGHT = <span class="string">"rgba(0, 0, 0, 0.125)"</span>
+LIGHT = <span class="string">"rgba(0, 0, 0, 0.0625)"</span>
 DARK = <span class="string">"rgba(0, 0, 0, 0.25)"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
@@ -120,7 +120,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     drawNoteLines(canvas)
 
     <span class="comment"># Draw guides</span>
-    drawGuides(canvas, self.quantize())
+    drawGuides(canvas, self.quantize() * self.beats())
     drawGuides(canvas, self.beats(), DARK)
 
     <span class="comment"># Draw notes</span>

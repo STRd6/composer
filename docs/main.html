@@ -61,7 +61,9 @@ sounds = [<span class="number">1.</span><span class="number">.16</span>].map (n)
   <span class="string">"http://addressable.s3.amazonaws.com/mpc/musicnote<span class="subst">#{n}</span>.wav"</span>
 
 player.load sounds, -&gt;
-  console.log <span class="string">"Loaded!"</span></code></pre>
+  console.log <span class="string">"Loaded!"</span>
+
+document.body.appendChild require(<span class="string">"./tools"</span>)(player)</code></pre>
 </div>
         </li>
         
