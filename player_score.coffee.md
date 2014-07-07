@@ -17,19 +17,24 @@ Phrase
       timestep = 1/60 # Animation Frame timestep, seconds
       minute = 60 # seconds
 
+      upcomingSounds = (dt) ->
+        notes.filter ([time]) ->
+          playTime <= time < playTime + dt
+
+      # Schedules upcoming sounds to play
+      playUpcomingSounds = (dt) ->
+        upcomingSounds(dt)
+        .forEach ([time, note, instrument]) ->
+          self.playNote instrument, note, time - playTime
+
       playLoop = ->
-        # dt is measured in beats
-        dt = timestep * self.tempo() / minute
-
         if playing
-          # Play upcoming sounds
-          notes.filter ([time]) ->
-            playTime <= time < playTime + dt
-          .forEach ([time, note, instrument]) ->
-            self.playNote instrument, note, time - playTime
-
+          # dt is measured in beats
+          dt = timestep * self.tempo() / minute
+          playUpcomingSounds(dt)
+          
           playTime += dt
-
+          
           # TODO Handle remainder?
           if playTime >= self.beats()
             playTime = 0

@@ -35,7 +35,8 @@ Tools
 
       self.attrObservable "activeInstrument", "activeToolIndex", "quantize"
 
-      self.activeInstrument.observe ->
+      self.activeInstrument.observe (instrument) ->
+        self.playNote instrument
         self.setCursor()
 
       self.activeToolIndex.observe ->
