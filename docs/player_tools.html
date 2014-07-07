@@ -52,24 +52,29 @@ tools = [
 
   (editor, {x, y}) -&gt;
     time = quantize(x, editor.quantize())
-    note = Math.floor (<span class="number">1</span> - y) * <span class="number">25</span>
+    note = Math.floor y * <span class="number">25</span> - <span class="number">0.5</span>
 
-    editor.removeNote [time, note]
-
-    <span class="comment"># TODO: Play remove sound</span>
+    <span class="keyword">if</span> editor.removeNote [time, note]
+      <span class="comment"># Play remove sound</span>
+      <span class="comment"># TODO: This is a hack!</span>
+      editor.playNote <span class="number">16</span>
 ]
 
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
   defaults I,
     activeInstrument: <span class="number">1</span>
+    activeToolIndex: <span class="number">0</span>
     quantize: <span class="number">4</span>
 
-  self.attrAccessor <span class="string">"activeInstrument"</span>, <span class="string">"quantize"</span>
+  self.attrObservable <span class="string">"activeInstrument"</span>, <span class="string">"activeToolIndex"</span>, <span class="string">"quantize"</span>
+
+  self.activeInstrument.observe -&gt;
+    self.setCursor()
+
+  self.activeToolIndex.observe -&gt;
+    self.setCursor()
 
   self.extend
-    activeToolIndex: -&gt;
-      <span class="number">0</span>
-
     activeTool: -&gt;
       tools[self.activeToolIndex()]</code></pre>
 </div>

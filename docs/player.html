@@ -38,9 +38,11 @@
             <div class="content"><pre><code class="lang-coffeescript">AudioContext = window.AudioContext <span class="keyword">or</span> window.webkitAudioContext
 BufferLoader = require(<span class="string">"./lib/buffer_loader"</span>)
 
+Model = require <span class="string">"model"</span>
+
 {extend} = require <span class="string">"util"</span>
 
-module.<span class="function"><span class="title">exports</span></span> = (I, self=Core(I)) -&gt;
+module.<span class="function"><span class="title">exports</span></span> = (I, self=Model(I)) -&gt;
   context = <span class="keyword">new</span> AudioContext()
   window.bufferLoader = <span class="keyword">new</span> BufferLoader(context)
 

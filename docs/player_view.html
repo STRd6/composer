@@ -139,15 +139,23 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   paint()
 
-  self.<span class="function"><span class="title">setCursor</span></span> = -&gt;
-    <span class="keyword">if</span> img = images[self.activeInstrument()]
-      {width, height, src:url} = img
+  self.extend 
+    instruments: -&gt;
+      images
 
-      x = width/<span class="number">2</span>
-      y = height/<span class="number">2</span>
+    setCursor: -&gt;
+      <span class="keyword">if</span> self.activeToolIndex() <span class="keyword">is</span> <span class="number">0</span>
+        <span class="keyword">if</span> img = images[self.activeInstrument()]
+          {width, height, src:url} = img
 
-      $(canvas.element()).css
-        cursor: <span class="string">"url(<span class="subst">#{url}</span>) <span class="subst">#{x}</span> <span class="subst">#{y}</span>, default"</span></code></pre>
+          x = width/<span class="number">2</span>
+          y = height/<span class="number">2</span>
+
+          $(canvas.element()).css
+            cursor: <span class="string">"url(<span class="subst">#{url}</span>) <span class="subst">#{x}</span> <span class="subst">#{y}</span>, default"</span>
+      <span class="keyword">else</span>
+        $(canvas.element()).css
+          cursor: <span class="string">"url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==) 8 8, default"</span></code></pre>
 </div>
         </li>
         
