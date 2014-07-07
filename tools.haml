@@ -1,5 +1,9 @@
 - editor = this
 
+.actions
+  %button(click=@play) ►
+  %input(value=@tempo)
+
 .tools
   .instruments
     - each @instruments, (instrument, i) ->

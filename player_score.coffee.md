@@ -8,7 +8,7 @@ Phrase
         tempo: 90 # BPM
         beats: 4
 
-      self.attrAccessor "beats", "tempo"
+      self.attrObservable "beats", "tempo"
 
       notes = []
 
@@ -17,27 +17,30 @@ Phrase
       timestep = 1/60 # Animation Frame timestep, seconds
       minute = 60 # seconds
 
-      upcomingSounds = (dt) ->
+      upcomingSounds = (current, dt) ->
         notes.filter ([time]) ->
-          playTime <= time < playTime + dt
+          current <= time < current + dt
 
       # Schedules upcoming sounds to play
-      playUpcomingSounds = (dt) ->
-        upcomingSounds(dt)
+      playUpcomingSounds = (current, dt) ->
+        upcomingSounds(current, dt)
         .forEach ([time, note, instrument]) ->
-          self.playNote instrument, note, time - playTime
+          # TODO: Make sure the units in time are right
+          # should be seconds but may currently be beats!
+          self.playNote instrument, note, (time - current) * minute / self.tempo()
 
       playLoop = ->
         if playing
           # dt is measured in beats
           dt = timestep * self.tempo() / minute
-          playUpcomingSounds(dt)
-          
+          playUpcomingSounds(playTime, dt)
+
           playTime += dt
-          
-          # TODO Handle remainder?
+
           if playTime >= self.beats()
-            playTime = 0
+            dt = playTime - self.beats() # "left over" section wraps to beginning
+            playUpcomingSounds(0, dt)
+            playTime = dt
 
         requestAnimationFrame playLoop
 
