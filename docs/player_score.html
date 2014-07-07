@@ -41,7 +41,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     tempo: <span class="number">90</span> <span class="comment"># BPM</span>
     beats: <span class="number">4</span>
 
-  self.attrAccessor <span class="string">"beats"</span>, <span class="string">"tempo"</span>
+  self.attrObservable <span class="string">"beats"</span>, <span class="string">"tempo"</span>
 
   notes = []
 
@@ -50,27 +50,30 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   timestep = <span class="number">1</span>/<span class="number">60</span> <span class="comment"># Animation Frame timestep, seconds</span>
   minute = <span class="number">60</span> <span class="comment"># seconds</span>
 
-  <span class="function"><span class="title">upcomingSounds</span></span> = (dt) -&gt;
+  <span class="function"><span class="title">upcomingSounds</span></span> = (current, dt) -&gt;
     notes.filter ([time]) -&gt;
-      playTime &lt;= time &lt; playTime + dt
+      current &lt;= time &lt; current + dt
 
   <span class="comment"># Schedules upcoming sounds to play</span>
-  <span class="function"><span class="title">playUpcomingSounds</span></span> = (dt) -&gt;
-    upcomingSounds(dt)
+  <span class="function"><span class="title">playUpcomingSounds</span></span> = (current, dt) -&gt;
+    upcomingSounds(current, dt)
     .forEach ([time, note, instrument]) -&gt;
-      self.playNote instrument, note, time - playTime
+      <span class="comment"># TODO: Make sure the units in time are right</span>
+      <span class="comment"># should be seconds but may currently be beats!</span>
+      self.playNote instrument, note, (time - current) * minute / self.tempo()
 
   <span class="function"><span class="title">playLoop</span></span> = -&gt;
     <span class="keyword">if</span> playing
       <span class="comment"># dt is measured in beats</span>
       dt = timestep * self.tempo() / minute
-      playUpcomingSounds(dt)
+      playUpcomingSounds(playTime, dt)
 
       playTime += dt
 
-      <span class="comment"># TODO Handle remainder?</span>
       <span class="keyword">if</span> playTime &gt;= self.beats()
-        playTime = <span class="number">0</span>
+        dt = playTime - self.beats() <span class="comment"># "left over" section wraps to beginning</span>
+        playUpcomingSounds(<span class="number">0</span>, dt)
+        playTime = dt
 
     requestAnimationFrame playLoop
 
