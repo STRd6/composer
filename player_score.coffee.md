@@ -47,7 +47,7 @@ Phrase
           matched = notes.filter ([t, n]) ->
             time is t and note is n
 
-          remove notes, matched[0]
+          notes.remove matched[0]
 
         notes: ->
           notes
@@ -57,12 +57,3 @@ Phrase
 
         play: ->
           playing = !playing
-
-Helpers
--------
-
-    remove = (array, value) ->
-      index = array.indexOf(value)
-
-      if index >= 0
-        @splice(index, 1)[0]

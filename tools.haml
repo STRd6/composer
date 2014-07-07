@@ -1,3 +1,11 @@
+- editor = this
+
 .tools
-  .tool.instrument
-  .tool.eraser
+  .instruments
+    - each @instruments, (instrument, i) ->
+      - activate = -> editor.activeToolIndex(0); editor.activeInstrument(i)
+      .tool.instrument(style="background-image: url(#{instrument.src})" click=activate)
+        = i
+
+  - eraser = -> editor.activeToolIndex(1)
+  .tool.eraser(click=eraser)

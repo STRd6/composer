@@ -6,9 +6,11 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
     AudioContext = window.AudioContext or window.webkitAudioContext
     BufferLoader = require("./lib/buffer_loader")
 
+    Model = require "model"
+
     {extend} = require "util"
 
-    module.exports = (I, self=Core(I)) ->
+    module.exports = (I, self=Model(I)) ->
       context = new AudioContext()
       window.bufferLoader = new BufferLoader(context)
 

@@ -106,15 +106,23 @@ Player View
 
       paint()
 
-      self.setCursor = ->
-        if img = images[self.activeInstrument()]
-          {width, height, src:url} = img
+      self.extend 
+        instruments: ->
+          images
 
-          x = width/2
-          y = height/2
-
-          $(canvas.element()).css
-            cursor: "url(#{url}) #{x} #{y}, default"
+        setCursor: ->
+          if self.activeToolIndex() is 0
+            if img = images[self.activeInstrument()]
+              {width, height, src:url} = img
+    
+              x = width/2
+              y = height/2
+    
+              $(canvas.element()).css
+                cursor: "url(#{url}) #{x} #{y}, default"
+          else
+            $(canvas.element()).css
+              cursor: "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==) 8 8, default"
 
 Helpers
 -------

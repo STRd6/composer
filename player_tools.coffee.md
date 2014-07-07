@@ -19,24 +19,29 @@ Tools
 
       (editor, {x, y}) ->
         time = quantize(x, editor.quantize())
-        note = Math.floor (1 - y) * 25
+        note = Math.floor y * 25 - 0.5
 
-        editor.removeNote [time, note]
-
-        # TODO: Play remove sound
+        if editor.removeNote [time, note]
+          # Play remove sound
+          # TODO: This is a hack!
+          editor.playNote 16
     ]
 
     module.exports = (I, self) ->
       defaults I,
         activeInstrument: 1
+        activeToolIndex: 0
         quantize: 4
 
-      self.attrAccessor "activeInstrument", "quantize"
+      self.attrObservable "activeInstrument", "activeToolIndex", "quantize"
+
+      self.activeInstrument.observe ->
+        self.setCursor()
+
+      self.activeToolIndex.observe ->
+        self.setCursor()
 
       self.extend
-        activeToolIndex: ->
-          0
-
         activeTool: ->
           tools[self.activeToolIndex()]
 

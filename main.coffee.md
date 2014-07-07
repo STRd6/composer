@@ -5,6 +5,7 @@ Setup
 
     require "cornerstone"
     require "jquery-utils"
+    global.Observable = require "observable"
 
 Compose music on the internets?
 
@@ -14,10 +15,13 @@ Compose music on the internets?
 
     player = require("./player")()
 
-    sounds = [1..16].map (n) ->
+    sounds = [1..17].map (n) ->
       n = 11 if n is 7
 
-      "http://addressable.s3.amazonaws.com/mpc/musicnote#{n}.wav"
+      if n is 17
+        "http://addressable.s3.amazonaws.com/mpc/eraserloop.wav"
+      else
+        "http://addressable.s3.amazonaws.com/mpc/musicnote#{n}.wav"
 
     player.load sounds, ->
       console.log "Loaded!"
