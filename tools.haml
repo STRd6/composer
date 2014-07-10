@@ -2,14 +2,18 @@
 
 .actions
   %button(click=@play) ►
-  %input(value=@tempo)
+  %label
+    Tempo
+    %input(value=@tempo)
+  %label
+    Length
+    %input(value=@beats)
 
 .tools
   .instruments
     - each @instruments, (instrument, i) ->
       - activate = -> editor.activeToolIndex(0); editor.activeInstrument(i)
       .tool.instrument(style="background-image: url(#{instrument.src})" click=activate)
-        = i
 
   - eraser = -> editor.activeToolIndex(1)
   .tool.eraser(click=eraser)
