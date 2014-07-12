@@ -7,6 +7,7 @@ Phrase
       defaults I,
         tempo: 90 # BPM
         beats: 4
+        scale: 0
         notes: []
 
       self.attrObservable "beats", "tempo"

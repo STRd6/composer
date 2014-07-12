@@ -51,9 +51,19 @@ Player View
 
         canvas.drawImage img, x, y
 
-      drawGuides = (canvas, n, color=LIGHT) ->
+      drawTemporalGuides = (canvas) ->
+        # TODO: View Offset
+
+        n = self.beats() * self.quantize()
+
         width = canvas.width()/n
-        [1..n-1].forEach (i) ->
+
+        [0..n-1].forEach (i) ->
+          if mod(i, self.quantize()) is 0
+            color = DARK
+          else
+            color = LIGHT
+
           canvas.drawRect
             x: width * i
             y: 0
@@ -61,7 +71,7 @@ Player View
             height: canvas.height()
             color: color
 
-      drawNoteLines = (canvas) ->
+      drawScaleGuides = (canvas) ->
         [1..25].forEach (i) ->
           if inScale(i)
             color = DARK
@@ -75,8 +85,8 @@ Player View
             height: 1
             color: color
 
-      inScale = (i) ->
-        i = mod i, 12
+      inScale = (i, scale=0) ->
+        i = mod i + scale, 12
 
         [0, 2, 4, 5, 7, 9, 11].some (n) ->
           n is i
@@ -84,11 +94,8 @@ Player View
       paint = ->
         canvas.fill "white"
 
-        drawNoteLines(canvas)
-
-        # Draw guides
-        drawGuides(canvas, self.quantize() * self.beats())
-        drawGuides(canvas, self.beats(), DARK)
+        drawScaleGuides(canvas)
+        drawTemporalGuides(canvas)
 
         # Draw notes
         self.notes().forEach (note) ->
