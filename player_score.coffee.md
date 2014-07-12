@@ -62,3 +62,20 @@ Phrase
 
         play: ->
           playing = !playing
+
+        saveAs: ->
+          if name = prompt "Name"
+            data = self.toJSON()
+
+            localStorage["songs_#{name}"] = JSON.stringify data
+
+        loadSong: ->
+          if name = prompt "Name"
+            data = JSON.parse localStorage["songs_#{name}"]
+
+            self.notes data.notes
+            self.beats data.beats
+            self.tempo data.tempo
+
+            playing = false
+            playTime = 0
