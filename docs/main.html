@@ -35,7 +35,10 @@
               <p>Setup</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># Google Analytics</span>
+require(<span class="string">"analytics"</span>).init(<span class="string">"UA-3464282-15"</span>)
+
+require <span class="string">"cornerstone"</span>
 require <span class="string">"jquery-utils"</span>
 global.Observable = require <span class="string">"observable"</span></code></pre>
 </div>
