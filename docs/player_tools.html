@@ -37,24 +37,16 @@
             <div class="content"><pre><code class="lang-coffeescript">{defaults} = require <span class="string">"util"</span>
 
 tools = [
-  (editor, {x, y}) -&gt;
+  (editor, {beat, note}) -&gt;
     <span class="comment"># Add Note to Score</span>
     instrument = editor.activeInstrument()
 
-    <span class="comment"># Quantize</span>
-    time = quantize(x, editor.quantize())
-    <span class="comment"># TODO: Fix these offset hacks!</span>
-    note = Math.floor y * <span class="number">25</span> - <span class="number">0.5</span>
-
-    editor.addNote [time, note, instrument]
+    editor.addNote [beat, note, instrument]
 
     editor.playNote instrument, note
 
-  (editor, {x, y}) -&gt;
-    time = quantize(x, editor.quantize())
-    note = Math.floor y * <span class="number">25</span> - <span class="number">0.5</span>
-
-    <span class="keyword">if</span> editor.removeNote [time, note]
+  (editor, {beat, note}) -&gt;
+    <span class="keyword">if</span> editor.removeNote [beat, note]
       <span class="comment"># Play remove sound</span>
       <span class="comment"># TODO: This is a hack!</span>
       editor.playNote <span class="number">16</span>
@@ -78,33 +70,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   self.extend
     activeTool: -&gt;
       tools[self.activeToolIndex()]</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-3">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-3">&#182;</a>
-              </div>
-              <h2 id="helpers">Helpers</h2>
-
-            </div>
-            <div class="content"><pre><code class="lang-coffeescript">
-</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-4">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-4">&#182;</a>
-              </div>
-              
-            </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">quantize</span></span> = (x, n) -&gt;
-  (((x + <span class="number">1</span><span class="regexp">/(2*n)) * n)|0)/</span>n</code></pre>
 </div>
         </li>
         

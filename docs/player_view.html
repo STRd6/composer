@@ -59,11 +59,19 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   canvas = Canvas()
 
-  canvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p) -&gt;
-    <span class="comment"># Y is inverted and begins at bottom</span>
-    transform = Matrix(self.beats(), <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>)
+  $(canvas.element()).mousemove (e) -&gt;
+    {pageX:x, pageY:y} = e
+    note = Math.round positionToNote(y)
+    $(<span class="string">".position"</span>).text <span class="string">"<span class="subst">#{x}</span>, <span class="subst">#{y}</span>, <span class="subst">#{note}</span>"</span>
 
-    self.activeTool()(self, transform.transformPoint(p))
+  canvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p) -&gt;
+    data =
+      note: Math.round(positionToNote(p.y * canvas.height()))
+      beat: quantize(p.x * self.beats(), self.quantize())
+
+    self.activeTool()(self, data)
+
+  document.body.appendChild canvas.element()
 
   <span class="function"><span class="title">handleResize</span></span> =  -&gt;
     canvas.width(window.innerWidth)
@@ -72,15 +80,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   handleResize()
   window.addEventListener <span class="string">"resize"</span>, handleResize, <span class="literal">false</span>
 
-  document.body.appendChild canvas.element()
-
   <span class="function"><span class="title">drawNote</span></span> = (canvas, note) -&gt;
     [time, note, instrument] = note
 
     {width, height} = img = images[instrument]
 
     x = time * (canvas.width()<span class="regexp">/self.beats()) - width/</span><span class="number">2</span>
-    y = (<span class="number">24</span> - note) * canvas.height() / <span class="number">25</span> - height/<span class="number">2</span>
+    y = noteToPosition(note) - height/<span class="number">2</span>
 
     canvas.drawImage img, x, y
 
@@ -104,8 +110,26 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
         height: canvas.height()
         color: color
 
+  <span class="function"><span class="title">noteToPosition</span></span> = (note) -&gt;
+    [low, high] = self.gamut()
+
+    n = (high - low) + <span class="number">1</span>
+    height = canvas.height()/n
+
+    canvas.height() - (note + n/<span class="number">2</span>) * height
+
+  <span class="function"><span class="title">positionToNote</span></span> = (position) -&gt;
+    [low, high] = self.gamut()
+
+    n = (high - low) + <span class="number">1</span>
+    height = canvas.height()/n
+
+    note = canvas.height() / height - (position / height + n/<span class="number">2</span>)
+
   <span class="function"><span class="title">drawScaleGuides</span></span> = (canvas) -&gt;
-    [<span class="number">1.</span><span class="number">.25</span>].forEach (i) -&gt;
+    [low, high] = self.gamut()
+
+    [low..high].forEach (i, index) -&gt;
       <span class="keyword">if</span> inScale(i)
         color = DARK
       <span class="keyword">else</span>
@@ -113,7 +137,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
       canvas.drawRect
         x: <span class="number">0</span>
-        y: canvas.height() - i * canvas.height() / <span class="number">25</span>
+        y: noteToPosition(i)
         width: canvas.width()
         height: <span class="number">1</span>
         color: color
@@ -190,6 +214,33 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
             </div>
             <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">mod</span></span> = (n, k) -&gt;
   (n % k + k) % k</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <h2 id="helpers">Helpers</h2>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">quantize</span></span> = (x, n) -&gt;
+  (((x + <span class="number">1</span><span class="regexp">/(2*n)) * n)|0)/</span>n</code></pre>
 </div>
         </li>
         

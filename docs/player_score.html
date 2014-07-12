@@ -41,10 +41,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     tempo: <span class="number">90</span> <span class="comment"># BPM</span>
     beats: <span class="number">4</span>
     scale: <span class="number">0</span>
+    gamut: [-<span class="number">12</span>, <span class="number">12</span>]
     notes: []
 
   self.attrObservable <span class="string">"beats"</span>, <span class="string">"tempo"</span>
-  self.attrAccessor <span class="string">"notes"</span>
+  self.attrAccessor <span class="string">"notes"</span>, <span class="string">"gamut"</span>
 
   playing = <span class="literal">false</span>
   playTime = <span class="number">0</span>
