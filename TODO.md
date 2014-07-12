@@ -1,10 +1,21 @@
 TODO
 ====
 
-Specify additional resources to add to the cache manifest.
+Save and Load
 
-Update to latest Hamlet.coffee
+Middle C should be in the middle
+
+Link to Share
+
+Eraser Hotkey
 
 Bugs
 ----
 
+
+To Later
+========
+
+Specify additional resources to add to the cache manifest.
+
+Update to latest Hamlet.coffee

@@ -7,10 +7,10 @@ Phrase
       defaults I,
         tempo: 90 # BPM
         beats: 4
+        notes: []
 
       self.attrObservable "beats", "tempo"
-
-      notes = []
+      self.attrAccessor "notes"
 
       playing = false
       playTime = 0
@@ -18,7 +18,7 @@ Phrase
       minute = 60 # seconds
 
       upcomingSounds = (current, dt) ->
-        notes.filter ([time]) ->
+        I.notes.filter ([time]) ->
           current <= time < current + dt
 
       # Schedules upcoming sounds to play
@@ -48,17 +48,14 @@ Phrase
 
       extend self,
         addNote: (note) ->
-          notes.push(note)
+          I.notes.push(note)
 
         removeNote: ([time, note]) ->
           # TODO: Some leeway to pick nearby note
-          matched = notes.filter ([t, n]) ->
+          matched = I.notes.filter ([t, n]) ->
             time is t and note is n
 
-          notes.remove matched[0]
-
-        notes: ->
-          notes
+          I.notes.remove matched[0]
 
         playTime: ->
           playTime
