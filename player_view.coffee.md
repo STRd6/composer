@@ -29,7 +29,8 @@ Player View
       $(canvas.element()).mousemove (e) ->
         {pageX:x, pageY:y} = e
         note = Math.round positionToNote(y)
-        $(".position").text "#{x}, #{y}, #{note}"
+        beat = quantize(x / canvas.width() * self.beats(), self.quantize())
+        $(".position").text "T: #{beat.toFixed(2)}, N: #{note}"
 
       canvas.on "touch", (p) ->
         data =

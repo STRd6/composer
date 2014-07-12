@@ -48,6 +48,9 @@ Phrase
 
       playLoop()
 
+      # Demo song
+      localStorage.songs_demo ?= JSON.stringify {"activeInstrument":0,"activeToolIndex":1,"quantize":4,"tempo":"120","beats":"16","scale":0,"gamut":[-12,12],"notes":[[0,10,0],[0,7,0],[3.25,10,0],[3.5,11,0],[3.75,10,0],[4,9,0],[4,5,0],[4.75,5,0],[7,5,0],[7.5,7,0],[8,8,0],[8,4,0],[11.25,8,0],[11.5,10,0],[11.75,8,0],[12,7,0],[12,3,0],[12.75,7,0],[12.75,15,0]]}
+
       extend self,
         addNote: (note) ->
           I.notes.push(note)
@@ -79,7 +82,7 @@ Phrase
             localStorage["songs_#{name}"] = JSON.stringify data
 
         loadSong: ->
-          if name = prompt "Name"
+          if name = prompt "Name", "demo"
             data = JSON.parse localStorage["songs_#{name}"]
 
             self.notes data.notes
