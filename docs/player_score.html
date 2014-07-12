@@ -98,6 +98,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     play: -&gt;
       playing = !playing
 
+    transpose: -&gt;
+      <span class="keyword">if</span> amount = prompt <span class="string">"Transpose (semitones)"</span>
+        amount = parseInt(amount, <span class="number">10</span>)
+
+        I.notes.forEach (note) -&gt;
+          note[<span class="number">1</span>] += amount
+
     saveAs: -&gt;
       <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>
         data = self.toJSON()
