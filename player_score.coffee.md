@@ -65,6 +65,13 @@ Phrase
         play: ->
           playing = !playing
 
+        transpose: ->
+          if amount = prompt "Transpose (semitones)"
+            amount = parseInt(amount, 10)
+
+            I.notes.forEach (note) ->
+              note[1] += amount
+
         saveAs: ->
           if name = prompt "Name"
             data = self.toJSON()
