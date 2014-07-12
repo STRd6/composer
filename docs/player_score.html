@@ -81,6 +81,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   playLoop()
 
+  <span class="comment"># Demo song</span>
+  localStorage.songs_demo ?= JSON.stringify {<span class="string">"activeInstrument"</span>:<span class="number">0</span>,<span class="string">"activeToolIndex"</span>:<span class="number">1</span>,<span class="string">"quantize"</span>:<span class="number">4</span>,<span class="string">"tempo"</span>:<span class="string">"120"</span>,<span class="string">"beats"</span>:<span class="string">"16"</span>,<span class="string">"scale"</span>:<span class="number">0</span>,<span class="string">"gamut"</span>:[-<span class="number">12</span>,<span class="number">12</span>],<span class="string">"notes"</span>:[[<span class="number">0</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">0</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">3.25</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">3.5</span>,<span class="number">11</span>,<span class="number">0</span>],[<span class="number">3.75</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">4</span>,<span class="number">9</span>,<span class="number">0</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">4.75</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">7</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">7.5</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">8</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">8</span>,<span class="number">4</span>,<span class="number">0</span>],[<span class="number">11.25</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">11.5</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">11.75</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">12</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">12</span>,<span class="number">3</span>,<span class="number">0</span>],[<span class="number">12.75</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">12.75</span>,<span class="number">15</span>,<span class="number">0</span>]]}
+
   extend self,
     addNote: (note) -&gt;
       I.notes.push(note)
@@ -112,7 +115,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
         localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>] = JSON.stringify data
 
     loadSong: -&gt;
-      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>
+      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>, <span class="string">"demo"</span>
         data = JSON.parse localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>]
 
         self.notes data.notes
