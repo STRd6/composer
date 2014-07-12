@@ -40,10 +40,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   defaults I,
     tempo: <span class="number">90</span> <span class="comment"># BPM</span>
     beats: <span class="number">4</span>
+    notes: []
 
   self.attrObservable <span class="string">"beats"</span>, <span class="string">"tempo"</span>
-
-  notes = []
+  self.attrAccessor <span class="string">"notes"</span>
 
   playing = <span class="literal">false</span>
   playTime = <span class="number">0</span>
@@ -51,7 +51,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   minute = <span class="number">60</span> <span class="comment"># seconds</span>
 
   <span class="function"><span class="title">upcomingSounds</span></span> = (current, dt) -&gt;
-    notes.filter ([time]) -&gt;
+    I.notes.filter ([time]) -&gt;
       current &lt;= time &lt; current + dt
 
   <span class="comment"># Schedules upcoming sounds to play</span>
@@ -81,17 +81,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   extend self,
     addNote: (note) -&gt;
-      notes.push(note)
+      I.notes.push(note)
 
     removeNote: ([time, note]) -&gt;
       <span class="comment"># TODO: Some leeway to pick nearby note</span>
-      matched = notes.filter ([t, n]) -&gt;
+      matched = I.notes.filter ([t, n]) -&gt;
         time <span class="keyword">is</span> t <span class="keyword">and</span> note <span class="keyword">is</span> n
 
-      notes.remove matched[<span class="number">0</span>]
-
-    notes: -&gt;
-      notes
+      I.notes.remove matched[<span class="number">0</span>]
 
     playTime: -&gt;
       playTime
