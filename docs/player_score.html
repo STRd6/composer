@@ -94,7 +94,24 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       playTime
 
     play: -&gt;
-      playing = !playing</code></pre>
+      playing = !playing
+
+    saveAs: -&gt;
+      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>
+        data = self.toJSON()
+
+        localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>] = JSON.stringify data
+
+    loadSong: -&gt;
+      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>
+        data = JSON.parse localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>]
+
+        self.notes data.notes
+        self.beats data.beats
+        self.tempo data.tempo
+
+        playing = <span class="literal">false</span>
+        playTime = <span class="number">0</span></code></pre>
 </div>
         </li>
         
