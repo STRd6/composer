@@ -8,10 +8,11 @@ Phrase
         tempo: 90 # BPM
         beats: 4
         scale: 0
+        gamut: [-12, 12]
         notes: []
 
       self.attrObservable "beats", "tempo"
-      self.attrAccessor "notes"
+      self.attrAccessor "notes", "gamut"
 
       playing = false
       playTime = 0

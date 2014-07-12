@@ -26,11 +26,19 @@ Player View
 
       canvas = Canvas()
 
-      canvas.on "touch", (p) ->
-        # Y is inverted and begins at bottom
-        transform = Matrix(self.beats(), 0, 0, -1, 0, 1)
+      $(canvas.element()).mousemove (e) ->
+        {pageX:x, pageY:y} = e
+        note = Math.round positionToNote(y)
+        $(".position").text "#{x}, #{y}, #{note}"
 
-        self.activeTool()(self, transform.transformPoint(p))
+      canvas.on "touch", (p) ->
+        data =
+          note: Math.round(positionToNote(p.y * canvas.height()))
+          beat: quantize(p.x * self.beats(), self.quantize())
+
+        self.activeTool()(self, data)
+
+      document.body.appendChild canvas.element()
 
       handleResize =  ->
         canvas.width(window.innerWidth)
@@ -39,15 +47,13 @@ Player View
       handleResize()
       window.addEventListener "resize", handleResize, false
 
-      document.body.appendChild canvas.element()
-
       drawNote = (canvas, note) ->
         [time, note, instrument] = note
 
         {width, height} = img = images[instrument]
 
         x = time * (canvas.width()/self.beats()) - width/2
-        y = (24 - note) * canvas.height() / 25 - height/2
+        y = noteToPosition(note) - height/2
 
         canvas.drawImage img, x, y
 
@@ -71,8 +77,26 @@ Player View
             height: canvas.height()
             color: color
 
+      noteToPosition = (note) ->
+        [low, high] = self.gamut()
+
+        n = (high - low) + 1
+        height = canvas.height()/n
+
+        canvas.height() - (note + n/2) * height
+
+      positionToNote = (position) ->
+        [low, high] = self.gamut()
+
+        n = (high - low) + 1
+        height = canvas.height()/n
+
+        note = canvas.height() / height - (position / height + n/2)
+
       drawScaleGuides = (canvas) ->
-        [1..25].forEach (i) ->
+        [low, high] = self.gamut()
+
+        [low..high].forEach (i, index) ->
           if inScale(i)
             color = DARK
           else
@@ -80,7 +104,7 @@ Player View
 
           canvas.drawRect
             x: 0
-            y: canvas.height() - i * canvas.height() / 25
+            y: noteToPosition(i)
             width: canvas.width()
             height: 1
             color: color
@@ -136,3 +160,9 @@ Helpers
 
     mod = (n, k) ->
       (n % k + k) % k
+
+Helpers
+-------
+
+    quantize = (x, n) ->
+      (((x + 1/(2*n)) * n)|0)/n

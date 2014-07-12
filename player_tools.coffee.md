@@ -4,24 +4,16 @@ Tools
     {defaults} = require "util"
 
     tools = [
-      (editor, {x, y}) ->
+      (editor, {beat, note}) ->
         # Add Note to Score
         instrument = editor.activeInstrument()
 
-        # Quantize
-        time = quantize(x, editor.quantize())
-        # TODO: Fix these offset hacks!
-        note = Math.floor y * 25 - 0.5
-
-        editor.addNote [time, note, instrument]
+        editor.addNote [beat, note, instrument]
 
         editor.playNote instrument, note
 
-      (editor, {x, y}) ->
-        time = quantize(x, editor.quantize())
-        note = Math.floor y * 25 - 0.5
-
-        if editor.removeNote [time, note]
+      (editor, {beat, note}) ->
+        if editor.removeNote [beat, note]
           # Play remove sound
           # TODO: This is a hack!
           editor.playNote 16
@@ -45,9 +37,3 @@ Tools
       self.extend
         activeTool: ->
           tools[self.activeToolIndex()]
-
-Helpers
--------
-
-    quantize = (x, n) ->
-      (((x + 1/(2*n)) * n)|0)/n
