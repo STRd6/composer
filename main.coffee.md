@@ -3,6 +3,9 @@ Composer
 
 Setup
 
+    # Google Analytics
+    require("analytics").init("UA-3464282-15")
+
     require "cornerstone"
     require "jquery-utils"
     global.Observable = require "observable"
