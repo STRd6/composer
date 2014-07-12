@@ -44,7 +44,7 @@ window["STRd6/composer:master"]({
     },
     "player_hotkeys.coffee.md": {
       "path": "player_hotkeys.coffee.md",
-      "content": "Hotkeys\n=======\n\n    module.exports = (I, self) ->\n      self.include require \"hotkeys\"\n\n      self.addHotkey \"space\", \"play\"\n\n      [0..9].forEach (i) ->\n        self.addHotkey i.toString(), ->\n          self.activeInstrument i\n",
+      "content": "Hotkeys\n=======\n\n    module.exports = (I, self) ->\n      self.include require \"hotkeys\"\n\n      self.addHotkey \"space\", \"play\"\n\n      [0..9].forEach (i) ->\n        self.addHotkey i.toString(), ->\n          self.activeInstrument i\n          self.activeToolIndex(0)\n\n      self.addHotkey \"e\", ->\n        self.activeToolIndex(1)\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -106,7 +106,7 @@ window["STRd6/composer:master"]({
     },
     "player_hotkeys": {
       "path": "player_hotkeys",
-      "content": "(function() {\n  module.exports = function(I, self) {\n    self.include(require(\"hotkeys\"));\n    self.addHotkey(\"space\", \"play\");\n    return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function(i) {\n      return self.addHotkey(i.toString(), function() {\n        return self.activeInstrument(i);\n      });\n    });\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  module.exports = function(I, self) {\n    self.include(require(\"hotkeys\"));\n    self.addHotkey(\"space\", \"play\");\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function(i) {\n      return self.addHotkey(i.toString(), function() {\n        self.activeInstrument(i);\n        return self.activeToolIndex(0);\n      });\n    });\n    return self.addHotkey(\"e\", function() {\n      return self.activeToolIndex(1);\n    });\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "player_score": {
