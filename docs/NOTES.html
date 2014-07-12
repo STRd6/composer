@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>player_score</title>
+  <title>NOTES</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,10 +18,10 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="phrase">Phrase</h1>
+              <h1 id="data-types">Data Types</h1>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">
+            <div class="content"><pre><code>
 </code></pre>
 </div>
         </li>
@@ -32,87 +32,13 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              
+              <p>A note is a number. <code>C4</code> is <code>0</code>, <code>C#4</code> is <code>1</code>, <code>B3</code> is <code>-1</code>, etc.</p>
+<p>A phrase is a collection of (note, beat, instrument) tuples.</p>
+<p>Scale is a collection of notes modulo 12.</p>
+
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">{defaults, extend} = require <span class="string">"util"</span>
-
-module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
-  defaults I,
-    tempo: <span class="number">90</span> <span class="comment"># BPM</span>
-    beats: <span class="number">4</span>
-    scale: <span class="number">0</span>
-    notes: []
-
-  self.attrObservable <span class="string">"beats"</span>, <span class="string">"tempo"</span>
-  self.attrAccessor <span class="string">"notes"</span>
-
-  playing = <span class="literal">false</span>
-  playTime = <span class="number">0</span>
-  timestep = <span class="number">1</span>/<span class="number">60</span> <span class="comment"># Animation Frame timestep, seconds</span>
-  minute = <span class="number">60</span> <span class="comment"># seconds</span>
-
-  <span class="function"><span class="title">upcomingSounds</span></span> = (current, dt) -&gt;
-    I.notes.filter ([time]) -&gt;
-      current &lt;= time &lt; current + dt
-
-  <span class="comment"># Schedules upcoming sounds to play</span>
-  <span class="function"><span class="title">playUpcomingSounds</span></span> = (current, dt) -&gt;
-    upcomingSounds(current, dt)
-    .forEach ([time, note, instrument]) -&gt;
-      <span class="comment"># TODO: Make sure the units in time are right</span>
-      <span class="comment"># should be seconds but may currently be beats!</span>
-      self.playNote instrument, note, (time - current) * minute / self.tempo()
-
-  <span class="function"><span class="title">playLoop</span></span> = -&gt;
-    <span class="keyword">if</span> playing
-      <span class="comment"># dt is measured in beats</span>
-      dt = timestep * self.tempo() / minute
-      playUpcomingSounds(playTime, dt)
-
-      playTime += dt
-
-      <span class="keyword">if</span> playTime &gt;= self.beats()
-        dt = playTime - self.beats() <span class="comment"># "left over" section wraps to beginning</span>
-        playUpcomingSounds(<span class="number">0</span>, dt)
-        playTime = dt
-
-    requestAnimationFrame playLoop
-
-  playLoop()
-
-  extend self,
-    addNote: (note) -&gt;
-      I.notes.push(note)
-
-    removeNote: ([time, note]) -&gt;
-      <span class="comment"># TODO: Some leeway to pick nearby note</span>
-      matched = I.notes.filter ([t, n]) -&gt;
-        time <span class="keyword">is</span> t <span class="keyword">and</span> note <span class="keyword">is</span> n
-
-      I.notes.remove matched[<span class="number">0</span>]
-
-    playTime: -&gt;
-      playTime
-
-    play: -&gt;
-      playing = !playing
-
-    saveAs: -&gt;
-      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>
-        data = self.toJSON()
-
-        localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>] = JSON.stringify data
-
-    loadSong: -&gt;
-      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>
-        data = JSON.parse localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>]
-
-        self.notes data.notes
-        self.beats data.beats
-        self.tempo data.tempo
-
-        playing = <span class="literal">false</span>
-        playTime = <span class="number">0</span></code></pre>
+            <div class="content"><pre><code>
+</code></pre>
 </div>
         </li>
         

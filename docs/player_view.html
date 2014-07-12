@@ -84,9 +84,19 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
     canvas.drawImage img, x, y
 
-  <span class="function"><span class="title">drawGuides</span></span> = (canvas, n, color=LIGHT) -&gt;
+  <span class="function"><span class="title">drawTemporalGuides</span></span> = (canvas) -&gt;
+    <span class="comment"># TODO: View Offset</span>
+
+    n = self.beats() * self.quantize()
+
     width = canvas.width()/n
-    [<span class="number">1.</span>.n-<span class="number">1</span>].forEach (i) -&gt;
+
+    [<span class="number">0.</span>.n-<span class="number">1</span>].forEach (i) -&gt;
+      <span class="keyword">if</span> mod(i, self.quantize()) <span class="keyword">is</span> <span class="number">0</span>
+        color = DARK
+      <span class="keyword">else</span>
+        color = LIGHT
+
       canvas.drawRect
         x: width * i
         y: <span class="number">0</span>
@@ -94,7 +104,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
         height: canvas.height()
         color: color
 
-  <span class="function"><span class="title">drawNoteLines</span></span> = (canvas) -&gt;
+  <span class="function"><span class="title">drawScaleGuides</span></span> = (canvas) -&gt;
     [<span class="number">1.</span><span class="number">.25</span>].forEach (i) -&gt;
       <span class="keyword">if</span> inScale(i)
         color = DARK
@@ -108,8 +118,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
         height: <span class="number">1</span>
         color: color
 
-  <span class="function"><span class="title">inScale</span></span> = (i) -&gt;
-    i = mod i, <span class="number">12</span>
+  <span class="function"><span class="title">inScale</span></span> = (i, scale=<span class="number">0</span>) -&gt;
+    i = mod i + scale, <span class="number">12</span>
 
     [<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>].some (n) -&gt;
       n <span class="keyword">is</span> i
@@ -117,11 +127,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   <span class="function"><span class="title">paint</span></span> = -&gt;
     canvas.fill <span class="string">"white"</span>
 
-    drawNoteLines(canvas)
-
-    <span class="comment"># Draw guides</span>
-    drawGuides(canvas, self.quantize() * self.beats())
-    drawGuides(canvas, self.beats(), DARK)
+    drawScaleGuides(canvas)
+    drawTemporalGuides(canvas)
 
     <span class="comment"># Draw notes</span>
     self.notes().forEach (note) -&gt;
