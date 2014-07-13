@@ -186,7 +186,7 @@
     },
     "TODO.md": {
       "path": "TODO.md",
-      "content": "TODO\n====\n\nSave and Load\n\nLink to Share\n\nPadding for first beat, currently crammed up on the left edge\n\nBugs\n----\n\n\nTo Later\n========\n\nSpecify additional resources to add to the cache manifest.\n\nUpdate to latest Hamlet.coffee\n",
+      "content": "TODO\n====\n\nSave and Load\n\nLink to Share\n\nPadding for first beat, currently crammed up on the left edge\n\nAppcache prompt for new version\n\nBugs\n----\n\n\nTo Later\n========\n\nSpecify additional resources to add to the cache manifest.\n\nUpdate to latest Hamlet.coffee\n",
       "mode": "100644",
       "type": "blob"
     },
