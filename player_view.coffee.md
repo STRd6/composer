@@ -20,6 +20,8 @@ Player View
 
     LIGHT = "rgba(0, 0, 0, 0.0625)"
     DARK = "rgba(0, 0, 0, 0.25)"
+    
+    noteName = require "./note"
 
     module.exports = (I, self) ->
       Canvas = require "touch-canvas"
@@ -30,7 +32,7 @@ Player View
         {pageX:x, pageY:y} = e
         note = Math.round positionToNote(y)
         beat = quantize(x / canvas.width() * self.beats(), self.quantize())
-        $(".position").text "T: #{beat.toFixed(2)}, N: #{note}"
+        $(".position").text "T: #{beat.toFixed(2)}, #{noteName note}"
 
       canvas.on "touch", (p) ->
         data =
