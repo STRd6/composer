@@ -11,23 +11,19 @@ Save or load anonymous gists.
           description: "A song created with #{window.location}"
           public: true
           files:
-            "song.json":
+            "pattern0.json":
               content: JSON.stringify data
-            "info.md":
-              content: """
-                Created with #{window.location}
-              """
 
         $.ajax base,
           headers:
             Accept: "application/vnd.github.v3+json"
           contentType: "application/json; charset=utf-8"
-          data: JSON.stringify data, null, 2
+          data: JSON.stringify data
           dataType: "json"
           type: "POST"
         .then (result) ->
-          console.log result
+          result.id
 
       load: (gistId) ->
         $.get("#{base}/#{gistId}").then (data) ->
-          console.log data
+          JSON.parse data.files["pattern0.json"].content
