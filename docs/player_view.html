@@ -115,17 +115,19 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     [low, high] = self.gamut()
 
     n = (high - low) + <span class="number">1</span>
+    mid = (high + low) / <span class="number">2</span>
     height = canvas.height()/n
 
-    canvas.height() - (note + n/<span class="number">2</span>) * height
+    canvas.height() - (note - mid + n/<span class="number">2</span>) * height
 
   <span class="function"><span class="title">positionToNote</span></span> = (position) -&gt;
     [low, high] = self.gamut()
 
     n = (high - low) + <span class="number">1</span>
+    mid = (high + low) / <span class="number">2</span>
     height = canvas.height()/n
 
-    note = canvas.height() / height - (position / height + n/<span class="number">2</span>)
+    note = canvas.height() / height - (position / height + n/<span class="number">2</span> - mid)
 
   <span class="function"><span class="title">drawScaleGuides</span></span> = (canvas) -&gt;
     [low, high] = self.gamut()
@@ -171,7 +173,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   paint()
 
-  self.extend 
+  self.extend
     instruments: -&gt;
       images
 
