@@ -148,7 +148,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
         alert <span class="string">"Couldn't load gist with id: <span class="subst">#{id}</span>"</span>
 
     loadGistPrompt: -&gt;
-      <span class="keyword">if</span> id = prompt <span class="string">"Gist id"</span>, <span class="string">"03dca001f7f843b93333"</span>
+      <span class="keyword">if</span> id = prompt <span class="string">"Gist id"</span>, location.hash.substr(<span class="number">1</span>) || <span class="string">"4430ba0c808101866b4d"</span>
         self.loadGist(id)</code></pre>
 </div>
         </li>
