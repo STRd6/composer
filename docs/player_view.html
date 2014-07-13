@@ -54,6 +54,8 @@
 LIGHT = <span class="string">"rgba(0, 0, 0, 0.0625)"</span>
 DARK = <span class="string">"rgba(0, 0, 0, 0.25)"</span>
 
+noteName = require <span class="string">"./note"</span>
+
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
   Canvas = require <span class="string">"touch-canvas"</span>
 
@@ -63,7 +65,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     {pageX:x, pageY:y} = e
     note = Math.round positionToNote(y)
     beat = quantize(x / canvas.width() * self.beats(), self.quantize())
-    $(<span class="string">".position"</span>).text <span class="string">"T: <span class="subst">#{beat.toFixed(<span class="number">2</span>)}</span>, N: <span class="subst">#{note}</span>"</span>
+    $(<span class="string">".position"</span>).text <span class="string">"T: <span class="subst">#{beat.toFixed(<span class="number">2</span>)}</span>, <span class="subst">#{noteName note}</span>"</span>
 
   canvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p) -&gt;
     data =
