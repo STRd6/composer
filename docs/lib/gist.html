@@ -43,26 +43,22 @@ module.exports =
       description: <span class="string">"A song created with <span class="subst">#{window.location}</span>"</span>
       public: <span class="literal">true</span>
       files:
-        <span class="string">"song.json"</span>:
+        <span class="string">"pattern0.json"</span>:
           content: JSON.stringify data
-        <span class="string">"info.md"</span>:
-          content: <span class="string">"""
-            Created with <span class="subst">#{window.location}</span>
-          """</span>
 
     $.ajax base,
       headers:
         Accept: <span class="string">"application/vnd.github.v3+json"</span>
       contentType: <span class="string">"application/json; charset=utf-8"</span>
-      data: JSON.stringify data, <span class="literal">null</span>, <span class="number">2</span>
+      data: JSON.stringify data
       dataType: <span class="string">"json"</span>
       type: <span class="string">"POST"</span>
     .<span class="keyword">then</span> (result) -&gt;
-      console.log result
+      result.id
 
   load: (gistId) -&gt;
     $.get(<span class="string">"<span class="subst">#{base}</span>/<span class="subst">#{gistId}</span>"</span>).<span class="keyword">then</span> (data) -&gt;
-      console.log data</code></pre>
+      JSON.parse data.files[<span class="string">"pattern0.json"</span>].content</code></pre>
 </div>
         </li>
         
