@@ -82,17 +82,19 @@ Player View
         [low, high] = self.gamut()
 
         n = (high - low) + 1
+        mid = (high + low) / 2
         height = canvas.height()/n
 
-        canvas.height() - (note + n/2) * height
+        canvas.height() - (note - mid + n/2) * height
 
       positionToNote = (position) ->
         [low, high] = self.gamut()
 
         n = (high - low) + 1
+        mid = (high + low) / 2
         height = canvas.height()/n
 
-        note = canvas.height() / height - (position / height + n/2)
+        note = canvas.height() / height - (position / height + n/2 - mid)
 
       drawScaleGuides = (canvas) ->
         [low, high] = self.gamut()
@@ -138,7 +140,7 @@ Player View
 
       paint()
 
-      self.extend 
+      self.extend
         instruments: ->
           images
 
@@ -146,10 +148,10 @@ Player View
           if self.activeToolIndex() is 0
             if img = images[self.activeInstrument()]
               {width, height, src:url} = img
-    
+
               x = width/2
               y = height/2
-    
+
               $(canvas.element()).css
                 cursor: "url(#{url}) #{x} #{y}, default"
           else

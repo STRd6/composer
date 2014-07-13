@@ -8,7 +8,7 @@ Phrase
         tempo: 90 # BPM
         beats: 4
         scale: 0
-        gamut: [-12, 12]
+        gamut: [-12, 18]
         notes: []
 
       self.attrObservable "beats", "tempo"
