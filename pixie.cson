@@ -4,6 +4,7 @@ remoteDependencies: [
 ]
 dependencies:
   "analytics": "distri/google-analytics:v0.1.0"
+  "appcache": "distri/appcache:v0.2.0"
   "cornerstone": "distri/cornerstone:v0.2.2-pre.0"
   "hotkeys": "distri/hotkeys:v0.2.0"
   "jquery-utils": "distri/jquery-utils:v0.2.0"

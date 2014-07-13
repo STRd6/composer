@@ -6,6 +6,7 @@ Setup
     # Google Analytics
     require("analytics").init("UA-3464282-15")
 
+    require "appcache"
     require "cornerstone"
     require "jquery-utils"
     global.Observable = require "observable"
