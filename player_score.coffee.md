@@ -91,3 +91,8 @@ Phrase
 
             playing = false
             playTime = 0
+
+        publish: ->
+          Gist = require "./lib/gist"
+
+          Gist.save self.toJSON()

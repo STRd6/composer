@@ -3,11 +3,9 @@ TODO
 
 Save and Load
 
-Middle C should be in the middle
-
 Link to Share
 
-Eraser Hotkey
+Padding for first beat, currently crammed up on the left edge
 
 Bugs
 ----
