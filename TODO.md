@@ -7,6 +7,8 @@ Link to Share
 
 Padding for first beat, currently crammed up on the left edge
 
+Appcache prompt for new version
+
 Bugs
 ----
 
