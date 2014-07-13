@@ -115,5 +115,5 @@ Phrase
             alert "Couldn't load gist with id: #{id}"
 
         loadGistPrompt: ->
-          if id = prompt "Gist id", "03dca001f7f843b93333"
+          if id = prompt "Gist id", location.hash.substr(1) || "4430ba0c808101866b4d"
             self.loadGist(id)
