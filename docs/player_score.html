@@ -123,7 +123,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
         self.tempo data.tempo
 
         playing = <span class="literal">false</span>
-        playTime = <span class="number">0</span></code></pre>
+        playTime = <span class="number">0</span>
+
+    publish: -&gt;
+      Gist = require <span class="string">"./lib/gist"</span>
+
+      Gist.save self.toJSON()</code></pre>
 </div>
         </li>
         
