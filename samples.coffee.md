@@ -16,7 +16,7 @@ Samples
         sprite: "3518ee95f9f047ec45adbb47a964f7b6864fecc6"
       horn:
         sample: "64916bf1576808add3711c647b3773a3d40eeaec"
-        sprite: "9cf7b57bd99deef033aa64e2bd059392d75e53b5"
+        sprite: "c68b9502dd74c020b11519a4c37562b724c255af"
       orch_hit:
         sample: "b761c6d420c8af2309def0dc408c7ac98008dc5b"
         sprite: "c98d94ab15a922c4ad96e719a02ea7e5eff3930b"
