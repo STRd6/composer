@@ -20,7 +20,7 @@ window["STRd6/composer:samples-and-icons"]({
     },
     "TODO.md": {
       "path": "TODO.md",
-      "content": "TODO\n====\n\nPadding for first beat, currently crammed up on the left edge\n\nUpdate to latest Hamlet.coffee\n\nSpecify additional resources to add to the cache manifest.\n\nFinalize samples and images for v1 release\n- Need a snare\n\nHave hotkey order match icon order\n\nBugs\n----\n\nTo Later\n========\n",
+      "content": "TODO\n====\n\nPadding for first beat, currently crammed up on the left edge\n\nUpdate to latest Hamlet.coffee\n\nSpecify additional resources to add to the cache manifest.\n\nBugs\n----\n\nTo Later\n========\n",
       "mode": "100644",
       "type": "blob"
     },
