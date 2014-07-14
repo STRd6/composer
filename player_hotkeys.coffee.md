@@ -6,10 +6,14 @@ Hotkeys
 
       self.addHotkey "space", "play"
 
-      [0..9].forEach (i) ->
+      [1..9].forEach (i) ->
         self.addHotkey i.toString(), ->
-          self.activeInstrument i
+          self.activeInstrument i - 1
           self.activeToolIndex(0)
+
+      self.addHotkey "0", ->
+        self.activeInstrument 9
+        self.activeToolIndex(0)
 
       self.addHotkey "e", ->
         self.activeToolIndex(1)

@@ -19,13 +19,8 @@ Compose music on the internets?
 
     player = require("./player")()
 
-    sounds = [1..17].map (n) ->
-      n = 11 if n is 7
-
-      if n is 17
-        "http://addressable.s3.amazonaws.com/mpc/eraserloop.wav"
-      else
-        "http://addressable.s3.amazonaws.com/mpc/musicnote#{n}.wav"
+    sounds = require("./samples").map ({sample}) ->
+      "https://addressable.s3.amazonaws.com/composer/data/#{sample}"
 
     player.load sounds, ->
       console.log "Loaded!"
