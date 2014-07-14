@@ -39,10 +39,14 @@
 
   self.addHotkey <span class="string">"space"</span>, <span class="string">"play"</span>
 
-  [<span class="number">0.</span><span class="number">.9</span>].forEach (i) -&gt;
+  [<span class="number">1.</span><span class="number">.9</span>].forEach (i) -&gt;
     self.addHotkey i.toString(), -&gt;
-      self.activeInstrument i
+      self.activeInstrument i - <span class="number">1</span>
       self.activeToolIndex(<span class="number">0</span>)
+
+  self.addHotkey <span class="string">"0"</span>, -&gt;
+    self.activeInstrument <span class="number">9</span>
+    self.activeToolIndex(<span class="number">0</span>)
 
   self.addHotkey <span class="string">"e"</span>, -&gt;
     self.activeToolIndex(<span class="number">1</span>)</code></pre>

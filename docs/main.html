@@ -60,13 +60,8 @@ applyStylesheet require <span class="string">"./style"</span>
 
 player = require(<span class="string">"./player"</span>)()
 
-sounds = [<span class="number">1.</span><span class="number">.17</span>].map (n) -&gt;
-  n = <span class="number">11</span> <span class="keyword">if</span> n <span class="keyword">is</span> <span class="number">7</span>
-
-  <span class="keyword">if</span> n <span class="keyword">is</span> <span class="number">17</span>
-    <span class="string">"http://addressable.s3.amazonaws.com/mpc/eraserloop.wav"</span>
-  <span class="keyword">else</span>
-    <span class="string">"http://addressable.s3.amazonaws.com/mpc/musicnote<span class="subst">#{n}</span>.wav"</span>
+sounds = require(<span class="string">"./samples"</span>).map ({sample}) -&gt;
+  <span class="string">"https://addressable.s3.amazonaws.com/composer/data/<span class="subst">#{sample}</span>"</span>
 
 player.load sounds, -&gt;
   console.log <span class="string">"Loaded!"</span>
