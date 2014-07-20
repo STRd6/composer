@@ -1,7 +1,7 @@
 Phrase
 ======
 
-    {defaults, extend} = require "util"
+    require "cornerstone"
     Gist = require "./lib/gist"
 
     module.exports = (I, self) ->
