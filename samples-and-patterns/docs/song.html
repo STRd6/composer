@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>TODO</title>
+  <title>song</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,10 +18,10 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="todo">TODO</h1>
+              <h1 id="song">Song</h1>
 
             </div>
-            <div class="content"><pre><code>
+            <div class="content"><pre><code class="lang-coffeescript">
 </code></pre>
 </div>
         </li>
@@ -32,59 +32,17 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Padding for first beat, currently crammed up on the left edge</p>
-<p>Erase last note placed in stack, not first</p>
-<h2 id="bugs">Bugs</h2>
+              <p>A song has many patterns.</p>
+<p>A pattern has many samples.</p>
+<p>A song is a composite pattern?</p>
 
             </div>
-            <div class="content"><pre><code>
-</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-3">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-3">&#182;</a>
-              </div>
-              <h1 id="samples-and-patterns">Samples and Patterns</h1>
+            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 
-            </div>
-            <div class="content"><pre><code>
-</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-4">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-4">&#182;</a>
-              </div>
-              <p>Song is composed of many patterns</p>
-<p>Pattern painter (Arranger)
-4 (8?) channels where you can paint pattern sections</p>
-<p>Edit patterns and page through them</p>
-<h1 id="to-later">To Later</h1>
-
-            </div>
-            <div class="content"><pre><code>
-</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-5">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-5">&#182;</a>
-              </div>
-              <p>Specify additional resources to add to the cache manifest.</p>
-
-            </div>
-            <div class="content"><pre><code>
-</code></pre>
+module.<span class="function"><span class="title">exports</span></span> = -&gt;
+  defaults I,
+    patterns: []
+    tempo: <span class="number">90</span> <span class="comment"># BPM</span></code></pre>
 </div>
         </li>
         
