@@ -22,14 +22,15 @@ Phrase
 
       upcomingSounds = (current, dt) ->
         I.notes.filter ([time]) ->
-          current <= time < current + dt
+          if dt > 0
+            current <= time < current + dt
+          else if dt < 0
+            current + dt < time <= current
 
       # Schedules upcoming sounds to play
       playUpcomingSounds = (current, dt) ->
         upcomingSounds(current, dt)
         .forEach ([time, note, instrument]) ->
-          # TODO: Make sure the units in time are right
-          # should be seconds but may currently be beats!
           self.playNote instrument, note, (time - current) * minute / self.tempo()
 
       playLoop = ->
@@ -44,6 +45,10 @@ Phrase
             dt = playTime - self.beats() # "left over" section wraps to beginning
             playUpcomingSounds(0, dt)
             playTime = dt
+          else if playTime < 0 # negative tempo case
+            dt = playTime # "left over" section wraps to end
+            playUpcomingSounds(self.beats(), dt)
+            playTime = self.beats() + dt
 
         requestAnimationFrame playLoop
 
@@ -66,7 +71,7 @@ Phrase
           matched = I.notes.filter ([t, n]) ->
             time is t and note is n
 
-          I.notes.remove matched[0]
+          I.notes.remove matched.last()
 
         playTime: ->
           playTime
