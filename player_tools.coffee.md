@@ -1,7 +1,7 @@
 Tools
 =====
 
-    {defaults} = require "util"
+    require "cornerstone"
 
     tools = [
       (editor, {beat, note}) ->
