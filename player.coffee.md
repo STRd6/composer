@@ -26,7 +26,7 @@ Schedule a note to be played, use the buffer at the given index, pitch shift by
           source.playbackRate.value = rate
 
       self.include require "./player_tools"
-      self.include require "./player_score"
+      self.include require "./pattern"
       self.include require "./player_view"
       self.include require "./player_hotkeys"
 

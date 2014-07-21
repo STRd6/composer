@@ -1,5 +1,5 @@
-Phrase
-======
+Pattern
+=======
 
     require "cornerstone"
     Gist = require "./lib/gist"
