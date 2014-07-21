@@ -7,7 +7,10 @@ Sample
     bufferLoader = require "./lib/audio_loader"
 
     urlFor = (sha) ->
-      "http://a0.pixiecdn.com/composer/data/#{sha}"
+      n = 4
+      i = parseInt(sha.slice(-1), 0x10) % n
+
+      "http://a#{i}.pixiecdn.com/composer/data/#{sha}"
 
     getImage = (url) ->
       image = new Image
