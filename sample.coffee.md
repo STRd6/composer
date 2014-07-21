@@ -10,7 +10,7 @@ Sample
       n = 4
       i = parseInt(sha.slice(-1), 0x10) % n
 
-      "http://a#{i}.pixiecdn.com/composer/data/#{sha}"
+      "http://a#{i}.pixiecdn.com/composer/data/#{sha}?xdomain"
 
     getImage = (url) ->
       image = new Image
