@@ -16,11 +16,19 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
         load: (urls, callback) ->
           bufferLoader.load urls, callback
 
+Schedule a note to be played, use the buffer at the given index, pitch shift by
+`note` semitones, and play at `time` seconds in the future.
+
         playNote: (index, note=0,  time=0) ->
           rate = Math.pow 2, note / 12
 
+          buffer = bufferLoader.bufferList[index]
+
+          self.playBuffer(buffer, rate, time)
+
+        playBuffer: (buffer, rate=1, time=0) ->
           source = context.createBufferSource()
-          source.buffer = bufferLoader.bufferList[index]
+          source.buffer = buffer
           source.connect(context.destination)
           source.start(time + context.currentTime)
           source.playbackRate.value = rate
