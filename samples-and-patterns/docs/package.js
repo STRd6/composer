@@ -270,7 +270,7 @@
     },
     "sample.coffee.md": {
       "path": "sample.coffee.md",
-      "content": "Sample\n======\n\n    Deferred = require \"./lib/deferred\"\n    \n    bufferLoader = require \"./lib/audio_loader\"\n    \n    urlFor = (sha) ->\n      \"https://addressable.s3.amazonaws.com/composer/data/#{sha}\"\n\n    getImage = (url) ->\n      image = new Image\n      image.crossOrigin = true\n      image.src = url\n\n      return image\n\nA sample has an image and a sound buffer. Both can be loaded from URLs. If they\nare loaded from URLs then they must allow CORS.\n\n    module.exports = Sample (I={}) ->\n\n      self =\n        image: getImage(I.spriteURL)\n        buffer: null\n\n      return self\n\n    Sample.load = (data) ->\n      {sprite, sample} = data\n\n      # Load audio buffer\n      bufferLoader(urlFor(sample))\n      .then (buffer) ->\n        deferred.fulfill\n          buffer: buffer\n          image: getImage(urlFor(sprite))\n      .catch deferred.reject\n      .done()\n\n      return deferred.promise\n",
+      "content": "Sample\n======\n\n    Q = require \"./lib/q\"\n    Deferred = require \"./lib/deferred\"\n\n    bufferLoader = require \"./lib/audio_loader\"\n\n    urlFor = (sha) ->\n      \"http://a0.pixiecdn.com/composer/data/#{sha}\"\n\n    getImage = (url) ->\n      image = new Image\n      image.crossOrigin = true\n      image.src = url\n\n      return image\n\nA sample has an image and a sound buffer. Both can be loaded from URLs. If they\nare loaded from URLs then they must allow CORS.\n\n    module.exports = Sample = (I={}) ->\n\n      self =\n        image: getImage(I.spriteURL)\n        buffer: null\n\n      return self\n\n    Sample.load = (data) ->\n      deferred = Deferred()\n      {sprite, sample} = data\n\n      # Load audio buffer\n      bufferLoader(urlFor(sample))\n      .then (buffer) ->\n        deferred.fulfill\n          buffer: buffer\n          image: getImage(urlFor(sprite))\n      .catch deferred.reject\n      .done()\n\n      return deferred.promise\n\n    Sample.loadPack = (samplePack) ->\n      Q.all(samplePack.map(Sample.load))\n",
       "mode": "100644"
     },
     "song.coffee.md": {
@@ -290,7 +290,7 @@
     },
     "test/loader.coffee": {
       "path": "test/loader.coffee",
-      "content": "loader = require \"../lib/audio_loader\"\n\ndescribe \"Loader\", ->\n  it \"should load array buffers\", (done) ->\n    loader(\"https://addressable.s3.amazonaws.com/composer/data/f122a3a8f29ec09b0d61d0254022c0fc338240b3\")\n    .then (buffer) ->\n      console.log buffer\n      done()\n    .done()\n",
+      "content": "loader = require \"../lib/audio_loader\"\n\ndescribe \"Loader\", ->\n  it \"should load array buffers\", (done) ->\n    loader(\"https://addressable.s3.amazonaws.com/composer/data/f122a3a8f29ec09b0d61d0254022c0fc338240b3\")\n    .then (buffer) ->\n      console.log buffer\n      done()\n    .done()\n\n",
       "mode": "100644"
     },
     "lib/audio_loader.coffee.md": {
@@ -306,6 +306,11 @@
     "lib/deferred.coffee": {
       "path": "lib/deferred.coffee",
       "content": "module.exports = require(\"./q\").defer\n",
+      "mode": "100644"
+    },
+    "test/sample.coffee": {
+      "path": "test/sample.coffee",
+      "content": "Sample = require \"../sample\"\n\ndescribe \"Sample\", ->\n  it \"should be able to load a sample pack\", (done) ->\n    Sample.loadPack(require(\"../samples\"))\n    .then (samples) ->\n      console.log samples\n      done()\n    .done()\n",
       "mode": "100644"
     }
   },
@@ -377,7 +382,7 @@
     },
     "sample": {
       "path": "sample",
-      "content": "(function() {\n  var Deferred, bufferLoader, getImage, urlFor;\n\n  Deferred = require(\"./lib/deferred\");\n\n  bufferLoader = require(\"./lib/audio_loader\");\n\n  urlFor = function(sha) {\n    return \"https://addressable.s3.amazonaws.com/composer/data/\" + sha;\n  };\n\n  getImage = function(url) {\n    var image;\n    image = new Image;\n    image.crossOrigin = true;\n    image.src = url;\n    return image;\n  };\n\n  module.exports = Sample(function(I) {\n    var self;\n    if (I == null) {\n      I = {};\n    }\n    self = {\n      image: getImage(I.spriteURL),\n      buffer: null\n    };\n    return self;\n  });\n\n  Sample.load = function(data) {\n    var sample, sprite;\n    sprite = data.sprite, sample = data.sample;\n    bufferLoader(urlFor(sample)).then(function(buffer) {\n      return deferred.fulfill({\n        buffer: buffer,\n        image: getImage(urlFor(sprite))\n      });\n    })[\"catch\"](deferred.reject).done();\n    return deferred.promise;\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var Deferred, Q, Sample, bufferLoader, getImage, urlFor;\n\n  Q = require(\"./lib/q\");\n\n  Deferred = require(\"./lib/deferred\");\n\n  bufferLoader = require(\"./lib/audio_loader\");\n\n  urlFor = function(sha) {\n    return \"http://a0.pixiecdn.com/composer/data/\" + sha;\n  };\n\n  getImage = function(url) {\n    var image;\n    image = new Image;\n    image.crossOrigin = true;\n    image.src = url;\n    return image;\n  };\n\n  module.exports = Sample = function(I) {\n    var self;\n    if (I == null) {\n      I = {};\n    }\n    self = {\n      image: getImage(I.spriteURL),\n      buffer: null\n    };\n    return self;\n  };\n\n  Sample.load = function(data) {\n    var deferred, sample, sprite;\n    deferred = Deferred();\n    sprite = data.sprite, sample = data.sample;\n    bufferLoader(urlFor(sample)).then(function(buffer) {\n      return deferred.fulfill({\n        buffer: buffer,\n        image: getImage(urlFor(sprite))\n      });\n    })[\"catch\"](deferred.reject).done();\n    return deferred.promise;\n  };\n\n  Sample.loadPack = function(samplePack) {\n    return Q.all(samplePack.map(Sample.load));\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "song": {
@@ -413,6 +418,11 @@
     "lib/deferred": {
       "path": "lib/deferred",
       "content": "(function() {\n  module.exports = require(\"./q\").defer;\n\n}).call(this);\n",
+      "type": "blob"
+    },
+    "test/sample": {
+      "path": "test/sample",
+      "content": "(function() {\n  var Sample;\n\n  Sample = require(\"../sample\");\n\n  describe(\"Sample\", function() {\n    return it(\"should be able to load a sample pack\", function(done) {\n      return Sample.loadPack(require(\"../samples\")).then(function(samples) {\n        console.log(samples);\n        return done();\n      }).done();\n    });\n  });\n\n}).call(this);\n",
       "type": "blob"
     },
     "lib/hamlet-runtime": {

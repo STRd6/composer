@@ -34,12 +34,13 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Deferred = require <span class="string">"./lib/deferred"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Q = require <span class="string">"./lib/q"</span>
+Deferred = require <span class="string">"./lib/deferred"</span>
 
 bufferLoader = require <span class="string">"./lib/audio_loader"</span>
 
 <span class="function"><span class="title">urlFor</span></span> = (sha) -&gt;
-  <span class="string">"https://addressable.s3.amazonaws.com/composer/data/<span class="subst">#{sha}</span>"</span>
+  <span class="string">"http://a0.pixiecdn.com/composer/data/<span class="subst">#{sha}</span>"</span>
 
 <span class="function"><span class="title">getImage</span></span> = (url) -&gt;
   image = <span class="keyword">new</span> Image
@@ -60,7 +61,7 @@ bufferLoader = require <span class="string">"./lib/audio_loader"</span>
 are loaded from URLs then they must allow CORS.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">module.exports = Sample (I={}) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Sample</span></span> = (I={}) -&gt;
 
   self =
     image: getImage(I.spriteURL)
@@ -69,6 +70,7 @@ are loaded from URLs then they must allow CORS.</p>
   <span class="keyword">return</span> self
 
 Sample.<span class="function"><span class="title">load</span></span> = (data) -&gt;
+  deferred = Deferred()
   {sprite, sample} = data
 
   <span class="comment"># Load audio buffer</span>
@@ -80,7 +82,10 @@ Sample.<span class="function"><span class="title">load</span></span> = (data) -&
   .<span class="keyword">catch</span> deferred.reject
   .done()
 
-  <span class="keyword">return</span> deferred.promise</code></pre>
+  <span class="keyword">return</span> deferred.promise
+
+Sample.<span class="function"><span class="title">loadPack</span></span> = (samplePack) -&gt;
+  Q.all(samplePack.map(Sample.load))</code></pre>
 </div>
         </li>
         
