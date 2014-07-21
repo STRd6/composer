@@ -3,7 +3,7 @@ Player
 
 Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/
 
-    AudioContext = window.AudioContext or window.webkitAudioContext
+    context = require "./lib/audio_context"
     BufferLoader = require("./lib/buffer_loader")
 
     require "cornerstone"

@@ -6,7 +6,4 @@ describe "Loader", ->
     .then (buffer) ->
       console.log buffer
       done()
-    .catch (error) ->
-      console.log error
-      done()
     .done()

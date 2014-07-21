@@ -1,13 +1,13 @@
 Loader
 ======
 
-    Q = require "./q"
+    Deferred = require "./deferred"
 
 Load binary data and return a promise that will be fullflled with an ArrayBuffer
 or rejected with an error.
 
     module.exports = (url) ->
-      deferred = Q.defer()
+      deferred = Deferred()
 
       request = new XMLHttpRequest()
       request.open "GET", url

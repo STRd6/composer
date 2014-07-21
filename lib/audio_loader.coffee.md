@@ -1,13 +1,13 @@
 Audio Loader
 ============
 
-    Q = require "./q"
+    Deferred = require "./deferred"
     loader = require "./loader"
 
     context = require "./audio_context"
 
     module.exports = (url) ->
-      deferred = Q.defer()
+      deferred = Deferred()
 
       loader(url)
       .then (buffer) ->
