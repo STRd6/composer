@@ -34,13 +34,7 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">images = require(<span class="string">"./samples"</span>).map ({sprite}) -&gt;
-  img = <span class="keyword">new</span> Image
-  img.src = <span class="string">"https://addressable.s3.amazonaws.com/composer/data/<span class="subst">#{sprite}</span>"</span>
-
-  img
-
-LIGHT = <span class="string">"rgba(0, 0, 0, 0.0625)"</span>
+            <div class="content"><pre><code class="lang-coffeescript">LIGHT = <span class="string">"rgba(0, 0, 0, 0.0625)"</span>
 DARK = <span class="string">"rgba(0, 0, 0, 0.25)"</span>
 
 noteName = require <span class="string">"./note"</span>
@@ -75,7 +69,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   <span class="function"><span class="title">drawNote</span></span> = (canvas, note) -&gt;
     [time, note, instrument] = note
 
-    {width, height} = img = images[instrument]
+    {width, height} = img = self.samples.get(instrument).image
 
     x = time * (canvas.width()<span class="regexp">/self.beats()) - width/</span><span class="number">2</span>
     y = noteToPosition(note) - height/<span class="number">2</span>
@@ -165,13 +159,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   paint()
 
   self.extend
-    instruments: -&gt;
-      images
-
     setCursor: -&gt;
       <span class="keyword">if</span> self.activeToolIndex() <span class="keyword">is</span> <span class="number">0</span>
-        <span class="keyword">if</span> img = images[self.activeInstrument()]
-          {width, height, src:url} = img
+        <span class="keyword">if</span> sample = self.samples.get(self.activeInstrument())
+          {width, height, src:url} = img = sample.image
 
           x = width/<span class="number">2</span>
           y = height/<span class="number">2</span>

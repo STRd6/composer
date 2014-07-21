@@ -45,14 +45,18 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     scale: <span class="number">0</span>
     gamut: [-<span class="number">12</span>, <span class="number">18</span>]
     notes: []
+    samples: []
 
-  self.attrObservable <span class="string">"beats"</span>, <span class="string">"tempo"</span>
+  self.attrObservable <span class="string">"beats"</span>, <span class="string">"tempo"</span>, <span class="string">"samples"</span>
   self.attrAccessor <span class="string">"notes"</span>, <span class="string">"gamut"</span>
 
-  samples = <span class="literal">null</span>
+  <span class="comment"># TODO: This doesn't seem to be the place for this</span>
+  self.samples.observe -&gt;
+    self.setCursor()
+
+  <span class="comment"># Loading default sample pack</span>
   Sample.loadPack(require(<span class="string">"../samples"</span>))
-  .<span class="keyword">then</span> (loadedSamples) -&gt;
-    samples = loadedSamples
+  .<span class="keyword">then</span> self.samples
   .done()
 
   playing = <span class="literal">false</span>
@@ -120,7 +124,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       playing = !playing
 
     playNote: (instrument, note, time) -&gt;
-      buffer = samples[instrument].buffer
+      buffer = self.samples.get(instrument).buffer
       self.playBufferNote(buffer, note, time)
 
     transpose: -&gt;
