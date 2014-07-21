@@ -7,3 +7,4 @@ describe "Loader", ->
       console.log buffer
       done()
     .done()
+

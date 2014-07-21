@@ -1,12 +1,13 @@
 Sample
 ======
 
+    Q = require "./lib/q"
     Deferred = require "./lib/deferred"
-    
+
     bufferLoader = require "./lib/audio_loader"
-    
+
     urlFor = (sha) ->
-      "https://addressable.s3.amazonaws.com/composer/data/#{sha}"
+      "http://a0.pixiecdn.com/composer/data/#{sha}"
 
     getImage = (url) ->
       image = new Image
@@ -18,7 +19,7 @@ Sample
 A sample has an image and a sound buffer. Both can be loaded from URLs. If they
 are loaded from URLs then they must allow CORS.
 
-    module.exports = Sample (I={}) ->
+    module.exports = Sample = (I={}) ->
 
       self =
         image: getImage(I.spriteURL)
@@ -27,6 +28,7 @@ are loaded from URLs then they must allow CORS.
       return self
 
     Sample.load = (data) ->
+      deferred = Deferred()
       {sprite, sample} = data
 
       # Load audio buffer
@@ -39,3 +41,6 @@ are loaded from URLs then they must allow CORS.
       .done()
 
       return deferred.promise
+
+    Sample.loadPack = (samplePack) ->
+      Q.all(samplePack.map(Sample.load))
