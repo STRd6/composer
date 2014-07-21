@@ -35,7 +35,7 @@
               <p>Super simple Audio player based on <a href="http://www.html5rocks.com/en/tutorials/webaudio/intro/">http://www.html5rocks.com/en/tutorials/webaudio/intro/</a></p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">AudioContext = window.AudioContext <span class="keyword">or</span> window.webkitAudioContext
+            <div class="content"><pre><code class="lang-coffeescript">context = require <span class="string">"./lib/audio_context"</span>
 BufferLoader = require(<span class="string">"./lib/buffer_loader"</span>)
 
 require <span class="string">"cornerstone"</span>

@@ -34,13 +34,13 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Q = require <span class="string">"./q"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Deferred = require <span class="string">"./deferred"</span>
 loader = require <span class="string">"./loader"</span>
 
 context = require <span class="string">"./audio_context"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (url) -&gt;
-  deferred = Q.defer()
+  deferred = Deferred()
 
   loader(url)
   .<span class="keyword">then</span> (buffer) -&gt;

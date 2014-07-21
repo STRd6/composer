@@ -34,7 +34,7 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Q = require <span class="string">"./q"</span></code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">Deferred = require <span class="string">"./deferred"</span></code></pre>
 </div>
         </li>
         
@@ -49,7 +49,7 @@ or rejected with an error.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (url) -&gt;
-  deferred = Q.defer()
+  deferred = Deferred()
 
   request = <span class="keyword">new</span> XMLHttpRequest()
   request.open <span class="string">"GET"</span>, url

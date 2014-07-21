@@ -56,7 +56,7 @@ window["STRd6/composer:samples-and-patterns"]({
     },
     "player.coffee.md": {
       "path": "player.coffee.md",
-      "content": "Player\n======\n\nSuper simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/\n\n    AudioContext = window.AudioContext or window.webkitAudioContext\n    BufferLoader = require(\"./lib/buffer_loader\")\n\n    require \"cornerstone\"\n\n    module.exports = (I, self=Model(I)) ->\n      context = new AudioContext()\n      window.bufferLoader = new BufferLoader(context)\n\n      self.extend\n        load: (urls, callback) ->\n          bufferLoader.load urls, callback\n\nSchedule a note to be played, use the buffer at the given index, pitch shift by\n`note` semitones, and play at `time` seconds in the future.\n\n        playNote: (index, note=0,  time=0) ->\n          rate = Math.pow 2, note / 12\n\n          buffer = bufferLoader.bufferList[index]\n\n          self.playBuffer(buffer, rate, time)\n\n        playBuffer: (buffer, rate=1, time=0) ->\n          source = context.createBufferSource()\n          source.buffer = buffer\n          source.connect(context.destination)\n          source.start(time + context.currentTime)\n          source.playbackRate.value = rate\n\n      self.include require \"./player_tools\"\n      self.include require \"./player_score\"\n      self.include require \"./player_view\"\n      self.include require \"./player_hotkeys\"\n\n      self.setCursor()\n\n      return self\n",
+      "content": "Player\n======\n\nSuper simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/\n\n    context = require \"./lib/audio_context\"\n    BufferLoader = require(\"./lib/buffer_loader\")\n\n    require \"cornerstone\"\n\n    module.exports = (I, self=Model(I)) ->\n      context = new AudioContext()\n      window.bufferLoader = new BufferLoader(context)\n\n      self.extend\n        load: (urls, callback) ->\n          bufferLoader.load urls, callback\n\nSchedule a note to be played, use the buffer at the given index, pitch shift by\n`note` semitones, and play at `time` seconds in the future.\n\n        playNote: (index, note=0,  time=0) ->\n          rate = Math.pow 2, note / 12\n\n          buffer = bufferLoader.bufferList[index]\n\n          self.playBuffer(buffer, rate, time)\n\n        playBuffer: (buffer, rate=1, time=0) ->\n          source = context.createBufferSource()\n          source.buffer = buffer\n          source.connect(context.destination)\n          source.start(time + context.currentTime)\n          source.playbackRate.value = rate\n\n      self.include require \"./player_tools\"\n      self.include require \"./player_score\"\n      self.include require \"./player_view\"\n      self.include require \"./player_hotkeys\"\n\n      self.setCursor()\n\n      return self\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -104,7 +104,7 @@ window["STRd6/composer:samples-and-patterns"]({
     },
     "sample.coffee.md": {
       "path": "sample.coffee.md",
-      "content": "Sample\n======\n\n    Deferred = $.Deferred\n\n    module.exports = (data) ->\n      loaded = Deferred()\n\n      self =\n        loaded: loaded.promise()\n\n      return self\n",
+      "content": "Sample\n======\n\n    Deferred = require \"./lib/deferred\"\n    \n    bufferLoader = require \"./lib/audio_loader\"\n    \n    urlFor = (sha) ->\n      \"https://addressable.s3.amazonaws.com/composer/data/#{sha}\"\n\n    getImage = (url) ->\n      image = new Image\n      image.crossOrigin = true\n      image.src = url\n\n      return image\n\nA sample has an image and a sound buffer. Both can be loaded from URLs. If they\nare loaded from URLs then they must allow CORS.\n\n    module.exports = Sample (I={}) ->\n\n      self =\n        image: getImage(I.spriteURL)\n        buffer: null\n\n      return self\n\n    Sample.load = (data) ->\n      {sprite, sample} = data\n\n      # Load audio buffer\n      bufferLoader(urlFor(sample))\n      .then (buffer) ->\n        deferred.fulfill\n          buffer: buffer\n          image: getImage(urlFor(sprite))\n      .catch deferred.reject\n      .done()\n\n      return deferred.promise\n",
       "mode": "100644"
     },
     "song.coffee.md": {
@@ -119,22 +119,27 @@ window["STRd6/composer:samples-and-patterns"]({
     },
     "lib/loader.coffee.md": {
       "path": "lib/loader.coffee.md",
-      "content": "Loader\n======\n\n    Q = require \"./q\"\n\nLoad binary data and return a promise that will be fullflled with an ArrayBuffer\nor rejected with an error.\n\n    module.exports = (url) ->\n      deferred = Q.defer()\n\n      request = new XMLHttpRequest()\n      request.open \"GET\", url\n      request.responseType = \"arraybuffer\"\n\n      request.onload = ->\n        deferred.resolve request.response\n\n      request.onerror = ->\n        deferred.reject Error(\"Failed to load #{url}\")\n\n      request.send()\n\n      return deferred.promise\n",
+      "content": "Loader\n======\n\n    Deferred = require \"./deferred\"\n\nLoad binary data and return a promise that will be fullflled with an ArrayBuffer\nor rejected with an error.\n\n    module.exports = (url) ->\n      deferred = Deferred()\n\n      request = new XMLHttpRequest()\n      request.open \"GET\", url\n      request.responseType = \"arraybuffer\"\n\n      request.onload = ->\n        deferred.resolve request.response\n\n      request.onerror = ->\n        deferred.reject Error(\"Failed to load #{url}\")\n\n      request.send()\n\n      return deferred.promise\n",
       "mode": "100644"
     },
     "test/loader.coffee": {
       "path": "test/loader.coffee",
-      "content": "loader = require \"../lib/audio_loader\"\n\ndescribe \"Loader\", ->\n  it \"should load array buffers\", (done) ->\n    loader(\"https://addressable.s3.amazonaws.com/composer/data/f122a3a8f29ec09b0d61d0254022c0fc338240b3\")\n    .then (buffer) ->\n      console.log buffer\n      done()\n    .catch (error) ->\n      console.log error\n      done()\n    .done()\n",
+      "content": "loader = require \"../lib/audio_loader\"\n\ndescribe \"Loader\", ->\n  it \"should load array buffers\", (done) ->\n    loader(\"https://addressable.s3.amazonaws.com/composer/data/f122a3a8f29ec09b0d61d0254022c0fc338240b3\")\n    .then (buffer) ->\n      console.log buffer\n      done()\n    .done()\n",
       "mode": "100644"
     },
     "lib/audio_loader.coffee.md": {
       "path": "lib/audio_loader.coffee.md",
-      "content": "Audio Loader\n============\n\n    Q = require \"./q\"\n    loader = require \"./loader\"\n\n    context = require \"./audio_context\"\n\n    module.exports = (url) ->\n      deferred = Q.defer()\n\n      loader(url)\n      .then (buffer) ->\n        context.decodeAudioData buffer, deferred.resolve, deferred.reject\n      .catch(deferred.reject)\n      .done()\n\n      deferred.promise\n",
+      "content": "Audio Loader\n============\n\n    Deferred = require \"./deferred\"\n    loader = require \"./loader\"\n\n    context = require \"./audio_context\"\n\n    module.exports = (url) ->\n      deferred = Deferred()\n\n      loader(url)\n      .then (buffer) ->\n        context.decodeAudioData buffer, deferred.resolve, deferred.reject\n      .catch(deferred.reject)\n      .done()\n\n      deferred.promise\n",
       "mode": "100644"
     },
     "lib/audio_context.coffee.md": {
       "path": "lib/audio_context.coffee.md",
       "content": "Audio Context\n=============\n\n    AudioContext = window.AudioContext or window.webkitAudioContext\n\n    module.exports = new AudioContext\n",
+      "mode": "100644"
+    },
+    "lib/deferred.coffee": {
+      "path": "lib/deferred.coffee",
+      "content": "module.exports = require(\"./q\").defer\n",
       "mode": "100644"
     }
   },
@@ -166,7 +171,7 @@ window["STRd6/composer:samples-and-patterns"]({
     },
     "player": {
       "path": "player",
-      "content": "(function() {\n  var AudioContext, BufferLoader;\n\n  AudioContext = window.AudioContext || window.webkitAudioContext;\n\n  BufferLoader = require(\"./lib/buffer_loader\");\n\n  require(\"cornerstone\");\n\n  module.exports = function(I, self) {\n    var context;\n    if (self == null) {\n      self = Model(I);\n    }\n    context = new AudioContext();\n    window.bufferLoader = new BufferLoader(context);\n    self.extend({\n      load: function(urls, callback) {\n        return bufferLoader.load(urls, callback);\n      },\n      playNote: function(index, note, time) {\n        var buffer, rate;\n        if (note == null) {\n          note = 0;\n        }\n        if (time == null) {\n          time = 0;\n        }\n        rate = Math.pow(2, note / 12);\n        buffer = bufferLoader.bufferList[index];\n        return self.playBuffer(buffer, rate, time);\n      },\n      playBuffer: function(buffer, rate, time) {\n        var source;\n        if (rate == null) {\n          rate = 1;\n        }\n        if (time == null) {\n          time = 0;\n        }\n        source = context.createBufferSource();\n        source.buffer = buffer;\n        source.connect(context.destination);\n        source.start(time + context.currentTime);\n        return source.playbackRate.value = rate;\n      }\n    });\n    self.include(require(\"./player_tools\"));\n    self.include(require(\"./player_score\"));\n    self.include(require(\"./player_view\"));\n    self.include(require(\"./player_hotkeys\"));\n    self.setCursor();\n    return self;\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var BufferLoader, context;\n\n  context = require(\"./lib/audio_context\");\n\n  BufferLoader = require(\"./lib/buffer_loader\");\n\n  require(\"cornerstone\");\n\n  module.exports = function(I, self) {\n    if (self == null) {\n      self = Model(I);\n    }\n    context = new AudioContext();\n    window.bufferLoader = new BufferLoader(context);\n    self.extend({\n      load: function(urls, callback) {\n        return bufferLoader.load(urls, callback);\n      },\n      playNote: function(index, note, time) {\n        var buffer, rate;\n        if (note == null) {\n          note = 0;\n        }\n        if (time == null) {\n          time = 0;\n        }\n        rate = Math.pow(2, note / 12);\n        buffer = bufferLoader.bufferList[index];\n        return self.playBuffer(buffer, rate, time);\n      },\n      playBuffer: function(buffer, rate, time) {\n        var source;\n        if (rate == null) {\n          rate = 1;\n        }\n        if (time == null) {\n          time = 0;\n        }\n        source = context.createBufferSource();\n        source.buffer = buffer;\n        source.connect(context.destination);\n        source.start(time + context.currentTime);\n        return source.playbackRate.value = rate;\n      }\n    });\n    self.include(require(\"./player_tools\"));\n    self.include(require(\"./player_score\"));\n    self.include(require(\"./player_view\"));\n    self.include(require(\"./player_hotkeys\"));\n    self.setCursor();\n    return self;\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "player_hotkeys": {
@@ -206,7 +211,7 @@ window["STRd6/composer:samples-and-patterns"]({
     },
     "sample": {
       "path": "sample",
-      "content": "(function() {\n  var Deferred;\n\n  Deferred = $.Deferred;\n\n  module.exports = function(data) {\n    var loaded, self;\n    loaded = Deferred();\n    self = {\n      loaded: loaded.promise()\n    };\n    return self;\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var Deferred, bufferLoader, getImage, urlFor;\n\n  Deferred = require(\"./lib/deferred\");\n\n  bufferLoader = require(\"./lib/audio_loader\");\n\n  urlFor = function(sha) {\n    return \"https://addressable.s3.amazonaws.com/composer/data/\" + sha;\n  };\n\n  getImage = function(url) {\n    var image;\n    image = new Image;\n    image.crossOrigin = true;\n    image.src = url;\n    return image;\n  };\n\n  module.exports = Sample(function(I) {\n    var self;\n    if (I == null) {\n      I = {};\n    }\n    self = {\n      image: getImage(I.spriteURL),\n      buffer: null\n    };\n    return self;\n  });\n\n  Sample.load = function(data) {\n    var sample, sprite;\n    sprite = data.sprite, sample = data.sample;\n    bufferLoader(urlFor(sample)).then(function(buffer) {\n      return deferred.fulfill({\n        buffer: buffer,\n        image: getImage(urlFor(sprite))\n      });\n    })[\"catch\"](deferred.reject).done();\n    return deferred.promise;\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "song": {
@@ -221,22 +226,27 @@ window["STRd6/composer:samples-and-patterns"]({
     },
     "lib/loader": {
       "path": "lib/loader",
-      "content": "(function() {\n  var Q;\n\n  Q = require(\"./q\");\n\n  module.exports = function(url) {\n    var deferred, request;\n    deferred = Q.defer();\n    request = new XMLHttpRequest();\n    request.open(\"GET\", url);\n    request.responseType = \"arraybuffer\";\n    request.onload = function() {\n      return deferred.resolve(request.response);\n    };\n    request.onerror = function() {\n      return deferred.reject(Error(\"Failed to load \" + url));\n    };\n    request.send();\n    return deferred.promise;\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var Deferred;\n\n  Deferred = require(\"./deferred\");\n\n  module.exports = function(url) {\n    var deferred, request;\n    deferred = Deferred();\n    request = new XMLHttpRequest();\n    request.open(\"GET\", url);\n    request.responseType = \"arraybuffer\";\n    request.onload = function() {\n      return deferred.resolve(request.response);\n    };\n    request.onerror = function() {\n      return deferred.reject(Error(\"Failed to load \" + url));\n    };\n    request.send();\n    return deferred.promise;\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "test/loader": {
       "path": "test/loader",
-      "content": "(function() {\n  var loader;\n\n  loader = require(\"../lib/audio_loader\");\n\n  describe(\"Loader\", function() {\n    return it(\"should load array buffers\", function(done) {\n      return loader(\"https://addressable.s3.amazonaws.com/composer/data/f122a3a8f29ec09b0d61d0254022c0fc338240b3\").then(function(buffer) {\n        console.log(buffer);\n        return done();\n      })[\"catch\"](function(error) {\n        console.log(error);\n        return done();\n      }).done();\n    });\n  });\n\n}).call(this);\n",
+      "content": "(function() {\n  var loader;\n\n  loader = require(\"../lib/audio_loader\");\n\n  describe(\"Loader\", function() {\n    return it(\"should load array buffers\", function(done) {\n      return loader(\"https://addressable.s3.amazonaws.com/composer/data/f122a3a8f29ec09b0d61d0254022c0fc338240b3\").then(function(buffer) {\n        console.log(buffer);\n        return done();\n      }).done();\n    });\n  });\n\n}).call(this);\n",
       "type": "blob"
     },
     "lib/audio_loader": {
       "path": "lib/audio_loader",
-      "content": "(function() {\n  var Q, context, loader;\n\n  Q = require(\"./q\");\n\n  loader = require(\"./loader\");\n\n  context = require(\"./audio_context\");\n\n  module.exports = function(url) {\n    var deferred;\n    deferred = Q.defer();\n    loader(url).then(function(buffer) {\n      return context.decodeAudioData(buffer, deferred.resolve, deferred.reject);\n    })[\"catch\"](deferred.reject).done();\n    return deferred.promise;\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var Deferred, context, loader;\n\n  Deferred = require(\"./deferred\");\n\n  loader = require(\"./loader\");\n\n  context = require(\"./audio_context\");\n\n  module.exports = function(url) {\n    var deferred;\n    deferred = Deferred();\n    loader(url).then(function(buffer) {\n      return context.decodeAudioData(buffer, deferred.resolve, deferred.reject);\n    })[\"catch\"](deferred.reject).done();\n    return deferred.promise;\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "lib/audio_context": {
       "path": "lib/audio_context",
       "content": "(function() {\n  var AudioContext;\n\n  AudioContext = window.AudioContext || window.webkitAudioContext;\n\n  module.exports = new AudioContext;\n\n}).call(this);\n",
+      "type": "blob"
+    },
+    "lib/deferred": {
+      "path": "lib/deferred",
+      "content": "(function() {\n  module.exports = require(\"./q\").defer;\n\n}).call(this);\n",
       "type": "blob"
     },
     "lib/hamlet-runtime": {
