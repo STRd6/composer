@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>pattern</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="pattern">Pattern</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
+Gist = require <span class="string">"./lib/gist"</span>
+Sample = require <span class="string">"./sample"</span>
+
+module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
+  defaults I,
+    tempo: <span class="number">90</span> <span class="comment"># BPM</span>
+    beats: <span class="number">4</span>
+    scale: <span class="number">0</span>
+    gamut: [-<span class="number">12</span>, <span class="number">18</span>]
+    notes: []
+    samples: []
+
+  self.attrObservable <span class="string">"beats"</span>, <span class="string">"tempo"</span>, <span class="string">"samples"</span>
+  self.attrAccessor <span class="string">"notes"</span>, <span class="string">"gamut"</span>
+
+  <span class="comment"># TODO: This doesn't seem to be the place for this</span>
+  self.samples.observe -&gt;
+    self.setCursor()
+
+  <span class="comment"># Loading default sample pack</span>
+  Sample.loadPack(require(<span class="string">"../samples"</span>))
+  .<span class="keyword">then</span> self.samples
+  .done()
+
+  playing = <span class="literal">false</span>
+  playTime = <span class="number">0</span>
+  timestep = <span class="number">1</span>/<span class="number">60</span> <span class="comment"># Animation Frame timestep, seconds</span>
+  minute = <span class="number">60</span> <span class="comment"># seconds</span>
+
+  <span class="function"><span class="title">upcomingSounds</span></span> = (current, dt) -&gt;
+    I.notes.filter ([time]) -&gt;
+      <span class="keyword">if</span> dt &gt; <span class="number">0</span>
+        current &lt;= time &lt; current + dt
+      <span class="keyword">else</span> <span class="keyword">if</span> dt &lt; <span class="number">0</span>
+        current + dt &lt; time &lt;= current
+
+  <span class="comment"># Schedules upcoming sounds to play</span>
+  <span class="function"><span class="title">playUpcomingSounds</span></span> = (current, dt) -&gt;
+    upcomingSounds(current, dt)
+    .forEach ([time, note, instrument]) -&gt;
+      self.playNote instrument, note, (time - current) * minute / self.tempo()
+
+  <span class="function"><span class="title">playLoop</span></span> = -&gt;
+    <span class="keyword">if</span> playing
+      <span class="comment"># dt is measured in beats</span>
+      dt = timestep * self.tempo() / minute
+      playUpcomingSounds(playTime, dt)
+
+      playTime += dt
+
+      <span class="keyword">if</span> playTime &gt;= self.beats()
+        dt = playTime - self.beats() <span class="comment"># "left over" section wraps to beginning</span>
+        playUpcomingSounds(<span class="number">0</span>, dt)
+        playTime = dt
+      <span class="keyword">else</span> <span class="keyword">if</span> playTime &lt; <span class="number">0</span> <span class="comment"># negative tempo case</span>
+        dt = playTime <span class="comment"># "left over" section wraps to end</span>
+        playUpcomingSounds(self.beats(), dt)
+        playTime = self.beats() + dt
+
+    requestAnimationFrame playLoop
+
+  playLoop()
+
+  <span class="comment"># Demo song</span>
+  localStorage.songs_demo ?= JSON.stringify {<span class="string">"activeInstrument"</span>:<span class="number">0</span>,<span class="string">"activeToolIndex"</span>:<span class="number">1</span>,<span class="string">"quantize"</span>:<span class="number">4</span>,<span class="string">"tempo"</span>:<span class="string">"120"</span>,<span class="string">"beats"</span>:<span class="string">"16"</span>,<span class="string">"scale"</span>:<span class="number">0</span>,<span class="string">"gamut"</span>:[-<span class="number">12</span>,<span class="number">12</span>],<span class="string">"notes"</span>:[[<span class="number">0</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">0</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">3.25</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">3.5</span>,<span class="number">11</span>,<span class="number">0</span>],[<span class="number">3.75</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">4</span>,<span class="number">9</span>,<span class="number">0</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">4.75</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">7</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">7.5</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">8</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">8</span>,<span class="number">4</span>,<span class="number">0</span>],[<span class="number">11.25</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">11.5</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">11.75</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">12</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">12</span>,<span class="number">3</span>,<span class="number">0</span>],[<span class="number">12.75</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">12.75</span>,<span class="number">15</span>,<span class="number">0</span>]]}
+
+  setTimeout -&gt;
+    <span class="keyword">if</span> hash = location.hash
+      self.loadGist hash.substr(<span class="number">1</span>)
+  , <span class="number">0</span>
+
+  extend self,
+    addNote: (note) -&gt;
+      I.notes.push(note)
+
+    removeNote: ([time, note]) -&gt;
+      <span class="comment"># TODO: Some leeway to pick nearby note</span>
+      matched = I.notes.filter ([t, n]) -&gt;
+        time <span class="keyword">is</span> t <span class="keyword">and</span> note <span class="keyword">is</span> n
+
+      I.notes.remove matched.last()
+
+    playTime: -&gt;
+      playTime
+
+    play: -&gt;
+      playing = !playing
+
+    playNote: (instrument, note, time) -&gt;
+      buffer = self.samples.get(instrument).buffer
+      self.playBufferNote(buffer, note, time)
+
+    transpose: -&gt;
+      <span class="keyword">if</span> amount = prompt <span class="string">"Transpose (semitones)"</span>
+        amount = parseInt(amount, <span class="number">10</span>)
+
+        I.notes.forEach (note) -&gt;
+          note[<span class="number">1</span>] += amount
+
+    saveAs: -&gt;
+      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>
+        data = self.toJSON()
+
+        localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>] = JSON.stringify data
+
+    loadSong: -&gt;
+      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>, <span class="string">"demo"</span>
+        data = JSON.parse localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>]
+
+        self.fromJSON(data)
+
+    fromJSON: (data) -&gt;
+      self.notes data.notes
+      self.beats data.beats
+      self.tempo data.tempo
+
+      playing = <span class="literal">false</span>
+      playTime = <span class="number">0</span>
+
+    publish: -&gt;
+      Gist.save(self.toJSON()).<span class="keyword">then</span> (id) -&gt;
+        location.hash = id
+
+        alert <span class="string">"Published as <span class="subst">#{location}</span>\nShare this by copying the url!"</span>
+
+    loadGist: (id) -&gt;
+      Gist.load(id).<span class="keyword">then</span> (data) -&gt;
+        self.fromJSON(data)
+        location.hash = id
+      , -&gt;
+        alert <span class="string">"Couldn't load gist with id: <span class="subst">#{id}</span>"</span>
+
+    loadGistPrompt: -&gt;
+      <span class="keyword">if</span> id = prompt <span class="string">"Gist id"</span>, location.hash.substr(<span class="number">1</span>) || <span class="string">"4430ba0c808101866b4d"</span>
+        self.loadGist(id)</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script><script>
+  (function() {
+  var ErrorReporter, bindUpdates, createEditor, exec, findInteractiveElements, readShebang, runners;
+
+  createEditor = function(code, shebang, section) {
+    var annotationElement, contentElement, editorElement, exampleSection, runtimeElement;
+    exampleSection = $("<li>", {
+      "class": "example"
+    });
+    annotationElement = $("<div>", {
+      "class": "annotation"
+    });
+    editorElement = $("<textarea>", {
+      "class": "annotation",
+      text: code
+    });
+    contentElement = $("<div>", {
+      "class": "content"
+    });
+    runtimeElement = $("<div>", {
+      "class": "output"
+    });
+    contentElement.append(runtimeElement);
+    annotationElement.append(editorElement);
+    exampleSection.append(annotationElement);
+    exampleSection.append(contentElement);
+    section.after(exampleSection);
+    return bindUpdates(shebang, editorElement, runtimeElement);
+  };
+
+  bindUpdates = function(shebang, editorElement, runtimeElement) {
+    return editorElement.on("keyup", function() {
+      var e, report, source;
+      report = ErrorReporter(editorElement);
+      source = editorElement.val();
+      try {
+        runners[shebang]({
+          editorElement: editorElement,
+          source: source,
+          runtimeElement: runtimeElement
+        });
+        return report.clear();
+      } catch (_error) {
+        e = _error;
+        return report(e);
+      }
+    });
+  };
+
+  readShebang = function(source) {
+    var match;
+    if (match = source.match(/^\#\! (.*)\n/)) {
+      return match[1];
+    }
+  };
+
+  ErrorReporter = function(editor) {
+    var reporter;
+    reporter = function(error) {
+      var errorParagraph;
+      if (editor.next().is("p.error")) {
+        return editor.next().text(error);
+      } else {
+        errorParagraph = $("<p>", {
+          "class": "error",
+          text: error.toString()
+        });
+        return editor.after(errorParagraph);
+      }
+    };
+    reporter.clear = function() {
+      if (editor.next().is("p.error")) {
+        return editor.next().remove();
+      }
+    };
+    return reporter;
+  };
+
+  findInteractiveElements = function() {
+    return $("blockquote > pre > code").each(function() {
+      var blockQuoteElement, code, codeElement, sectionElement, shebang;
+      codeElement = $(this);
+      code = codeElement.text();
+      if (shebang = readShebang(code)) {
+        if (!runners[shebang]) {
+          return;
+        }
+        code = code.split("\n").slice(1).join("\n");
+        blockQuoteElement = codeElement.parent().parent();
+        sectionElement = blockQuoteElement.parent().parent();
+        blockQuoteElement.remove();
+        return createEditor(code, shebang, sectionElement);
+      }
+    });
+  };
+
+  runners = {};
+
+  (typeof window !== "undefined" && window !== null ? window : global).Interactive = {
+    register: function(name, runner) {
+      runners[name] = runner;
+      findInteractiveElements();
+      return $('#container').on('keyup', 'textarea', function() {
+        $(this).height(0);
+        return $(this).height(this.scrollHeight);
+      }).find('textarea').keyup();
+    }
+  };
+
+  exec = function(_arg) {
+    var code, editorElement, runtimeElement, source;
+    source = _arg.source, code = _arg.code, editorElement = _arg.editorElement, runtimeElement = _arg.runtimeElement;
+    runtimeElement.remove();
+    editorElement.replaceWith($("<pre>", {
+      text: source
+    }));
+    return setTimeout(function() {
+      return Function(code)();
+    }, 0);
+  };
+
+  $(function() {
+    Interactive.register("setup", function(params) {
+      params.code = CoffeeScript.compile(params.source);
+      return exec(params);
+    });
+    return Interactive.register("setup-js", function(params) {
+      params.code = params.source;
+      return exec(params);
+    });
+  });
+
+}).call(this);
+
+</script><script src="package.js"></script>
+</body>
+</html>
