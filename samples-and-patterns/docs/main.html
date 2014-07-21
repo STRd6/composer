@@ -63,9 +63,6 @@ player = require(<span class="string">"./player"</span>)()
 sounds = require(<span class="string">"./samples"</span>).map ({sample}) -&gt;
   <span class="string">"https://addressable.s3.amazonaws.com/composer/data/<span class="subst">#{sample}</span>"</span>
 
-player.load sounds, -&gt;
-  console.log <span class="string">"Loaded!"</span>
-
 document.body.appendChild require(<span class="string">"./tools"</span>)(player)</code></pre>
 </div>
         </li>

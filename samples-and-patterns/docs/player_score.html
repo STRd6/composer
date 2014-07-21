@@ -36,6 +36,7 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 Gist = require <span class="string">"./lib/gist"</span>
+Sample = require <span class="string">"./sample"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
   defaults I,
@@ -47,6 +48,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   self.attrObservable <span class="string">"beats"</span>, <span class="string">"tempo"</span>
   self.attrAccessor <span class="string">"notes"</span>, <span class="string">"gamut"</span>
+
+  samples = <span class="literal">null</span>
+  Sample.loadPack(require(<span class="string">"../samples"</span>))
+  .<span class="keyword">then</span> (loadedSamples) -&gt;
+    samples = loadedSamples
+  .done()
 
   playing = <span class="literal">false</span>
   playTime = <span class="number">0</span>
@@ -111,6 +118,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
     play: -&gt;
       playing = !playing
+
+    playNote: (instrument, note, time) -&gt;
+      buffer = samples[instrument].buffer
+      self.playBufferNote(buffer, note, time)
 
     transpose: -&gt;
       <span class="keyword">if</span> amount = prompt <span class="string">"Transpose (semitones)"</span>

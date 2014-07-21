@@ -47,9 +47,7 @@ tools = [
 
   (editor, {beat, note}) -&gt;
     <span class="keyword">if</span> editor.removeNote [beat, note]
-      <span class="comment"># Play remove sound</span>
-      <span class="comment"># TODO: This is a hack!</span>
-      editor.playNote <span class="number">16</span>
+      ;<span class="comment"># TODO: Play remove sound</span>
 ]
 
 module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;

@@ -36,17 +36,11 @@
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">context = require <span class="string">"./lib/audio_context"</span>
-BufferLoader = require(<span class="string">"./lib/buffer_loader"</span>)
 
 require <span class="string">"cornerstone"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I, self=Model(I)) -&gt;
-  context = <span class="keyword">new</span> AudioContext()
-  window.bufferLoader = <span class="keyword">new</span> BufferLoader(context)
-
-  self.extend
-    load: (urls, callback) -&gt;
-      bufferLoader.load urls, callback</code></pre>
+  self.extend</code></pre>
 </div>
         </li>
         
@@ -60,10 +54,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 <code>note</code> semitones, and play at <code>time</code> seconds in the future.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">    playNote: (index, note=<span class="number">0</span>,  time=<span class="number">0</span>) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">    playBufferNote: (buffer, note=<span class="number">0</span>,  time=<span class="number">0</span>) -&gt;
       rate = Math.pow <span class="number">2</span>, note / <span class="number">12</span>
-
-      buffer = bufferLoader.bufferList[index]
 
       self.playBuffer(buffer, rate, time)
 
