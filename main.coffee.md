@@ -22,7 +22,4 @@ Compose music on the internets?
     sounds = require("./samples").map ({sample}) ->
       "https://addressable.s3.amazonaws.com/composer/data/#{sample}"
 
-    player.load sounds, ->
-      console.log "Loaded!"
-
     document.body.appendChild require("./tools")(player)

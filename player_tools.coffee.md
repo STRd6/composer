@@ -14,9 +14,7 @@ Tools
 
       (editor, {beat, note}) ->
         if editor.removeNote [beat, note]
-          # Play remove sound
-          # TODO: This is a hack!
-          editor.playNote 16
+          ;# TODO: Play remove sound
     ]
 
     module.exports = (I, self) ->

@@ -3,6 +3,7 @@ Phrase
 
     require "cornerstone"
     Gist = require "./lib/gist"
+    Sample = require "./sample"
 
     module.exports = (I, self) ->
       defaults I,
@@ -14,6 +15,12 @@ Phrase
 
       self.attrObservable "beats", "tempo"
       self.attrAccessor "notes", "gamut"
+
+      samples = null
+      Sample.loadPack(require("../samples"))
+      .then (loadedSamples) ->
+        samples = loadedSamples
+      .done()
 
       playing = false
       playTime = 0
@@ -78,6 +85,10 @@ Phrase
 
         play: ->
           playing = !playing
+
+        playNote: (instrument, note, time) ->
+          buffer = samples[instrument].buffer
+          self.playBufferNote(buffer, note, time)
 
         transpose: ->
           if amount = prompt "Transpose (semitones)"

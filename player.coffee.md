@@ -4,25 +4,17 @@ Player
 Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/
 
     context = require "./lib/audio_context"
-    BufferLoader = require("./lib/buffer_loader")
 
     require "cornerstone"
 
     module.exports = (I, self=Model(I)) ->
-      context = new AudioContext()
-      window.bufferLoader = new BufferLoader(context)
-
       self.extend
-        load: (urls, callback) ->
-          bufferLoader.load urls, callback
 
 Schedule a note to be played, use the buffer at the given index, pitch shift by
 `note` semitones, and play at `time` seconds in the future.
 
-        playNote: (index, note=0,  time=0) ->
+        playBufferNote: (buffer, note=0,  time=0) ->
           rate = Math.pow 2, note / 12
-
-          buffer = bufferLoader.bufferList[index]
 
           self.playBuffer(buffer, rate, time)
 
