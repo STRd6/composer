@@ -12,14 +12,18 @@ Phrase
         scale: 0
         gamut: [-12, 18]
         notes: []
+        samples: []
 
-      self.attrObservable "beats", "tempo"
+      self.attrObservable "beats", "tempo", "samples"
       self.attrAccessor "notes", "gamut"
 
-      samples = null
+      # TODO: This doesn't seem to be the place for this
+      self.samples.observe ->
+        self.setCursor()
+
+      # Loading default sample pack
       Sample.loadPack(require("../samples"))
-      .then (loadedSamples) ->
-        samples = loadedSamples
+      .then self.samples
       .done()
 
       playing = false
@@ -87,7 +91,7 @@ Phrase
           playing = !playing
 
         playNote: (instrument, note, time) ->
-          buffer = samples[instrument].buffer
+          buffer = self.samples.get(instrument).buffer
           self.playBufferNote(buffer, note, time)
 
         transpose: ->

@@ -16,9 +16,9 @@
 
 .tools
   .instruments
-    - each @instruments, (instrument, i) ->
+    - each @samples, (sample, i) ->
       - activate = -> editor.activeToolIndex(0); editor.activeInstrument(i)
-      .tool.instrument(style="background-image: url(#{instrument.src})" click=activate)
+      .tool.instrument(style="background-image: url(#{sample.image.src})" click=activate)
 
   - eraser = -> editor.activeToolIndex(1)
   .tool.eraser(click=eraser)

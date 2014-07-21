@@ -1,12 +1,6 @@
 Player View
 ===========
 
-    images = require("./samples").map ({sprite}) ->
-      img = new Image
-      img.src = "https://addressable.s3.amazonaws.com/composer/data/#{sprite}"
-
-      img
-
     LIGHT = "rgba(0, 0, 0, 0.0625)"
     DARK = "rgba(0, 0, 0, 0.25)"
 
@@ -42,7 +36,7 @@ Player View
       drawNote = (canvas, note) ->
         [time, note, instrument] = note
 
-        {width, height} = img = images[instrument]
+        {width, height} = img = self.samples.get(instrument).image
 
         x = time * (canvas.width()/self.beats()) - width/2
         y = noteToPosition(note) - height/2
@@ -132,13 +126,10 @@ Player View
       paint()
 
       self.extend
-        instruments: ->
-          images
-
         setCursor: ->
           if self.activeToolIndex() is 0
-            if img = images[self.activeInstrument()]
-              {width, height, src:url} = img
+            if sample = self.samples.get(self.activeInstrument())
+              {width, height, src:url} = img = sample.image
 
               x = width/2
               y = height/2
