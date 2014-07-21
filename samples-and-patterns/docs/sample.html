@@ -43,7 +43,7 @@ bufferLoader = require <span class="string">"./lib/audio_loader"</span>
   n = <span class="number">4</span>
   i = parseInt(sha.slice(-<span class="number">1</span>), <span class="number">0x10</span>) % n
 
-  <span class="string">"http://a<span class="subst">#{i}</span>.pixiecdn.com/composer/data/<span class="subst">#{sha}</span>"</span>
+  <span class="string">"http://a<span class="subst">#{i}</span>.pixiecdn.com/composer/data/<span class="subst">#{sha}</span>?xdomain"</span>
 
 <span class="function"><span class="title">getImage</span></span> = (url) -&gt;
   image = <span class="keyword">new</span> Image
