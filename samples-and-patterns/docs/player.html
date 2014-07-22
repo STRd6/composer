@@ -39,8 +39,51 @@
 
 require <span class="string">"cornerstone"</span>
 
-module.<span class="function"><span class="title">exports</span></span> = (I, self=Model(I)) -&gt;
-  self.extend</code></pre>
+Pattern = require <span class="string">"./pattern"</span>
+
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
+  defaults I,
+    tempo: <span class="number">90</span> <span class="comment"># BPM</span>
+
+  self.attrObservable <span class="string">"tempo"</span> 
+
+  patterns = [
+    Pattern()
+  ]
+
+  <span class="function"><span class="title">activePattern</span></span> = -&gt;
+    patterns[<span class="number">0</span>]
+
+  self.extend
+    addNote: (note) -&gt;
+      activePattern().notes().push(note)
+
+    <span class="comment"># TODO: Extend this to work with multiple patterns</span>
+    playNote: (instrument, note, time) -&gt;
+      buffer = patterns[<span class="number">0</span>].samples.get(instrument).buffer
+      self.playBufferNote(buffer, note, time)
+
+    removeNote: -&gt;
+      activePattern().removeNote arguments...
+
+    <span class="comment"># TODO: Extend this to work with multiple patterns</span>
+    upcomingSounds: (current, dt) -&gt;
+      patterns[<span class="number">0</span>].notes().filter ([time]) -&gt;
+        <span class="keyword">if</span> dt &gt; <span class="number">0</span>
+          current &lt;= time &lt; current + dt
+        <span class="keyword">else</span> <span class="keyword">if</span> dt &lt; <span class="number">0</span>
+          current + dt &lt; time &lt;= current
+
+    gamut: -&gt;
+      activePattern().gamut()
+
+    beats: -&gt;
+      activePattern().beats()
+
+    notes: -&gt;
+      activePattern().notes()
+
+    samples: activePattern().samples</code></pre>
 </div>
         </li>
         
@@ -67,7 +110,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       source.playbackRate.value = rate
 
   self.include require <span class="string">"./player_tools"</span>
-  self.include require <span class="string">"./pattern"</span>
   self.include require <span class="string">"./player_audio"</span>
   self.include require <span class="string">"./player_view"</span>
   self.include require <span class="string">"./player_hotkeys"</span>

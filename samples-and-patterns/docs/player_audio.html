@@ -41,16 +41,9 @@
   timestep = <span class="number">1</span>/<span class="number">60</span> <span class="comment"># Animation Frame timestep, seconds</span>
   minute = <span class="number">60</span> <span class="comment"># seconds</span>
 
-  <span class="function"><span class="title">upcomingSounds</span></span> = (current, dt) -&gt;
-    self.notes().filter ([time]) -&gt;
-      <span class="keyword">if</span> dt &gt; <span class="number">0</span>
-        current &lt;= time &lt; current + dt
-      <span class="keyword">else</span> <span class="keyword">if</span> dt &lt; <span class="number">0</span>
-        current + dt &lt; time &lt;= current
-
   <span class="comment"># Schedules upcoming sounds to play</span>
   <span class="function"><span class="title">playUpcomingSounds</span></span> = (current, dt) -&gt;
-    upcomingSounds(current, dt)
+    self.upcomingSounds(current, dt)
     .forEach ([time, note, instrument]) -&gt;
       self.playNote instrument, note, (time - current) * minute / self.tempo()
 

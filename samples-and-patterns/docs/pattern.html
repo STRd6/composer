@@ -37,21 +37,16 @@
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 Sample = require <span class="string">"./sample"</span>
 
-module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
-    tempo: <span class="number">90</span> <span class="comment"># BPM</span>
     beats: <span class="number">4</span>
     scale: <span class="number">0</span>
     gamut: [-<span class="number">12</span>, <span class="number">18</span>]
     notes: []
     samples: []
 
-  self.attrObservable <span class="string">"beats"</span>, <span class="string">"tempo"</span>, <span class="string">"samples"</span>
+  self.attrObservable <span class="string">"beats"</span>, <span class="string">"samples"</span>
   self.attrAccessor <span class="string">"notes"</span>, <span class="string">"gamut"</span>
-
-  <span class="comment"># TODO: This doesn't seem to be the place for this</span>
-  self.samples.observe -&gt;
-    self.setCursor()
 
   <span class="comment"># Loading default sample pack</span>
   Sample.loadPack(require(<span class="string">"../samples"</span>))

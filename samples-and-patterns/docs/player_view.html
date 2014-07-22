@@ -158,6 +158,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   paint()
 
+  <span class="comment"># TODO: This doesn't seem to be the place for this</span>
+  self.samples.observe -&gt;
+    self.setCursor()
+
   self.extend
     setCursor: -&gt;
       <span class="keyword">if</span> self.activeToolIndex() <span class="keyword">is</span> <span class="number">0</span>
