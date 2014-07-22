@@ -66,13 +66,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     removeNote: -&gt;
       activePattern().removeNote arguments...
 
-    <span class="comment"># TODO: Extend this to work with multiple patterns</span>
     upcomingSounds: (current, dt) -&gt;
-      patterns[<span class="number">0</span>].notes().filter ([time]) -&gt;
-        <span class="keyword">if</span> dt &gt; <span class="number">0</span>
-          current &lt;= time &lt; current + dt
-        <span class="keyword">else</span> <span class="keyword">if</span> dt &lt; <span class="number">0</span>
-          current + dt &lt; time &lt;= current
+      patterns.map (pattern) -&gt;
+        pattern.notes().filter ([time]) -&gt;
+          <span class="keyword">if</span> dt &gt; <span class="number">0</span>
+            current &lt;= time &lt; current + dt
+          <span class="keyword">else</span> <span class="keyword">if</span> dt &lt; <span class="number">0</span>
+            current + dt &lt; time &lt;= current
+      .flatten()
 
     gamut: -&gt;
       activePattern().gamut()
