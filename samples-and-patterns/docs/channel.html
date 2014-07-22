@@ -37,6 +37,40 @@
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
+  defaults I,
+    data: [<span class="number">0</span>] <span class="comment"># Pattern 0 is the 'empty pattern'</span>
+
+  <span class="function"><span class="title">patternAt</span></span> = (t) -&gt;
+    i = t|<span class="number">0</span>
+
+    <span class="keyword">while</span> !(patternIndex = I.data[i])? <span class="keyword">and</span> i &gt;= <span class="number">0</span>
+      i -= <span class="number">1</span>
+
+    pattern = patternIndex
+    offset = t - i
+
+    <span class="keyword">return</span> [patternIndex, offset]
+
+  self.extend
+    upcomingNotes: (t, dt, patterns) -&gt;
+      [patternIndex, offset] = patternAt(t)
+
+      <span class="keyword">if</span> patternIndex?
+        pattern = patterns[patternIndex]
+        offset %= pattern.beats()
+
+        pattern.upcomingNotes(offset, dt)
+      <span class="keyword">else</span>
+        []
+
+    size: (patterns) -&gt;
+      console.log I.data.length
+
+      <span class="keyword">if</span> I.data.length
+        I.data.length - <span class="number">1</span> + patterns[I.data.last()].beats()
+      <span class="keyword">else</span>
+        <span class="number">0</span>
+
   <span class="keyword">return</span> self</code></pre>
 </div>
         </li>

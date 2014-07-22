@@ -39,6 +39,11 @@
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 
 Channel = require <span class="string">"./channel"</span>
+Pattern = require <span class="string">"./pattern"</span>
+
+<span class="function"><span class="title">get</span></span> = (name) -&gt;
+  (x) -&gt;
+    x[name]
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
@@ -48,14 +53,21 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.attrObservable <span class="string">"tempo"</span>
 
-  self.attrModel <span class="string">"channels"</span>, Channel
+  self.attrModels <span class="string">"channels"</span>, Channel
+  self.attrModels <span class="string">"patterns"</span>, Pattern
 
   self.extend
-    upcomingNotes: -&gt;
-      []
+    upcomingNotes: (t, dt) -&gt;
+      patterns = self.patterns()
+
+      self.channels.map (channel) -&gt;
+        channel.upcomingNotes t, dt, patterns
+      .flatten()
 
     size: -&gt;
-      <span class="number">4</span>
+      self.channels().map (channel) -&gt;
+        channel.size(self.patterns())
+      .maximum()
 
   <span class="keyword">return</span> self</code></pre>
 </div>

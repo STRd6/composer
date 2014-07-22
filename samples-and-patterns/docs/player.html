@@ -73,11 +73,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     upcomingSounds: (current, dt) -&gt;
       patterns.map (pattern) -&gt;
-        pattern.notes().filter ([time]) -&gt;
-          <span class="keyword">if</span> dt &gt; <span class="number">0</span>
-            current &lt;= time &lt; current + dt
-          <span class="keyword">else</span> <span class="keyword">if</span> dt &lt; <span class="number">0</span>
-            current + dt &lt; time &lt;= current
+        pattern.upcomingNotes(current, dt)
       .flatten()
 
     <span class="comment"># TODO: May want to handle proxying these better</span>
