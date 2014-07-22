@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>pattern</title>
+  <title>persistence</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="pattern">Pattern</h1>
+              <h1 id="persistence">Persistence</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -34,51 +34,56 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
-Sample = require <span class="string">"./sample"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Gist = require <span class="string">"./lib/gist"</span>
 
-module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
-  defaults I,
-    tempo: <span class="number">90</span> <span class="comment"># BPM</span>
-    beats: <span class="number">4</span>
-    scale: <span class="number">0</span>
-    gamut: [-<span class="number">12</span>, <span class="number">18</span>]
-    notes: []
-    samples: []
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
+  <span class="comment"># Autoload from location hash</span>
 
-  self.attrObservable <span class="string">"beats"</span>, <span class="string">"tempo"</span>, <span class="string">"samples"</span>
-  self.attrAccessor <span class="string">"notes"</span>, <span class="string">"gamut"</span>
+  setTimeout -&gt;
+    <span class="keyword">if</span> hash = location.hash
+      self.loadGist hash.substr(<span class="number">1</span>)
+  , <span class="number">0</span>
 
-  <span class="comment"># TODO: This doesn't seem to be the place for this</span>
-  self.samples.observe -&gt;
-    self.setCursor()
+  <span class="comment"># Demo song</span>
+  localStorage.songs_demo ?= JSON.stringify {<span class="string">"activeInstrument"</span>:<span class="number">0</span>,<span class="string">"activeToolIndex"</span>:<span class="number">1</span>,<span class="string">"quantize"</span>:<span class="number">4</span>,<span class="string">"tempo"</span>:<span class="string">"120"</span>,<span class="string">"beats"</span>:<span class="string">"16"</span>,<span class="string">"scale"</span>:<span class="number">0</span>,<span class="string">"gamut"</span>:[-<span class="number">12</span>,<span class="number">12</span>],<span class="string">"notes"</span>:[[<span class="number">0</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">0</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">3.25</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">3.5</span>,<span class="number">11</span>,<span class="number">0</span>],[<span class="number">3.75</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">4</span>,<span class="number">9</span>,<span class="number">0</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">4.75</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">7</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">7.5</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">8</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">8</span>,<span class="number">4</span>,<span class="number">0</span>],[<span class="number">11.25</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">11.5</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">11.75</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">12</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">12</span>,<span class="number">3</span>,<span class="number">0</span>],[<span class="number">12.75</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">12.75</span>,<span class="number">15</span>,<span class="number">0</span>]]}
 
-  <span class="comment"># Loading default sample pack</span>
-  Sample.loadPack(require(<span class="string">"../samples"</span>))
-  .<span class="keyword">then</span> self.samples
-  .done()
+  self.extend
+    saveAs: -&gt;
+      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>
+        data = self.toJSON()
 
-  extend self,
-    addNote: (note) -&gt;
-      I.notes.push(note)
+        localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>] = JSON.stringify data
 
-    removeNote: ([time, note]) -&gt;
-      <span class="comment"># TODO: Some leeway to pick nearby note</span>
-      matched = I.notes.filter ([t, n]) -&gt;
-        time <span class="keyword">is</span> t <span class="keyword">and</span> note <span class="keyword">is</span> n
+    loadSong: -&gt;
+      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>, <span class="string">"demo"</span>
+        data = JSON.parse localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>]
 
-      self.notes().remove matched.last()
+        self.fromJSON(data)
 
-    playNote: (instrument, note, time) -&gt;
-      buffer = self.samples.get(instrument).buffer
-      self.playBufferNote(buffer, note, time)
+    fromJSON: (data) -&gt;
+      self.notes data.notes
+      self.beats data.beats
+      self.tempo data.tempo
 
-    transpose: -&gt;
-      <span class="keyword">if</span> amount = prompt <span class="string">"Transpose (semitones)"</span>
-        amount = parseInt(amount, <span class="number">10</span>)
+      playing = <span class="literal">false</span>
+      playTime = <span class="number">0</span>
 
-        I.notes.forEach (note) -&gt;
-          note[<span class="number">1</span>] += amount</code></pre>
+    publish: -&gt;
+      Gist.save(self.toJSON()).<span class="keyword">then</span> (id) -&gt;
+        location.hash = id
+
+        alert <span class="string">"Published as <span class="subst">#{location}</span>\nShare this by copying the url!"</span>
+
+    loadGist: (id) -&gt;
+      Gist.load(id).<span class="keyword">then</span> (data) -&gt;
+        self.fromJSON(data)
+        location.hash = id
+      , -&gt;
+        alert <span class="string">"Couldn't load gist with id: <span class="subst">#{id}</span>"</span>
+
+    loadGistPrompt: -&gt;
+      <span class="keyword">if</span> id = prompt <span class="string">"Gist id"</span>, location.hash.substr(<span class="number">1</span>) || <span class="string">"4430ba0c808101866b4d"</span>
+        self.loadGist(id)</code></pre>
 </div>
         </li>
         
