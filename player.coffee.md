@@ -41,11 +41,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
         upcomingSounds: (current, dt) ->
           patterns.map (pattern) ->
-            pattern.notes().filter ([time]) ->
-              if dt > 0
-                current <= time < current + dt
-              else if dt < 0
-                current + dt < time <= current
+            pattern.upcomingNotes(current, dt)
           .flatten()
 
         # TODO: May want to handle proxying these better

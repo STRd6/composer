@@ -7,7 +7,6 @@ Pattern
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
         beats: 4
-        scale: 0
         gamut: [-12, 18]
         notes: []
         samples: []
@@ -31,9 +30,14 @@ Pattern
 
           self.notes().remove matched.last()
 
-        playNote: (instrument, note, time) ->
-          buffer = self.samples.get(instrument).buffer
-          self.playBufferNote(buffer, note, time)
+`t` and `dt` are in beats.
+
+        upcomingNotes: (t, dt) ->
+          self.notes().filter ([time]) ->
+            if dt > 0
+              t <= time < t + dt
+            else if dt < 0
+              t + dt < time <= t
 
         transpose: ->
           if amount = prompt "Transpose (semitones)"

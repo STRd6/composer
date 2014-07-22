@@ -4,7 +4,7 @@ describe "Song", ->
   it "Should know it's size", ->
     song = Song()
 
-    assert.equal song.size(), 4
+    assert.equal song.size(), 4, "song.size() is #{song.size()}"
 
   it "Should know it's tempo", ->
     song = Song
