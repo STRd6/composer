@@ -125,6 +125,10 @@ Player View
 
       paint()
 
+      # TODO: This doesn't seem to be the place for this
+      self.samples.observe ->
+        self.setCursor()
+
       self.extend
         setCursor: ->
           if self.activeToolIndex() is 0

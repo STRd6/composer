@@ -7,8 +7,51 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
     require "cornerstone"
 
-    module.exports = (I, self=Model(I)) ->
+    Pattern = require "./pattern"
+
+    module.exports = (I={}, self=Model(I)) ->
+      defaults I,
+        tempo: 90 # BPM
+
+      self.attrObservable "tempo" 
+
+      patterns = [
+        Pattern()
+      ]
+
+      activePattern = ->
+        patterns[0]
+
       self.extend
+        addNote: (note) ->
+          activePattern().notes().push(note)
+
+        # TODO: Extend this to work with multiple patterns
+        playNote: (instrument, note, time) ->
+          buffer = patterns[0].samples.get(instrument).buffer
+          self.playBufferNote(buffer, note, time)
+
+        removeNote: ->
+          activePattern().removeNote arguments...
+
+        # TODO: Extend this to work with multiple patterns
+        upcomingSounds: (current, dt) ->
+          patterns[0].notes().filter ([time]) ->
+            if dt > 0
+              current <= time < current + dt
+            else if dt < 0
+              current + dt < time <= current
+
+        gamut: ->
+          activePattern().gamut()
+
+        beats: ->
+          activePattern().beats()
+
+        notes: ->
+          activePattern().notes()
+
+        samples: activePattern().samples
 
 Schedule a note to be played, use the buffer at the given index, pitch shift by
 `note` semitones, and play at `time` seconds in the future.
@@ -26,7 +69,6 @@ Schedule a note to be played, use the buffer at the given index, pitch shift by
           source.playbackRate.value = rate
 
       self.include require "./player_tools"
-      self.include require "./pattern"
       self.include require "./player_audio"
       self.include require "./player_view"
       self.include require "./player_hotkeys"

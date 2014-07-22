@@ -4,21 +4,16 @@ Pattern
     require "cornerstone"
     Sample = require "./sample"
 
-    module.exports = (I, self) ->
+    module.exports = (I={}, self=Model(I)) ->
       defaults I,
-        tempo: 90 # BPM
         beats: 4
         scale: 0
         gamut: [-12, 18]
         notes: []
         samples: []
 
-      self.attrObservable "beats", "tempo", "samples"
+      self.attrObservable "beats", "samples"
       self.attrAccessor "notes", "gamut"
-
-      # TODO: This doesn't seem to be the place for this
-      self.samples.observe ->
-        self.setCursor()
 
       # Loading default sample pack
       Sample.loadPack(require("../samples"))

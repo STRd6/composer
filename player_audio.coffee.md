@@ -9,16 +9,9 @@ Main audio loop
       timestep = 1/60 # Animation Frame timestep, seconds
       minute = 60 # seconds
 
-      upcomingSounds = (current, dt) ->
-        self.notes().filter ([time]) ->
-          if dt > 0
-            current <= time < current + dt
-          else if dt < 0
-            current + dt < time <= current
-
       # Schedules upcoming sounds to play
       playUpcomingSounds = (current, dt) ->
-        upcomingSounds(current, dt)
+        self.upcomingSounds(current, dt)
         .forEach ([time, note, instrument]) ->
           self.playNote instrument, note, (time - current) * minute / self.tempo()
 
