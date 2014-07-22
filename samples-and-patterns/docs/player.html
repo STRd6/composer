@@ -45,14 +45,19 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   defaults I,
     tempo: <span class="number">90</span> <span class="comment"># BPM</span>
 
-  self.attrObservable <span class="string">"tempo"</span> 
+  self.attrObservable <span class="string">"tempo"</span>
+
+  channels = [<span class="number">0.</span><span class="number">.3</span>].map (n) -&gt; [n]
 
   patterns = [
+    Pattern() <span class="comment"># Empty Pattern</span>
+    Pattern()
+    Pattern()
     Pattern()
   ]
 
   <span class="function"><span class="title">activePattern</span></span> = -&gt;
-    patterns[<span class="number">0</span>]
+    patterns[<span class="number">1</span>]
 
   self.extend
     addNote: (note) -&gt;
@@ -75,6 +80,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
             current + dt &lt; time &lt;= current
       .flatten()
 
+    <span class="comment"># TODO: May want to handle proxying these better</span>
     gamut: -&gt;
       activePattern().gamut()
 
