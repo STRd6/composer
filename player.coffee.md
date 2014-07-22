@@ -34,13 +34,14 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
         removeNote: ->
           activePattern().removeNote arguments...
 
-        # TODO: Extend this to work with multiple patterns
         upcomingSounds: (current, dt) ->
-          patterns[0].notes().filter ([time]) ->
-            if dt > 0
-              current <= time < current + dt
-            else if dt < 0
-              current + dt < time <= current
+          patterns.map (pattern) ->
+            pattern.notes().filter ([time]) ->
+              if dt > 0
+                current <= time < current + dt
+              else if dt < 0
+                current + dt < time <= current
+          .flatten()
 
         gamut: ->
           activePattern().gamut()
