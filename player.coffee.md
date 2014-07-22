@@ -13,14 +13,19 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       defaults I,
         tempo: 90 # BPM
 
-      self.attrObservable "tempo" 
+      self.attrObservable "tempo"
+
+      channels = [0..3].map (n) -> [n]
 
       patterns = [
+        Pattern() # Empty Pattern
+        Pattern()
+        Pattern()
         Pattern()
       ]
 
       activePattern = ->
-        patterns[0]
+        patterns[1]
 
       self.extend
         addNote: (note) ->
@@ -43,6 +48,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
                 current + dt < time <= current
           .flatten()
 
+        # TODO: May want to handle proxying these better
         gamut: ->
           activePattern().gamut()
 
