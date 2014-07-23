@@ -3,6 +3,13 @@ Player Audio
 
 Main audio loop
 
+Plays a "Playable". Playables have an `upcomingSounds` method that returns an
+array of notes to be played with beat offsets.
+
+Needs tempo, playable, start beat, end beat, looping mode to play.
+
+Provides playTime and playing methods.
+
     context = require "./lib/audio_context"
 
     module.exports = (I, self) ->
@@ -19,21 +26,20 @@ Main audio loop
 
       playLoop = ->
         if playing
-          try
-            # dt is measured in beats
-            dt = timestep * self.tempo() / minute
-            playUpcomingSounds(playTime, dt)
-  
-            playTime += dt
-  
-            if playTime >= self.beats()
+          # dt is measured in beats
+          dt = timestep * self.tempo() / minute
+          playUpcomingSounds(playTime, dt)
+
+          playTime += dt
+
+          if playTime >= self.beats() 
+            if self.loop()
               dt = playTime - self.beats() # "left over" section wraps to beginning
               playUpcomingSounds(0, dt)
               playTime = dt
-            else if playTime < 0 # negative tempo case
-              dt = playTime # "left over" section wraps to end
-              playUpcomingSounds(self.beats(), dt)
-              playTime = self.beats() + dt
+            else
+              playTime = 0
+              playing = false
 
         requestAnimationFrame playLoop
 
@@ -61,3 +67,6 @@ Schedule a note to be played, use the buffer at the given index, pitch shift by
 
         play: ->
           playing = !playing
+
+        loop: ->
+          true

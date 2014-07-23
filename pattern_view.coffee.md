@@ -17,7 +17,7 @@ Pattern View
       pattern = self.pattern = Observable()
       samples = self.samples = Observable([])
 
-      beats = ->
+      beats = self.beats = ->
         pattern()?.beats() or 4
 
       notes = ->
