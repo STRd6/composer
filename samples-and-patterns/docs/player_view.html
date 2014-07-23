@@ -168,12 +168,17 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
         <span class="keyword">if</span> sample = self.samples.get(self.activeInstrument())
           {width, height, src:url} = img = sample.image
 
+          <span class="comment"># Kill query string so we don't accidentally cache the crossdomain image as</span>
+          <span class="comment"># non-crossdomain TODO: handle it better</span>
+          url = url.replace(<span class="regexp">/\?.*/</span>, <span class="string">""</span>) 
+
+          <span class="comment"># Center cursor</span>
           x = width/<span class="number">2</span>
           y = height/<span class="number">2</span>
 
           $(canvas.element()).css
             cursor: <span class="string">"url(<span class="subst">#{url}</span>) <span class="subst">#{x}</span> <span class="subst">#{y}</span>, default"</span>
-      <span class="keyword">else</span>
+      <span class="keyword">else</span> <span class="comment"># Eraser</span>
         $(canvas.element()).css
           cursor: <span class="string">"url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==) 8 8, default"</span></code></pre>
 </div>
