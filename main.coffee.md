@@ -18,4 +18,4 @@ Compose music on the internets?
 
     player = require("./player")()
 
-    document.body.appendChild require("./tools")(player)
+    document.body.appendChild require("./tools")(player.patternView())

@@ -54,6 +54,9 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       patternView.playNote = self.playNote
       patternView.play = self.play
 
+      self.patternView = ->
+        patternView
+
       return self
 
 Helpers
