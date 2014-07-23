@@ -3,12 +3,10 @@ Player
 
 Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/
 
-    context = require "./lib/audio_context"
-
     require "cornerstone"
 
-    Pattern = require "./pattern"
     Sample = require "./sample"
+    Song = require "./song"
 
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
@@ -17,23 +15,16 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
         samples: []
 
       self.attrObservable "gamut", "samples", "tempo"
+      
+      song = Song()
 
       # Loading default sample pack
       Sample.loadPack(require("../samples"))
       .then self.samples
       .done()
 
-      channels = [0..3].map (n) -> [n]
-
-      patterns = [
-        Pattern() # Empty Pattern
-        Pattern()
-        Pattern()
-        Pattern()
-      ]
-
       activePattern = ->
-        patterns[1]
+        song.patterns()[0]
 
       self.extend
         addNote: (note) ->
@@ -48,9 +39,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
           activePattern().removeNote arguments...
 
         upcomingSounds: (current, dt) ->
-          patterns.map (pattern) ->
-            pattern.upcomingNotes(current, dt)
-          .flatten()
+          song.upcomingNotes(current, dt)
 
         # TODO: May want to handle proxying these better
         beats: ->
@@ -58,21 +47,6 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
         notes: ->
           activePattern().notes()
-
-Schedule a note to be played, use the buffer at the given index, pitch shift by
-`note` semitones, and play at `time` seconds in the future.
-
-        playBufferNote: (buffer, note=0,  time=0) ->
-          rate = Math.pow 2, note / 12
-
-          self.playBuffer(buffer, rate, time)
-
-        playBuffer: (buffer, rate=1, time=0) ->
-          source = context.createBufferSource()
-          source.buffer = buffer
-          source.connect(context.destination)
-          source.start(time + context.currentTime)
-          source.playbackRate.value = rate
 
       self.include require "./player_tools"
       self.include require "./player_audio"

@@ -3,6 +3,8 @@ Player Audio
 
 Main audio loop
 
+    context = require "./lib/audio_context"
+
     module.exports = (I, self) ->
       playing = false
       playTime = 0
@@ -37,6 +39,22 @@ Main audio loop
       playLoop()
 
       self.extend
+
+Schedule a note to be played, use the buffer at the given index, pitch shift by
+`note` semitones, and play at `time` seconds in the future.
+
+        playBufferNote: (buffer, note=0,  time=0) ->
+          rate = Math.pow 2, note / 12
+
+          self.playBuffer(buffer, rate, time)
+
+        playBuffer: (buffer, rate=1, time=0) ->
+          source = context.createBufferSource()
+          source.buffer = buffer
+          source.connect(context.destination)
+          source.start(time + context.currentTime)
+          source.playbackRate.value = rate
+
         playTime: ->
           playTime
 
