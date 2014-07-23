@@ -32,7 +32,18 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              
+              <p>A channel holds a sequence of patterns. The patterns are stored in the <code>data</code>
+array at beat indexes. If an element in the array is <code>null</code> then it continues the
+previous pattern.</p>
+<p><code>[1, null, null, null, 2, null, null, null, 1]</code> for example would play pattern
+1 starting at beat 0, then pattern 2 starting at beat 4, then pattern 1 again
+starting at beat 8.</p>
+<p>Pattern 0 is the &#39;empty pattern&#39; and plays no sounds.</p>
+<p><code>[1, 0, null, null, 1]</code> this would play the first beat of pattern 1 then nothing
+for three beats, then pattern 1 for the length of the pattern.</p>
+<p>The data must end on a non-null index.</p>
+<p>This array structure is basically a poor man&#39;s sparse array.</p>
+
             </div>
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 

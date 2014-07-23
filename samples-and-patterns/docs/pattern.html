@@ -32,32 +32,25 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              
+              <p>A <code>Pattern</code> is a list of [beat, note, instrument] tuples.</p>
+<p><code>beats</code> is the length of the pattern.</p>
+
             </div>
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
-Sample = require <span class="string">"./sample"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
     beats: <span class="number">4</span>
-    gamut: [-<span class="number">12</span>, <span class="number">18</span>]
     notes: []
-    samples: []
 
-  self.attrObservable <span class="string">"beats"</span>, <span class="string">"samples"</span>
-  self.attrAccessor <span class="string">"notes"</span>, <span class="string">"gamut"</span>
-
-  <span class="comment"># Loading default sample pack</span>
-  Sample.loadPack(require(<span class="string">"../samples"</span>))
-  .<span class="keyword">then</span> self.samples
-  .done()
+  self.attrObservable <span class="string">"beats"</span>
+  self.attrAccessor <span class="string">"notes"</span>
 
   extend self,
     addNote: (note) -&gt;
       I.notes.push(note)
 
     removeNote: ([time, note]) -&gt;
-      <span class="comment"># TODO: Some leeway to pick nearby note</span>
       matched = I.notes.filter ([t, n]) -&gt;
         time <span class="keyword">is</span> t <span class="keyword">and</span> note <span class="keyword">is</span> n
 
@@ -79,14 +72,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="keyword">if</span> dt &gt; <span class="number">0</span>
           t &lt;= time &lt; t + dt
         <span class="keyword">else</span> <span class="keyword">if</span> dt &lt; <span class="number">0</span>
-          t + dt &lt; time &lt;= t
-
-    transpose: -&gt;
-      <span class="keyword">if</span> amount = prompt <span class="string">"Transpose (semitones)"</span>
-        amount = parseInt(amount, <span class="number">10</span>)
-
-        I.notes.forEach (note) -&gt;
-          note[<span class="number">1</span>] += amount</code></pre>
+          t + dt &lt; time &lt;= t</code></pre>
 </div>
         </li>
         

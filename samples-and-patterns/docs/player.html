@@ -40,12 +40,20 @@
 require <span class="string">"cornerstone"</span>
 
 Pattern = require <span class="string">"./pattern"</span>
+Sample = require <span class="string">"./sample"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
     tempo: <span class="number">90</span> <span class="comment"># BPM</span>
+    gamut: [-<span class="number">12</span>, <span class="number">18</span>]
+    samples: []
 
-  self.attrObservable <span class="string">"tempo"</span>
+  self.attrObservable <span class="string">"gamut"</span>, <span class="string">"samples"</span>, <span class="string">"tempo"</span>
+
+  <span class="comment"># Loading default sample pack</span>
+  Sample.loadPack(require(<span class="string">"../samples"</span>))
+  .<span class="keyword">then</span> self.samples
+  .done()
 
   channels = [<span class="number">0.</span><span class="number">.3</span>].map (n) -&gt; [n]
 
@@ -63,9 +71,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     addNote: (note) -&gt;
       activePattern().notes().push(note)
 
-    <span class="comment"># TODO: Extend this to work with multiple patterns</span>
+    <span class="comment"># TODO: Should different patterns have different sample banks?</span>
     playNote: (instrument, note, time) -&gt;
-      buffer = patterns[<span class="number">0</span>].samples.get(instrument).buffer
+      buffer = self.samples.get(instrument).buffer
       self.playBufferNote(buffer, note, time)
 
     removeNote: -&gt;
@@ -77,16 +85,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       .flatten()
 
     <span class="comment"># TODO: May want to handle proxying these better</span>
-    gamut: -&gt;
-      activePattern().gamut()
-
     beats: -&gt;
       activePattern().beats()
 
     notes: -&gt;
-      activePattern().notes()
-
-    samples: activePattern().samples</code></pre>
+      activePattern().notes()</code></pre>
 </div>
         </li>
         
