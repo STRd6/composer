@@ -50,7 +50,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   pattern = self.pattern = Observable()
   samples = self.samples = Observable([])
 
-  <span class="function"><span class="title">beats</span></span> = -&gt;
+  beats = self.<span class="function"><span class="title">beats</span></span> = -&gt;
     pattern()?.beats() <span class="keyword">or</span> <span class="number">4</span>
 
   <span class="function"><span class="title">notes</span></span> = -&gt;

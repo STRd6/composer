@@ -33,6 +33,10 @@
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
               <p>Main audio loop</p>
+<p>Plays a &quot;Playable&quot;. Playables have an <code>upcomingSounds</code> method that returns an
+array of notes to be played with beat offsets.</p>
+<p>Needs tempo, playable, start beat, end beat, looping mode to play.</p>
+<p>Provides playTime and playing methods.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">context = require <span class="string">"./lib/audio_context"</span>
@@ -51,21 +55,20 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   <span class="function"><span class="title">playLoop</span></span> = -&gt;
     <span class="keyword">if</span> playing
-      <span class="keyword">try</span>
-        <span class="comment"># dt is measured in beats</span>
-        dt = timestep * self.tempo() / minute
-        playUpcomingSounds(playTime, dt)
+      <span class="comment"># dt is measured in beats</span>
+      dt = timestep * self.tempo() / minute
+      playUpcomingSounds(playTime, dt)
 
-        playTime += dt
+      playTime += dt
 
-        <span class="keyword">if</span> playTime &gt;= self.beats()
+      <span class="keyword">if</span> playTime &gt;= self.beats() 
+        <span class="keyword">if</span> self.<span class="keyword">loop</span>()
           dt = playTime - self.beats() <span class="comment"># "left over" section wraps to beginning</span>
           playUpcomingSounds(<span class="number">0</span>, dt)
           playTime = dt
-        <span class="keyword">else</span> <span class="keyword">if</span> playTime &lt; <span class="number">0</span> <span class="comment"># negative tempo case</span>
-          dt = playTime <span class="comment"># "left over" section wraps to end</span>
-          playUpcomingSounds(self.beats(), dt)
-          playTime = self.beats() + dt
+        <span class="keyword">else</span>
+          playTime = <span class="number">0</span>
+          playing = <span class="literal">false</span>
 
     requestAnimationFrame playLoop
 
@@ -101,7 +104,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       playTime
 
     play: -&gt;
-      playing = !playing</code></pre>
+      playing = !playing
+
+    <span class="keyword">loop</span>: -&gt;
+      <span class="literal">true</span></code></pre>
 </div>
         </li>
         
