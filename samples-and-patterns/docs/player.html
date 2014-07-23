@@ -35,12 +35,10 @@
               <p>Super simple Audio player based on <a href="http://www.html5rocks.com/en/tutorials/webaudio/intro/">http://www.html5rocks.com/en/tutorials/webaudio/intro/</a></p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">context = require <span class="string">"./lib/audio_context"</span>
+            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 
-require <span class="string">"cornerstone"</span>
-
-Pattern = require <span class="string">"./pattern"</span>
 Sample = require <span class="string">"./sample"</span>
+Song = require <span class="string">"./song"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
@@ -50,22 +48,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.attrObservable <span class="string">"gamut"</span>, <span class="string">"samples"</span>, <span class="string">"tempo"</span>
 
+  song = Song()
+
   <span class="comment"># Loading default sample pack</span>
   Sample.loadPack(require(<span class="string">"../samples"</span>))
   .<span class="keyword">then</span> self.samples
   .done()
 
-  channels = [<span class="number">0.</span><span class="number">.3</span>].map (n) -&gt; [n]
-
-  patterns = [
-    Pattern() <span class="comment"># Empty Pattern</span>
-    Pattern()
-    Pattern()
-    Pattern()
-  ]
-
   <span class="function"><span class="title">activePattern</span></span> = -&gt;
-    patterns[<span class="number">1</span>]
+    song.patterns()[<span class="number">0</span>]
 
   self.extend
     addNote: (note) -&gt;
@@ -80,40 +71,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       activePattern().removeNote arguments...
 
     upcomingSounds: (current, dt) -&gt;
-      patterns.map (pattern) -&gt;
-        pattern.upcomingNotes(current, dt)
-      .flatten()
+      song.upcomingNotes(current, dt)
 
     <span class="comment"># TODO: May want to handle proxying these better</span>
     beats: -&gt;
       activePattern().beats()
 
     notes: -&gt;
-      activePattern().notes()</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-3">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-3">&#182;</a>
-              </div>
-              <p>Schedule a note to be played, use the buffer at the given index, pitch shift by
-<code>note</code> semitones, and play at <code>time</code> seconds in the future.</p>
-
-            </div>
-            <div class="content"><pre><code class="lang-coffeescript">    playBufferNote: (buffer, note=<span class="number">0</span>,  time=<span class="number">0</span>) -&gt;
-      rate = Math.pow <span class="number">2</span>, note / <span class="number">12</span>
-
-      self.playBuffer(buffer, rate, time)
-
-    playBuffer: (buffer, rate=<span class="number">1</span>, time=<span class="number">0</span>) -&gt;
-      source = context.createBufferSource()
-      source.buffer = buffer
-      source.connect(context.destination)
-      source.start(time + context.currentTime)
-      source.playbackRate.value = rate
+      activePattern().notes()
 
   self.include require <span class="string">"./player_tools"</span>
   self.include require <span class="string">"./player_audio"</span>

@@ -35,7 +35,9 @@
               <p>Main audio loop</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">context = require <span class="string">"./lib/audio_context"</span>
+
+module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
   playing = <span class="literal">false</span>
   playTime = <span class="number">0</span>
   timestep = <span class="number">1</span>/<span class="number">60</span> <span class="comment"># Animation Frame timestep, seconds</span>
@@ -68,7 +70,32 @@
 
   playLoop()
 
-  self.extend
+  self.extend</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Schedule a note to be played, use the buffer at the given index, pitch shift by
+<code>note</code> semitones, and play at <code>time</code> seconds in the future.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">    playBufferNote: (buffer, note=<span class="number">0</span>,  time=<span class="number">0</span>) -&gt;
+      rate = Math.pow <span class="number">2</span>, note / <span class="number">12</span>
+
+      self.playBuffer(buffer, rate, time)
+
+    playBuffer: (buffer, rate=<span class="number">1</span>, time=<span class="number">0</span>) -&gt;
+      source = context.createBufferSource()
+      source.buffer = buffer
+      source.connect(context.destination)
+      source.start(time + context.currentTime)
+      source.playbackRate.value = rate
+
     playTime: -&gt;
       playTime
 
