@@ -16,7 +16,10 @@ Patterns are placed in the channels.
 
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
-        channels: [{}]
+        channels: [{
+          data: 
+            0: 0
+        }]
         patterns: [{}]
         tempo: 90
 

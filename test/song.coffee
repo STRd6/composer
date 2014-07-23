@@ -19,63 +19,68 @@ describe "Song", ->
     assert.equal song.upcomingNotes(0, 1).length, 0
 
   describe "With a single pattern", ->
+    pattern = Pattern
+      notes: [0..3].map (i) ->
+        [i, 0, 0]
+
+    song = Song
+      channels: [
+        {
+          data:
+            0: 0
+        }
+      ]
+      patterns: [
+        pattern.I
+      ]
+
     it "should return all the notes", ->
-      pattern = Pattern
-        notes: [0..3].map (i) ->
-          [i, 0, 0]
-
-      song = Song
-        patterns: [
-          pattern.I
-        ]
-
       assert.equal song.upcomingNotes(0, 1).length, 1
       assert.equal song.upcomingNotes(1, 1).length, 1
       assert.equal song.upcomingNotes(2, 1).length, 1
       assert.equal song.upcomingNotes(3, 1).length, 1
-      
-      # Don't loop past the end
-      assert.equal song.upcomingNotes(4, 1).length, 0
 
       assert.equal song.upcomingNotes(0, 4).length, 4
 
-      # Don't auto-loop patterns
-      assert.equal song.upcomingNotes(0, 8).length, 8
+    it "shouldn't loop past the end", ->
+      assert.equal song.upcomingNotes(4, 1).length, 0
+      assert.equal song.upcomingNotes(0, 8).length, 4
 
-  describe "With multiple patterns", ->
+  describe "With multiple patterns in parallel", ->
+    pattern1 = Pattern
+      notes: [0..3].map (i) ->
+        [i, 0, 0]
+
+    pattern2 = Pattern
+      notes: [0..3].map (i) ->
+        [i + 0.5, 0, 1]
+
+    song = Song
+      channels: [
+        {
+          data: 
+            0: 0
+        }, {
+          data:
+            0: 1
+        }
+      ]
+      patterns: [
+        pattern1.I
+        pattern2.I
+      ]
+
     it "should return all the notes", ->
-      pattern1 = Pattern
-        notes: [0..3].map (i) ->
-          [i, 0, 0]
-
-      pattern2 = Pattern
-        notes: [0..3].map (i) ->
-          [i + 0.5, 0, 1]
-
-      song = Song
-        channels: [
-          {
-            data: [0]
-          }, {
-            data: [1]
-          }
-        ]
-        patterns: [
-          pattern1.I
-          pattern2.I
-        ]
-
-      console.log song.upcomingNotes(0, 1)
-
       assert.equal song.upcomingNotes(0, 1).length, 2
       assert.equal song.upcomingNotes(1, 1).length, 2
       assert.equal song.upcomingNotes(2, 1).length, 2
       assert.equal song.upcomingNotes(3, 1).length, 2
-      assert.equal song.upcomingNotes(4, 1).length, 2 # TODO: Should we be looping here?
 
       assert.equal song.upcomingNotes(0, 4).length, 8
 
-      assert.equal song.upcomingNotes(3, 2).length, 4
+    it "shouldn't loop past the end", ->
+      assert.equal song.upcomingNotes(4, 1).length, 0
+      assert.equal song.upcomingNotes(3, 2).length, 2
 
   describe "With two patterns in sequence", ->
     pattern1 = Pattern
@@ -85,7 +90,9 @@ describe "Song", ->
     song = Song
       channels: [
         {
-          data: [0, null, null, null, 0]
+          data:
+            0: 0
+            4: 0
         }
       ]
       patterns: [

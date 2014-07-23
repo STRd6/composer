@@ -25,6 +25,9 @@ A `Pattern` is a list of [beat, note, instrument] tuples.
 
           self.notes().remove matched.last()
 
+        size: ->
+          self.beats()
+
 `t` and `dt` are in beats.
 
         upcomingNotes: (t, dt) ->
