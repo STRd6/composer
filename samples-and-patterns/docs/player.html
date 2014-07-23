@@ -40,13 +40,14 @@
 Sample = require <span class="string">"./sample"</span>
 Song = require <span class="string">"./song"</span>
 
+PatternView = require <span class="string">"./pattern_view"</span>
+
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
     tempo: <span class="number">90</span> <span class="comment"># BPM</span>
-    gamut: [-<span class="number">12</span>, <span class="number">18</span>]
     samples: []
 
-  self.attrObservable <span class="string">"gamut"</span>, <span class="string">"samples"</span>, <span class="string">"tempo"</span>
+  self.attrObservable <span class="string">"samples"</span>, <span class="string">"tempo"</span>
 
   song = Song()
 
@@ -55,8 +56,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   .<span class="keyword">then</span> self.samples
   .done()
 
-  <span class="function"><span class="title">activePattern</span></span> = -&gt;
-    song.patterns()[<span class="number">0</span>]
+  <span class="comment"># TODO: Make it a real observable function</span>
+  activePattern = Observable song.patterns()[<span class="number">0</span>]
 
   self.extend
     addNote: (note) -&gt;
@@ -73,22 +74,48 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     upcomingSounds: (current, dt) -&gt;
       song.upcomingNotes(current, dt)
 
-    <span class="comment"># TODO: May want to handle proxying these better</span>
-    beats: -&gt;
-      activePattern().beats()
-
-    notes: -&gt;
-      activePattern().notes()
-
-  self.include require <span class="string">"./player_tools"</span>
   self.include require <span class="string">"./player_audio"</span>
-  self.include require <span class="string">"./player_view"</span>
-  self.include require <span class="string">"./player_hotkeys"</span>
   self.include require <span class="string">"./persistence"</span>
 
-  self.setCursor()
+  <span class="comment"># This pattern view is really closely entertwined</span>
+  <span class="comment"># Probably want to find a better way of delegating a view</span>
+  patternView = PatternView()
+  bindO activePattern, patternView.pattern
+  bindO self.samples, patternView.samples
+  patternView.playTime = self.playTime
+  patternView.playNote = self.playNote
+  patternView.play = self.play
 
   <span class="keyword">return</span> self</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2 id="helpers">Helpers</h2>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Bind an observable to &quot;be the same as&quot; the source observable.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">bindO</span></span> = (from, to) -&gt;
+  from.observe to
+  to from()</code></pre>
 </div>
         </li>
         

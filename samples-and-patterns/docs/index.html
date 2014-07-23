@@ -40,8 +40,7 @@ require(<span class="string">"analytics"</span>).init(<span class="string">"UA-3
 
 require <span class="string">"appcache"</span>
 require <span class="string">"cornerstone"</span>
-require <span class="string">"jquery-utils"</span>
-global.Observable = require <span class="string">"observable"</span></code></pre>
+require <span class="string">"jquery-utils"</span></code></pre>
 </div>
         </li>
         
@@ -59,9 +58,6 @@ global.Observable = require <span class="string">"observable"</span></code></pre
 applyStylesheet require <span class="string">"./style"</span>
 
 player = require(<span class="string">"./player"</span>)()
-
-sounds = require(<span class="string">"./samples"</span>).map ({sample}) -&gt;
-  <span class="string">"https://addressable.s3.amazonaws.com/composer/data/<span class="subst">#{sample}</span>"</span>
 
 document.body.appendChild require(<span class="string">"./tools"</span>)(player)</code></pre>
 </div>
