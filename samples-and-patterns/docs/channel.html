@@ -33,54 +33,37 @@
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
               <p>A channel holds a sequence of patterns. The patterns are stored in the <code>data</code>
-array at beat indexes. If an element in the array is <code>null</code> then it continues the
-previous pattern.</p>
-<p><code>[1, null, null, null, 2, null, null, null, 1]</code> for example would play pattern
-1 starting at beat 0, then pattern 2 starting at beat 4, then pattern 1 again
-starting at beat 8.</p>
-<p>Pattern 0 is the &#39;empty pattern&#39; and plays no sounds.</p>
-<p><code>[1, 0, null, null, 1]</code> this would play the first beat of pattern 1 then nothing
-for three beats, then pattern 1 for the length of the pattern.</p>
-<p>The data must end on a non-null index.</p>
-<p>This array structure is basically a poor man&#39;s sparse array.</p>
+table at beat keys with <code>patternId</code> values.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
-    data: [<span class="number">0</span>] <span class="comment"># Pattern 0 is the 'empty pattern'</span>
+    data: {}
 
-  <span class="function"><span class="title">patternAt</span></span> = (t) -&gt;
-    i = t|<span class="number">0</span>
+  <span class="function"><span class="title">patternStarts</span></span> = (patterns) -&gt;
+    Object.keys(I.data).map (start) -&gt;
+      pattern = patterns[I.data[start]]
+      end = start + pattern.size()
 
-    <span class="keyword">while</span> !(patternIndex = I.data[i])? <span class="keyword">and</span> i &gt;= <span class="number">0</span>
-      i -= <span class="number">1</span>
-
-    pattern = patternIndex
-    offset = t - i
-
-    <span class="keyword">return</span> [patternIndex, offset]
+      [start, end, pattern]
 
   self.extend
     upcomingNotes: (t, dt, patterns) -&gt;
-      [patternIndex, offset] = patternAt(t)
-
-      <span class="keyword">if</span> patternIndex?
-        pattern = patterns[patternIndex]
-        offset %= pattern.beats()
+      patternStarts(patterns).filter ([start, end, pattern]) -&gt;
+        (start &lt;= t &lt; end) <span class="keyword">or</span> <span class="comment"># t is within pattern or</span>
+        (t &lt;= start &lt; t + dt) <span class="comment"># pattern start is within [t, t + dt)</span>
+      .map ([start, end, pattern]) -&gt;
+        offset = t - start
 
         pattern.upcomingNotes(offset, dt)
-      <span class="keyword">else</span>
-        []
+      .flatten()
 
     size: (patterns) -&gt;
-      console.log I.data.length
-
-      <span class="keyword">if</span> I.data.length
-        I.data.length - <span class="number">1</span> + patterns[I.data.last()].beats()
-      <span class="keyword">else</span>
-        <span class="number">0</span>
+      patternStarts(patterns).map ([start, end]) -&gt;
+        <span class="number">4</span>
+      .maximum() ? <span class="number">0</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>
