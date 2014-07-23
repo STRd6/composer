@@ -8,12 +8,20 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
     require "cornerstone"
 
     Pattern = require "./pattern"
+    Sample = require "./sample"
 
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
         tempo: 90 # BPM
+        gamut: [-12, 18]
+        samples: []
 
-      self.attrObservable "tempo"
+      self.attrObservable "gamut", "samples", "tempo"
+
+      # Loading default sample pack
+      Sample.loadPack(require("../samples"))
+      .then self.samples
+      .done()
 
       channels = [0..3].map (n) -> [n]
 
@@ -31,9 +39,9 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
         addNote: (note) ->
           activePattern().notes().push(note)
 
-        # TODO: Extend this to work with multiple patterns
+        # TODO: Should different patterns have different sample banks?
         playNote: (instrument, note, time) ->
-          buffer = patterns[0].samples.get(instrument).buffer
+          buffer = self.samples.get(instrument).buffer
           self.playBufferNote(buffer, note, time)
 
         removeNote: ->
@@ -45,16 +53,11 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
           .flatten()
 
         # TODO: May want to handle proxying these better
-        gamut: ->
-          activePattern().gamut()
-
         beats: ->
           activePattern().beats()
 
         notes: ->
           activePattern().notes()
-
-        samples: activePattern().samples
 
 Schedule a note to be played, use the buffer at the given index, pitch shift by
 `note` semitones, and play at `time` seconds in the future.
