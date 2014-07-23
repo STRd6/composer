@@ -169,7 +169,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
           {width, height, src:url} = img = sample.image
 
           <span class="comment"># Kill query string so we don't accidentally cache the crossdomain image as</span>
-          <span class="comment"># non-crossdomain TODO: handle it better</span>
+          <span class="comment"># non-crossdomain </span>
+          <span class="comment"># TODO: handle it better, probably need to generate resource URLs from the </span>
+          <span class="comment"># raw data of the crossdomain images</span>
           url = url.replace(<span class="regexp">/\?.*/</span>, <span class="string">""</span>) 
 
           <span class="comment"># Center cursor</span>
