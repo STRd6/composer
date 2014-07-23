@@ -135,12 +135,17 @@ Player View
             if sample = self.samples.get(self.activeInstrument())
               {width, height, src:url} = img = sample.image
 
+              # Kill query string so we don't accidentally cache the crossdomain image as
+              # non-crossdomain TODO: handle it better
+              url = url.replace(/\?.*/, "") 
+
+              # Center cursor
               x = width/2
               y = height/2
 
               $(canvas.element()).css
                 cursor: "url(#{url}) #{x} #{y}, default"
-          else
+          else # Eraser
             $(canvas.element()).css
               cursor: "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==) 8 8, default"
 
