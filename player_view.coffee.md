@@ -136,7 +136,9 @@ Player View
               {width, height, src:url} = img = sample.image
 
               # Kill query string so we don't accidentally cache the crossdomain image as
-              # non-crossdomain TODO: handle it better
+              # non-crossdomain 
+              # TODO: handle it better, probably need to generate resource URLs from the 
+              # raw data of the crossdomain images
               url = url.replace(/\?.*/, "") 
 
               # Center cursor

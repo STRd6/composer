@@ -42,7 +42,7 @@ This array structure is basically a poor man's sparse array.
           if patternIndex?
             pattern = patterns[patternIndex]
             offset %= pattern.beats()
-  
+
             pattern.upcomingNotes(offset, dt)
           else
             []
