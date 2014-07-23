@@ -8,14 +8,15 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
     Sample = require "./sample"
     Song = require "./song"
 
+    PatternView = require "./pattern_view"
+
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
         tempo: 90 # BPM
-        gamut: [-12, 18]
         samples: []
 
-      self.attrObservable "gamut", "samples", "tempo"
-      
+      self.attrObservable "samples", "tempo"
+
       song = Song()
 
       # Loading default sample pack
@@ -23,8 +24,8 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       .then self.samples
       .done()
 
-      activePattern = ->
-        song.patterns()[0]
+      # TODO: Make it a real observable function
+      activePattern = Observable song.patterns()[0]
 
       self.extend
         addNote: (note) ->
@@ -41,19 +42,25 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
         upcomingSounds: (current, dt) ->
           song.upcomingNotes(current, dt)
 
-        # TODO: May want to handle proxying these better
-        beats: ->
-          activePattern().beats()
-
-        notes: ->
-          activePattern().notes()
-
-      self.include require "./player_tools"
       self.include require "./player_audio"
-      self.include require "./player_view"
-      self.include require "./player_hotkeys"
       self.include require "./persistence"
 
-      self.setCursor()
+      # This pattern view is really closely entertwined
+      # Probably want to find a better way of delegating a view
+      patternView = PatternView()
+      bindO activePattern, patternView.pattern
+      bindO self.samples, patternView.samples
+      patternView.playTime = self.playTime
+      patternView.playNote = self.playNote
+      patternView.play = self.play
 
       return self
+
+Helpers
+-------
+
+Bind an observable to "be the same as" the source observable.
+
+    bindO = (from, to) ->
+      from.observe to
+      to from()

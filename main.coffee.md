@@ -9,7 +9,6 @@ Setup
     require "appcache"
     require "cornerstone"
     require "jquery-utils"
-    global.Observable = require "observable"
 
 Compose music on the internets?
 
@@ -18,8 +17,5 @@ Compose music on the internets?
     applyStylesheet require "./style"
 
     player = require("./player")()
-
-    sounds = require("./samples").map ({sample}) ->
-      "https://addressable.s3.amazonaws.com/composer/data/#{sample}"
 
     document.body.appendChild require("./tools")(player)

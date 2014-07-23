@@ -1,12 +1,30 @@
-Player View
-===========
+Pattern View
+============
 
     LIGHT = "rgba(0, 0, 0, 0.0625)"
     DARK = "rgba(0, 0, 0, 0.25)"
 
+    require "cornerstone"
+
     noteName = require "./note"
 
-    module.exports = (I, self) ->
+    module.exports = (I={}, self=Model(I)) ->
+      defaults I,
+        gamut: [-12, 18]
+        quantize: 4
+
+      # We expect our pattern and samples observables to be bound externally
+      pattern = self.pattern = Observable()
+      samples = self.samples = Observable([])
+
+      beats = ->
+        pattern()?.beats() or 4
+
+      notes = ->
+        pattern()?.notes() or []
+
+      self.attrObservable "gamut", "quantize"
+
       Canvas = require "touch-canvas"
 
       canvas = Canvas()
@@ -14,16 +32,17 @@ Player View
       $(canvas.element()).mousemove (e) ->
         {pageX:x, pageY:y} = e
         note = Math.round positionToNote(y)
-        beat = quantize(x / canvas.width() * self.beats(), self.quantize())
+        beat = quantize(x / canvas.width() * beats(), self.quantize())
         $(".position").text "T: #{beat.toFixed(2)}, #{noteName note}"
 
       canvas.on "touch", (p) ->
         data =
           note: Math.round(positionToNote(p.y * canvas.height()))
-          beat: quantize(p.x * self.beats(), self.quantize())
+          beat: quantize(p.x * beats(), self.quantize())
 
         self.activeTool()(self, data)
 
+      # TODO: Need to move this out
       document.body.appendChild canvas.element()
 
       handleResize =  ->
@@ -36,9 +55,9 @@ Player View
       drawNote = (canvas, note) ->
         [time, note, instrument] = note
 
-        {width, height} = img = self.samples.get(instrument).image
+        {width, height} = img = samples.get(instrument).image
 
-        x = time * (canvas.width()/self.beats()) - width/2
+        x = time * (canvas.width()/beats()) - width/2
         y = noteToPosition(note) - height/2
 
         canvas.drawImage img, x, y
@@ -46,7 +65,7 @@ Player View
       drawTemporalGuides = (canvas) ->
         # TODO: View Offset
 
-        n = self.beats() * self.quantize()
+        n = beats() * self.quantize()
 
         width = canvas.width()/n
 
@@ -104,35 +123,38 @@ Player View
           n is i
 
       paint = ->
-        canvas.fill "white"
-
-        drawScaleGuides(canvas)
-        drawTemporalGuides(canvas)
-
-        # Draw notes
-        self.notes().forEach (note) ->
-          drawNote(canvas, note)
-
-        # Draw player cursor
-        canvas.drawRect
-          x: self.playTime() * canvas.width() / self.beats()
-          y: 0
-          width: 1
-          height: canvas.height()
-          color: "#F0F"
+        try
+          canvas.fill "white"
+  
+          drawScaleGuides(canvas)
+          drawTemporalGuides(canvas)
+  
+          # Draw notes
+          notes().forEach (note) ->
+            drawNote(canvas, note)
+  
+          # Draw player cursor
+          # TODO: How do we get play time?
+          canvas.drawRect
+            x: self.playTime() * canvas.width() / beats()
+            y: 0
+            width: 1
+            height: canvas.height()
+            color: "#F0F"
 
         requestAnimationFrame(paint)
 
       paint()
 
-      # TODO: This doesn't seem to be the place for this
-      self.samples.observe ->
+      samples.observe ->
         self.setCursor()
+
+      self.include require "./pattern_tools"
 
       self.extend
         setCursor: ->
           if self.activeToolIndex() is 0
-            if sample = self.samples.get(self.activeInstrument())
+            if sample = samples.get(self.activeInstrument())
               {width, height, src:url} = img = sample.image
 
               # Kill query string so we don't accidentally cache the crossdomain image as
@@ -156,9 +178,6 @@ Helpers
 
     mod = (n, k) ->
       (n % k + k) % k
-
-Helpers
--------
 
     quantize = (x, n) ->
       (((x + 1/(2*n)) * n)|0)/n

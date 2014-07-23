@@ -19,20 +19,21 @@ Main audio loop
 
       playLoop = ->
         if playing
-          # dt is measured in beats
-          dt = timestep * self.tempo() / minute
-          playUpcomingSounds(playTime, dt)
-
-          playTime += dt
-
-          if playTime >= self.beats()
-            dt = playTime - self.beats() # "left over" section wraps to beginning
-            playUpcomingSounds(0, dt)
-            playTime = dt
-          else if playTime < 0 # negative tempo case
-            dt = playTime # "left over" section wraps to end
-            playUpcomingSounds(self.beats(), dt)
-            playTime = self.beats() + dt
+          try
+            # dt is measured in beats
+            dt = timestep * self.tempo() / minute
+            playUpcomingSounds(playTime, dt)
+  
+            playTime += dt
+  
+            if playTime >= self.beats()
+              dt = playTime - self.beats() # "left over" section wraps to beginning
+              playUpcomingSounds(0, dt)
+              playTime = dt
+            else if playTime < 0 # negative tempo case
+              dt = playTime # "left over" section wraps to end
+              playUpcomingSounds(self.beats(), dt)
+              playTime = self.beats() + dt
 
         requestAnimationFrame playLoop
 
