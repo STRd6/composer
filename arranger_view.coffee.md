@@ -58,16 +58,11 @@ Arranger View
             color: DARK
 
       drawChannel = (canvas, patterns, i) ->
-        # TODO: Real pattern index
-        patternIndex = 1
-
-        patterns.forEach ([start, end, pattern]) ->
-          drawPattern(canvas, i, start, pattern.size(), patternColors[patternIndex])
+        patterns.forEach ([start, end, pattern, index]) ->
+          drawPattern(canvas, i, start, pattern.size(), patternColors[index])
 
         if i is pos.channel
-          # TODO: real active pattern size
-          # TODO: real active pattern index
-          size = 4 # pattern.size()
+          size = self.activePattern().size()
           # Draw hover
           canvas.withAlpha 0.25, ->
             drawPattern(canvas, i, pos.beat, size, patternColors[self.activePatternIndex()])
@@ -82,6 +77,9 @@ Arranger View
 
       self.extend
         activePatternIndex: Observable 0
+
+        activePattern: ->
+          self.patterns.get(self.activePatternIndex())
 
         render: (song) ->
           canvas.fill("white")

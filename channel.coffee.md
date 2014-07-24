@@ -12,10 +12,11 @@ table at beat keys with `patternId` values.
 
       patternStarts = (patterns) ->
         Object.keys(I.data).map (start) ->
-          pattern = patterns[I.data[start]]
+          patternIndex = I.data[start]
+          pattern = patterns[patternIndex]
           end = start + pattern.size()
 
-          [start, end, pattern]
+          [start, end, pattern, patternIndex]
 
       self.extend
         patterns: patternStarts

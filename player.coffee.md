@@ -70,6 +70,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       initPatternView()
 
       arrangerView = require("./arranger_view")()
+      arrangerView.patterns = song.patterns
 
       element.appendChild arrangerView.element()
 
