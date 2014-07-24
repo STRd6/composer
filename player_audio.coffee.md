@@ -32,7 +32,7 @@ Provides playTime and playing methods.
 
           playTime += dt
 
-          if playTime >= self.beats() 
+          if playTime >= self.beats()
             if self.loop()
               dt = playTime - self.beats() # "left over" section wraps to beginning
               playUpcomingSounds(0, dt)

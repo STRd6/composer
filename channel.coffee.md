@@ -32,7 +32,7 @@ table at beat keys with `patternId` values.
 
         size: (patterns) ->
           patternStarts(patterns).map ([start, end]) ->
-            4
+            end
           .maximum() ? 0
 
       return self

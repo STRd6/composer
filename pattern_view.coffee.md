@@ -17,6 +17,8 @@ Pattern View
       samples = self.samples = Observable([])
 
       # TODO: Make sure this works when changing patterns
+      pattern.observe (p) ->
+        beats p.beats()
       beats = self.beats = Observable 0
       beats.observe (v) ->
         pattern()?.beats v

@@ -7,6 +7,14 @@ describe "Song", ->
 
     assert.equal song.size(), 4, "song.size() is #{song.size()}"
 
+  it "Should know the correct size when the pattern has a different size", ->
+    song = Song
+      patterns: [
+        beats: 10
+      ]
+
+    assert.equal song.size(), 10
+
   it "Should know it's tempo", ->
     song = Song
       tempo: 54
