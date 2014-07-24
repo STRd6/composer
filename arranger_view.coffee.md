@@ -3,65 +3,86 @@ Arranger View
 
     {LIGHT, DARK} = require "./colors"
 
-    module.exports = ->
+    patternCount = 10
+    patternColors = [0...patternCount].map (n) ->
+      "hsl(#{n * 360/patternCount}, 87%, 50%)"
+
+    require "cornerstone"
+
+    module.exports = (I={}, self=Model(I))->
       Canvas = require "touch-canvas"
       canvas = Canvas
         height: 80
         width: 128 * 20
+
+      canvasHelpers canvas
 
       element = document.createElement "div"
       element.classList.add "arranger-wrap"
 
       element.appendChild canvas.element()
 
-      p =
-        x: 0
-        y: 0
+      pos =
+        channel: 0
+        beat: 0
 
       $(canvas.element()).mousemove (e) ->
-        {left, top, width, height} = canvas.element().getBoundingClientRect()
+        {left, top} = canvas.element().getBoundingClientRect()
 
         {pageX:x, pageY:y} = e
 
-        p =
-          x: (x - left) / width
-          y: (y - top) / height
+        pos.beat = 0|((x - left) / unitX)
+        pos.channel = 0|((y - top) / unitY)
 
       canvas.on "touch", (p) ->
-
 
       unitX = 20
       unitY = 20
 
       drawPosition = (canvas) ->
         canvas.drawText
-          text: "#{p.x.toFixed(2)}, #{p.y.toFixed(2)}"
-          x: canvas.width() - 50
-          y: 15
+          text: "#{pos.beat}, #{pos.channel}"
+          x: 20
+          y: 30
           color: "black"
 
+      drawPattern = (canvas, channel, beat, size, color) ->
+        canvas.drawRect
+          x: beat * unitX
+          y: channel * unitY
+          width: size * unitX
+          height: unitY - 1
+          color: color
+          stroke:
+            width: 1
+            color: DARK
+
       drawChannel = (canvas, patterns, i) ->
-        # TODO: Draw each pattern
+        # TODO: Real pattern index
+        patternIndex = 1
 
         patterns.forEach ([start, end, pattern]) ->
-          canvas.drawRect
-            x: start * unitX
-            y: i * unitY
-            width: pattern.size() * unitX
-            height: unitY
-            color: "hsl(0, 87%, 50%)"
-            stroke:
-              width: 1
-              color: DARK
+          drawPattern(canvas, i, start, pattern.size(), patternColors[patternIndex])
 
+        if i is pos.channel
+          # TODO: real active pattern size
+          # TODO: real active pattern index
+          size = 4 # pattern.size()
+          # Draw hover
+          canvas.withAlpha 0.25, ->
+            drawPattern(canvas, i, pos.beat, size, patternColors[self.activePatternIndex()])
+
+        # Draw line
         canvas.drawRect
           x: 0
-          y: 20 * (i + 1)
+          y: 20 * (i + 1) - 1
           width: canvas.width()
           height: 1
           color: LIGHT
 
       self.extend
+        activePatternIndex: Observable 0
+
         render: (song) ->
           canvas.fill("white")
 
@@ -73,3 +94,18 @@ Arranger View
 
         element: ->
           element
+
+Helpers
+-------
+
+    canvasHelpers = (canvas) ->
+      canvas.withAlpha = (alpha, fn) ->
+        oldAlpha = canvas.globalAlpha()
+        canvas.globalAlpha alpha * oldAlpha
+
+        try
+          fn(canvas)
+        finally
+          canvas.globalAlpha oldAlpha
+
+        return canvas
