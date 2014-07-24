@@ -44,10 +44,9 @@ PatternView = require <span class="string">"./pattern_view"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
-    tempo: <span class="number">90</span> <span class="comment"># BPM</span>
     samples: []
 
-  self.attrObservable <span class="string">"samples"</span>, <span class="string">"tempo"</span>
+  self.attrObservable <span class="string">"samples"</span>
 
   song = Song()
 
@@ -62,6 +61,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   self.extend
     addNote: (note) -&gt;
       activePattern().notes().push(note)
+
+    tempo: song.tempo
 
     <span class="comment"># TODO: Should different patterns have different sample banks?</span>
     playNote: (instrument, note, time) -&gt;
@@ -82,7 +83,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   patternView = PatternView()
   bindO activePattern, patternView.pattern
   bindO self.samples, patternView.samples
-  patternView.tempo = self.tempo
+  patternView.tempo = song.tempo
   patternView.playTime = self.playTime
   patternView.playNote = self.playNote
   patternView.play = self.play
