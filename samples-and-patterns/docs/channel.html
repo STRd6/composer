@@ -44,10 +44,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   <span class="function"><span class="title">patternStarts</span></span> = (patterns) -&gt;
     Object.keys(I.data).map (start) -&gt;
-      pattern = patterns[I.data[start]]
+      patternIndex = I.data[start]
+      pattern = patterns[patternIndex]
       end = start + pattern.size()
 
-      [start, end, pattern]
+      [start, end, pattern, patternIndex]
 
   self.extend
     patterns: patternStarts

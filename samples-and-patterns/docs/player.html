@@ -102,6 +102,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   initPatternView()
 
   arrangerView = require(<span class="string">"./arranger_view"</span>)()
+  arrangerView.patterns = song.patterns
 
   element.appendChild arrangerView.element()
 

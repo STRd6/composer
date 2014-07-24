@@ -91,16 +91,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         color: DARK
 
   <span class="function"><span class="title">drawChannel</span></span> = (canvas, patterns, i) -&gt;
-    <span class="comment"># TODO: Real pattern index</span>
-    patternIndex = <span class="number">1</span>
-
-    patterns.forEach ([start, end, pattern]) -&gt;
-      drawPattern(canvas, i, start, pattern.size(), patternColors[patternIndex])
+    patterns.forEach ([start, end, pattern, index]) -&gt;
+      drawPattern(canvas, i, start, pattern.size(), patternColors[index])
 
     <span class="keyword">if</span> i <span class="keyword">is</span> pos.channel
-      <span class="comment"># TODO: real active pattern size</span>
-      <span class="comment"># TODO: real active pattern index</span>
-      size = <span class="number">4</span> <span class="comment"># pattern.size()</span>
+      size = self.activePattern().size()
       <span class="comment"># Draw hover</span>
       canvas.withAlpha <span class="number">0.25</span>, -&gt;
         drawPattern(canvas, i, pos.beat, size, patternColors[self.activePatternIndex()])
@@ -115,6 +110,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.extend
     activePatternIndex: Observable <span class="number">0</span>
+
+    activePattern: -&gt;
+      self.patterns.get(self.activePatternIndex())
 
     render: (song) -&gt;
       canvas.fill(<span class="string">"white"</span>)
