@@ -10,16 +10,12 @@ Patterns are placed in the channels.
     Channel = require "./channel"
     Pattern = require "./pattern"
 
-    get = (name) ->
-      (x) ->
-        x[name]
-
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
         channels: [{
           data: 
             0: 0
-        }]
+        }, {}, {}, {}]
         patterns: [{}]
         tempo: 90
 
@@ -29,6 +25,9 @@ Patterns are placed in the channels.
       self.attrModels "patterns", Pattern
 
       self.extend
+        channelPatterns: (n) ->
+          self.channels.get(n).patterns(self.patterns())
+
         upcomingNotes: (t, dt) ->
           patterns = self.patterns()
 

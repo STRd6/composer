@@ -46,21 +46,36 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       self.include require "./player_audio"
       self.include require "./persistence"
 
-      # This pattern view is really closely entertwined
-      # Probably want to find a better way of delegating a view
-      patternView = PatternView()
-      bindO activePattern, patternView.pattern
-      bindO self.samples, patternView.samples
-      patternView.tempo = song.tempo
-      patternView.playTime = self.playTime
-      patternView.playNote = self.playNote
-      patternView.play = self.play
+      element = document.body
 
-      # TODO
-      self.beats = song.size
+      initPatternView = ->
+        # This pattern view is really closely entertwined
+        # Probably want to find a better way of delegating a view
+        patternView = PatternView()
+        bindO activePattern, patternView.pattern
+        bindO self.samples, patternView.samples
+        patternView.tempo = song.tempo
+        patternView.playTime = self.playTime
+        patternView.playNote = self.playNote
+        patternView.play = self.play
 
-      self.patternView = ->
-        patternView
+        # TODO
+        self.beats = song.size
+
+        self.patternView = ->
+          patternView
+
+        element.appendChild require("./tools")(patternView)
+
+      initPatternView()
+
+      arrangerView = require("./arranger_view")()
+
+      element.appendChild arrangerView.element()
+
+      setInterval ->
+        arrangerView.render song
+      , 15
 
       return self
 

@@ -18,6 +18,8 @@ table at beat keys with `patternId` values.
           [start, end, pattern]
 
       self.extend
+        patterns: patternStarts
+
         upcomingNotes: (t, dt, patterns) ->
           patternStarts(patterns).filter ([start, end, pattern]) ->
             (start <= t < end) or # t is within pattern or

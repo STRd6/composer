@@ -1,8 +1,7 @@
 Pattern View
 ============
 
-    LIGHT = "rgba(0, 0, 0, 0.0625)"
-    DARK = "rgba(0, 0, 0, 0.25)"
+    {LIGHT, DARK} = require "./colors"
 
     require "cornerstone"
 
@@ -17,8 +16,10 @@ Pattern View
       pattern = self.pattern = Observable()
       samples = self.samples = Observable([])
 
-      beats = self.beats = ->
-        pattern()?.beats() or 4
+      # TODO: Make sure this works when changing patterns
+      beats = self.beats = Observable 0
+      beats.observe (v) ->
+        pattern()?.beats v
 
       notes = ->
         pattern()?.notes() or []

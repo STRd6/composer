@@ -17,5 +17,3 @@ Compose music on the internets?
     applyStylesheet require "./style"
 
     player = require("./player")()
-
-    document.body.appendChild require("./tools")(player.patternView())
