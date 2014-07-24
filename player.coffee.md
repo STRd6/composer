@@ -50,6 +50,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       patternView = PatternView()
       bindO activePattern, patternView.pattern
       bindO self.samples, patternView.samples
+      patternView.tempo = self.tempo
       patternView.playTime = self.playTime
       patternView.playNote = self.playNote
       patternView.play = self.play
