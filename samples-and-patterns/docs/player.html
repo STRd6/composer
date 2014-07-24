@@ -82,6 +82,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   patternView = PatternView()
   bindO activePattern, patternView.pattern
   bindO self.samples, patternView.samples
+  patternView.tempo = self.tempo
   patternView.playTime = self.playTime
   patternView.playNote = self.playNote
   patternView.play = self.play
