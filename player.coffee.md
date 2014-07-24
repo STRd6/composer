@@ -12,10 +12,9 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
-        tempo: 90 # BPM
         samples: []
 
-      self.attrObservable "samples", "tempo"
+      self.attrObservable "samples"
 
       song = Song()
 
@@ -30,6 +29,8 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       self.extend
         addNote: (note) ->
           activePattern().notes().push(note)
+
+        tempo: song.tempo
 
         # TODO: Should different patterns have different sample banks?
         playNote: (instrument, note, time) ->
@@ -50,7 +51,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       patternView = PatternView()
       bindO activePattern, patternView.pattern
       bindO self.samples, patternView.samples
-      patternView.tempo = self.tempo
+      patternView.tempo = song.tempo
       patternView.playTime = self.playTime
       patternView.playNote = self.playNote
       patternView.play = self.play
