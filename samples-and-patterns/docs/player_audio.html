@@ -61,7 +61,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
       playTime += dt
 
-      <span class="keyword">if</span> playTime &gt;= self.beats() 
+      <span class="keyword">if</span> playTime &gt;= self.beats()
         <span class="keyword">if</span> self.<span class="keyword">loop</span>()
           dt = playTime - self.beats() <span class="comment"># "left over" section wraps to beginning</span>
           playUpcomingSounds(<span class="number">0</span>, dt)

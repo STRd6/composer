@@ -50,6 +50,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   samples = self.samples = Observable([])
 
   <span class="comment"># TODO: Make sure this works when changing patterns</span>
+  pattern.observe (p) -&gt;
+    beats p.beats()
   beats = self.beats = Observable <span class="number">0</span>
   beats.observe (v) -&gt;
     pattern()?.beats v
