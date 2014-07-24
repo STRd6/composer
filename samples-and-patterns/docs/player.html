@@ -78,21 +78,36 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   self.include require <span class="string">"./player_audio"</span>
   self.include require <span class="string">"./persistence"</span>
 
-  <span class="comment"># This pattern view is really closely entertwined</span>
-  <span class="comment"># Probably want to find a better way of delegating a view</span>
-  patternView = PatternView()
-  bindO activePattern, patternView.pattern
-  bindO self.samples, patternView.samples
-  patternView.tempo = song.tempo
-  patternView.playTime = self.playTime
-  patternView.playNote = self.playNote
-  patternView.play = self.play
+  element = document.body
 
-  <span class="comment"># TODO</span>
-  self.beats = song.size
+  <span class="function"><span class="title">initPatternView</span></span> = -&gt;
+    <span class="comment"># This pattern view is really closely entertwined</span>
+    <span class="comment"># Probably want to find a better way of delegating a view</span>
+    patternView = PatternView()
+    bindO activePattern, patternView.pattern
+    bindO self.samples, patternView.samples
+    patternView.tempo = song.tempo
+    patternView.playTime = self.playTime
+    patternView.playNote = self.playNote
+    patternView.play = self.play
 
-  self.<span class="function"><span class="title">patternView</span></span> = -&gt;
-    patternView
+    <span class="comment"># TODO</span>
+    self.beats = song.size
+
+    self.<span class="function"><span class="title">patternView</span></span> = -&gt;
+      patternView
+
+    element.appendChild require(<span class="string">"./tools"</span>)(patternView)
+
+  initPatternView()
+
+  arrangerView = require(<span class="string">"./arranger_view"</span>)()
+
+  element.appendChild arrangerView.element()
+
+  setInterval -&gt;
+    arrangerView.render song
+  , <span class="number">15</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>

@@ -41,16 +41,12 @@
 Channel = require <span class="string">"./channel"</span>
 Pattern = require <span class="string">"./pattern"</span>
 
-<span class="function"><span class="title">get</span></span> = (name) -&gt;
-  (x) -&gt;
-    x[name]
-
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
     channels: [{
       data: 
         <span class="number">0</span>: <span class="number">0</span>
-    }]
+    }, {}, {}, {}]
     patterns: [{}]
     tempo: <span class="number">90</span>
 
@@ -60,6 +56,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   self.attrModels <span class="string">"patterns"</span>, Pattern
 
   self.extend
+    channelPatterns: (n) -&gt;
+      self.channels.get(n).patterns(self.patterns())
+
     upcomingNotes: (t, dt) -&gt;
       patterns = self.patterns()
 

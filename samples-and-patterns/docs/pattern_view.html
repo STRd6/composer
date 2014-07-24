@@ -34,8 +34,7 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">LIGHT = <span class="string">"rgba(0, 0, 0, 0.0625)"</span>
-DARK = <span class="string">"rgba(0, 0, 0, 0.25)"</span>
+            <div class="content"><pre><code class="lang-coffeescript">{LIGHT, DARK} = require <span class="string">"./colors"</span>
 
 require <span class="string">"cornerstone"</span>
 
@@ -50,8 +49,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   pattern = self.pattern = Observable()
   samples = self.samples = Observable([])
 
-  beats = self.<span class="function"><span class="title">beats</span></span> = -&gt;
-    pattern()?.beats() <span class="keyword">or</span> <span class="number">4</span>
+  <span class="comment"># TODO: Make sure this works when changing patterns</span>
+  beats = self.beats = Observable <span class="number">0</span>
+  beats.observe (v) -&gt;
+    pattern()?.beats v
 
   <span class="function"><span class="title">notes</span></span> = -&gt;
     pattern()?.notes() <span class="keyword">or</span> []

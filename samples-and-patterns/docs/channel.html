@@ -50,6 +50,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       [start, end, pattern]
 
   self.extend
+    patterns: patternStarts
+
     upcomingNotes: (t, dt, patterns) -&gt;
       patternStarts(patterns).filter ([start, end, pattern]) -&gt;
         (start &lt;= t &lt; end) <span class="keyword">or</span> <span class="comment"># t is within pattern or</span>
