@@ -68,12 +68,10 @@ Pattern View
 
         if self.patternMode()
           size = self.activePattern().size()
-          offset = 0
         else
           size = pageSize
-          offset = pageStart
 
-        x = (time - offset) * (canvas.width()/size) - width/2
+        x = time * (canvas.width()/size) - width/2
         y = noteToPosition(note) - height/2
 
         canvas.drawImage img, x, y
