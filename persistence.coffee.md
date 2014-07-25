@@ -28,12 +28,9 @@ Persistence
             self.fromJSON(data)
 
         fromJSON: (data) ->
-          self.notes data.notes
-          self.beats data.beats
-          self.tempo data.tempo
+          self.song().fromJSON(data)
 
-          playing = false
-          playTime = 0
+          self.reset()
 
         publish: ->
           Gist.save(self.toJSON()).then (id) ->

@@ -38,7 +38,7 @@ Pattern Tools
       # Hotkeys
       self.include require "hotkeys"
 
-      self.addHotkey "space", "play"
+      self.addHotkey "space", "pause"
 
       [1..9].forEach (i) ->
         self.addHotkey i.toString(), ->

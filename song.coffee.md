@@ -24,8 +24,10 @@ Patterns are placed in the channels.
       self.attrModels "channels", Channel
       self.attrModels "patterns", Pattern
 
+      numPatterns = 10
+
       # Init Patterns
-      [0..9].forEach (n) ->
+      [0...numPatterns].forEach (n) ->
         self.patterns()[n] ?= Pattern()
 
       self.extend
@@ -58,4 +60,34 @@ Remove the pattern that starts or is present on `beat` in the given channel.
             channel.size(self.patterns())
           .maximum()
 
+        fromJSON: (data) ->
+          if data.patterns?
+            self.patterns data.patterns.map Identity Pattern
+            self.channels data.channels.map Identity Channel
+          else
+            self.patterns [0...numPatterns].map (i) ->
+              if i is 0
+                Pattern
+                  beats: parseInt data.beats, 10
+                  notes: data.notes
+              else
+                Pattern()
+
+            self.channels [{
+              data:
+                0: 0
+            }, {}, {}, {}].map (channelData) ->
+              Channel(channelData)
+
+          self.tempo data.tempo
+
+          self
+
       return self
+
+Helpers
+-------
+
+    Identity = (out) ->
+      (x) ->
+        out x

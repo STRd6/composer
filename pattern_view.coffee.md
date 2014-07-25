@@ -7,7 +7,7 @@ Pattern View
 
     noteName = require "./note"
     
-    pageSize = 4
+    pageSize = 8
 
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
@@ -22,12 +22,14 @@ Pattern View
       beats.observe (v) ->
         self.activePattern()?.beats v
 
+      pageStart = 0
+
       notes = ->
         if self.patternMode()
           self.activePattern().notes()
         else
           pageStart = self.playTime() - self.playTime() % pageSize
-          self.upcomingSounds pageStart, pageSize
+          self.upcomingSounds(pageStart, pageSize)
 
       self.attrObservable "gamut", "quantize"
 
@@ -63,7 +65,14 @@ Pattern View
 
         {width, height} = img = self.samples.get(instrument).image
 
-        x = time * (canvas.width()/beats()) - width/2
+        if self.patternMode()
+          size = self.activePattern().size()
+          offset = 0
+        else
+          size = pageSize
+          offset = pageStart
+
+        x = (time - offset) * (canvas.width()/size) - width/2
         y = noteToPosition(note) - height/2
 
         canvas.drawImage img, x, y
