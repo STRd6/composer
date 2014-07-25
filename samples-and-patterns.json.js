@@ -20,7 +20,7 @@ window["STRd6/composer:samples-and-patterns"]({
     },
     "TODO.md": {
       "path": "TODO.md",
-      "content": "TODO\n====\n\nPadding for first beat, currently crammed up on the left edge\n\nErase last note placed in stack, not first\n\nBugs\n----\n\nSamples and Patterns\n====================\n\nSong is composed of many patterns\n\nPattern painter (Arranger)\n4 (8?) channels where you can paint pattern sections\n\nEdit patterns and page through them\n\nTo Later\n========\n\nSpecify additional resources to add to the cache manifest.\n",
+      "content": "TODO\n====\n\nPadding for first beat, currently crammed up on the left edge\n\nBugs\n----\n\nSamples and Patterns\n====================\n\nSong Play vs Pattern Play\n- Loop pattern by default\n- Display all notes from channel patterns when playing whole song\n\nSong is composed of many patterns\n\nPattern painter (Arranger)\n4 (8?) channels where you can paint pattern sections\n\nEdit patterns and page through them\n\nTo Later\n========\n\nSpecify additional resources to add to the cache manifest.\n",
       "mode": "100644",
       "type": "blob"
     },
