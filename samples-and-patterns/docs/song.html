@@ -55,9 +55,36 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   self.attrModels <span class="string">"channels"</span>, Channel
   self.attrModels <span class="string">"patterns"</span>, Pattern
 
+  <span class="comment"># Init Patterns</span>
+  [<span class="number">0.</span><span class="number">.9</span>].forEach (n) -&gt;
+    self.patterns()[n] ?= Pattern()
+
   self.extend
     channelPatterns: (n) -&gt;
       self.channels.get(n).patterns(self.patterns())
+
+    setPattern: (channel, beat, patternIndex) -&gt;
+      self.channels.get(channel).setPattern(beat, patternIndex)
+
+    canSet: (channel, beat, patternIndex) -&gt;
+      self.channels.get(channel).canSet(beat, patternIndex, self.patterns())
+
+    patternAt: (channel, beat) -&gt;
+      self.channels.get(channel).patternAt(beat, self.patterns())</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Remove the pattern that starts or is present on <code>beat</code> in the given channel.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">    removePattern: (channel, beat) -&gt;
+      self.channels.get(channel).removePattern(beat, self.patterns())
 
     upcomingNotes: (t, dt) -&gt;
       patterns = self.patterns()

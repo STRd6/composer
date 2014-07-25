@@ -44,7 +44,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   <span class="function"><span class="title">patternStarts</span></span> = (patterns) -&gt;
     Object.keys(I.data).map (start) -&gt;
-      patternIndex = I.data[start]
+      start = parseInt(start, <span class="number">10</span>)
+      patternIndex = parseInt(I.data[start], <span class="number">10</span>)
       pattern = patterns[patternIndex]
       end = start + pattern.size()
 
@@ -52,6 +53,31 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.extend
     patterns: patternStarts
+
+    canSet: (beat, patternIndex, patterns) -&gt;
+      size = patterns[patternIndex].size()
+
+      toInsert = [beat, beat + size]
+
+      <span class="comment"># Can't set if there are any overlaps</span>
+      !patternStarts(patterns).some (segment) -&gt;
+        overlap(toInsert, segment)
+
+    patternAt: (beat, patterns) -&gt;
+      patternStarts(patterns).filter ([start, end]) -&gt;
+        start &lt;= beat &lt; end
+      .map ([start, end, pattern, patternIndex]) -&gt;
+        patternIndex
+      .first()
+
+    setPattern: (beat, patternIndex) -&gt;
+      I.data[beat] = patternIndex
+
+    removePattern: (beat, patterns) -&gt;
+      patternStarts(patterns).filter ([start, end]) -&gt;
+        start &lt;= beat &lt; end
+      .forEach ([start]) -&gt;
+        <span class="keyword">delete</span> I.data[start]
 
     upcomingNotes: (t, dt, patterns) -&gt;
       patternStarts(patterns).filter ([start, end, pattern]) -&gt;
@@ -69,6 +95,35 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       .maximum() ? <span class="number">0</span>
 
   <span class="keyword">return</span> self</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2 id="helpers">Helpers</h2>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">{min, max} = Math
+
+<span class="function"><span class="title">overlap</span></span> = ([a1, a2], [b1, b2]) -&gt;
+  max(<span class="number">0</span>, min(a2, b2) - max(a1, b1)) &gt; <span class="number">0</span></code></pre>
 </div>
         </li>
         
