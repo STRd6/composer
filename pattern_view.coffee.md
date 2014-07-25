@@ -1,7 +1,7 @@
 Pattern View
 ============
 
-    {LIGHT, DARK} = require "./colors"
+    {LIGHT, DARK, CURSOR} = require "./colors"
 
     require "cornerstone"
 
@@ -12,19 +12,16 @@ Pattern View
         gamut: [-12, 18]
         quantize: 4
 
-      # We expect our pattern and samples observables to be bound externally
-      pattern = self.pattern = Observable()
-      samples = self.samples = Observable([])
+      # Beat length of active pattern
+      beats = self.beats = Observable 4
 
-      # TODO: Make sure this works when changing patterns
-      pattern.observe (p) ->
+      self.activePattern.observe (p) ->
         beats p.beats()
-      beats = self.beats = Observable 0
       beats.observe (v) ->
-        pattern()?.beats v
+        self.activePattern()?.beats v
 
       notes = ->
-        pattern()?.notes() or []
+        self.activePattern()?.notes() or []
 
       self.attrObservable "gamut", "quantize"
 
@@ -58,7 +55,7 @@ Pattern View
       drawNote = (canvas, note) ->
         [time, note, instrument] = note
 
-        {width, height} = img = samples.get(instrument).image
+        {width, height} = img = self.samples.get(instrument).image
 
         x = time * (canvas.width()/beats()) - width/2
         y = noteToPosition(note) - height/2
@@ -142,17 +139,11 @@ Pattern View
           y: 0
           width: 1
           height: canvas.height()
-          color: "#F0F"
+          color: CURSOR
 
-      paint = ->
-        try
-          render()
+      self.on "draw", render
 
-        requestAnimationFrame(paint)
-
-      paint()
-
-      samples.observe ->
+      self.samples.observe ->
         self.setCursor()
 
       self.include require "./pattern_tools"
@@ -160,7 +151,7 @@ Pattern View
       self.extend
         setCursor: ->
           if self.activeToolIndex() is 0
-            if sample = samples.get(self.activeInstrument())
+            if sample = self.samples.get(self.activeInstrument())
               {width, height, src:url} = img = sample.image
 
               # Kill query string so we don't accidentally cache the crossdomain image as

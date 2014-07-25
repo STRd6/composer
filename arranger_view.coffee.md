@@ -1,7 +1,7 @@
 Arranger View
 =============
 
-    {LIGHT, DARK} = require "./colors"
+    {LIGHT, DARK, CURSOR} = require "./colors"
 
     patternCount = 10
     patternColors = [
@@ -86,7 +86,7 @@ Arranger View
           drawPattern(canvas, i, start, pattern.size(), patternColors[index])
 
         if i is pos.channel
-          size = self.activePattern().size()
+          size = self.patterns()[self.patternToolIndex()].size()
           # Draw hover
           canvas.withAlpha 0.25, ->
             drawPattern(canvas, i, pos.beat, size, patternColors[self.patternToolIndex()])
@@ -108,7 +108,15 @@ Arranger View
           patterns = song.channelPatterns(i)
           drawChannel(canvas, patterns, i)
 
-        drawPosition(canvas)
+        if self.patternMode()
+          # TODO
+        else
+          canvas.drawRect
+            x: self.playTime() * unitX
+            y: 0
+            width: 1
+            height: canvas.height()
+            color: CURSOR
 
       self.extend
         arrangerElement: ->

@@ -33,17 +33,20 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
       self.extend
         activePattern: activePattern
-        beats: ->
+        size: ->
           if self.patternMode()
             activePattern().size()
           else
             song.size()
+
         addNote: (note) ->
           activePattern().notes().push(note)
 
         # Currently instruments map 1 to 1 with patterns.
         patternToolIndex: ->
-          self.patternView().activeInstrument()
+          self.activeInstrument()
+
+        patterns: song.patterns
 
         song: ->
           song
@@ -69,32 +72,16 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
       element = document.body
 
-      initPatternView = ->
-        # This pattern view is really closely entertwined
-        # Probably want to find a better way of delegating a view
-        patternView = PatternView()
-        bindO activePattern, patternView.pattern
-        bindO self.samples, patternView.samples
-        patternView.tempo = song.tempo
-        patternView.playTime = self.playTime
-        patternView.playNote = self.playNote
-        patternView.play = self.play
-        patternView.patternPlay = self.patternPlay
-
-        self.patternView = ->
-          patternView
-
-        element.appendChild require("./tools")(patternView)
-
-      initPatternView()
+      self.include PatternView
+      element.appendChild require("./tools")(self)
 
       self.include require("./arranger_view")
 
       self.on "arrangerClick", (channel, beat) ->
-        if self.patternView().activeToolIndex() is 1 # Eraser
+        if self.activeToolIndex() is 1 # Eraser
           song.removePattern channel, beat
         else
-          patternIndex = self.patternView().activeInstrument()
+          patternIndex = self.activeInstrument()
 
           if song.canSet(channel, beat, patternIndex)
             activePattern song.patterns()[patternIndex]

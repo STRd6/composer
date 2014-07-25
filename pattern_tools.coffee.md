@@ -8,12 +8,12 @@ Pattern Tools
         # Add Note to Score
         instrument = self.activeInstrument()
 
-        self.pattern().addNote [beat, note, instrument]
+        self.addNote [beat, note, instrument]
 
         self.playNote instrument, note
 
       (self, {beat, note}) ->
-        if self.pattern().removeNote [beat, note]
+        if self.activePattern().removeNote [beat, note]
           ;# TODO: Play remove sound
     ]
 

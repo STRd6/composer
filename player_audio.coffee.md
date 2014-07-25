@@ -35,9 +35,9 @@ Provides playTime and playing methods.
 
           playTime += dt
 
-          if playTime >= self.beats()
+          if playTime >= self.size()
             if self.loop()
-              dt = playTime - self.beats() # "left over" section wraps to beginning
+              dt = playTime - self.size() # "left over" section wraps to beginning
               playUpcomingSounds(0, dt)
               playTime = dt
             else
@@ -69,11 +69,15 @@ Schedule a note to be played, use the buffer at the given index, pitch shift by
           playTime
 
         play: ->
+          if self.patternMode()
+            playTime = 0
+
           playing = !playing
           self.patternMode false
 
         patternPlay: ->
           playing = !playing
+          playTime = 0
           self.patternMode true
 
         loop: ->
