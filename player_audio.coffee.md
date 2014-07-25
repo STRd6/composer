@@ -19,7 +19,7 @@ Provides playTime and playing methods.
       minute = 60 # seconds
       
       scheduleSound = (current, [time, note, instrument]) ->
-        self.playNote instrument, note, (time - current) * minute / self.tempo()
+        self.playNote instrument, note, time * minute / self.tempo()
 
       # Schedules upcoming sounds to play
       playUpcomingSounds = (current, dt) ->

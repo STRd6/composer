@@ -54,8 +54,9 @@ Pattern View
       document.body.appendChild canvas.element()
 
       handleResize =  ->
-        canvas.width(window.innerWidth)
-        canvas.height(window.innerHeight)
+        # TODO: Get rid of these hardcoded hacks!
+        canvas.width(window.innerWidth - 40)
+        canvas.height(window.innerHeight - (25 + 94))
 
       handleResize()
       window.addEventListener "resize", handleResize, false

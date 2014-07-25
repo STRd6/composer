@@ -40,6 +40,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
             song.size()
 
         addNote: (note) ->
+          self.unsaved true
           activePattern().notes().push(note)
 
         # Currently instruments map 1 to 1 with patterns.
@@ -86,6 +87,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
           if song.canSet(channel, beat, patternIndex)
             activePattern song.patterns()[patternIndex]
             song.setPattern channel, beat, patternIndex
+            self.unsaved true
           else if (patternIndex = song.patternAt(channel, beat))?
             self.patternMode true unless self.playing()
             activePattern song.patterns()[patternIndex]

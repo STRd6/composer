@@ -5,6 +5,14 @@ Persistence
 
     module.exports = (I={}, self) ->
       # Autoload from location hash
+      defaults I,
+        unsaved: false
+
+      self.attrAccessor "unsaved"
+
+      window.onbeforeunload = ->
+        if self.unsaved()
+          "Your changes haven't yet been saved. If you leave now you will lose your work."
 
       setTimeout ->
         if hash = location.hash
@@ -17,11 +25,15 @@ Persistence
       self.extend
         saveAs: ->
           if name = prompt "Name"
-            data = self.toJSON()
+            data = self.song().toJSON()
 
             localStorage["songs_#{name}"] = JSON.stringify data
+            
+            self.unsaved false
 
         loadSong: ->
+          # TODO: Prompt unsaved
+
           if name = prompt "Name", "demo"
             data = JSON.parse localStorage["songs_#{name}"]
 
@@ -33,10 +45,12 @@ Persistence
           self.reset()
 
         publish: ->
-          Gist.save(self.toJSON()).then (id) ->
+          Gist.save(self.song().toJSON()).then (id) ->
             location.hash = id
 
             alert "Published as #{location}\nShare this by copying the url!"
+
+            self.unsaved false
 
         loadGist: (id) ->
           Gist.load(id).then (data) ->
@@ -48,3 +62,5 @@ Persistence
         loadGistPrompt: ->
           if id = prompt "Gist id", location.hash.substr(1) || "4430ba0c808101866b4d"
             self.loadGist(id)
+
+    

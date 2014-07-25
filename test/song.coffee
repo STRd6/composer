@@ -128,3 +128,12 @@ describe "Song", ->
     it "shouldn't loop past the end", ->
       assert.equal song.upcomingNotes(8, 1).length, 0
       assert.equal song.upcomingNotes(0, 16).length, 8
+
+    it "should have the correct times for the later notes", ->
+      notes = song.upcomingNotes(0, 16)
+
+      assert.equal notes[4][0], 4
+
+      notes = song.upcomingNotes(3, 16)
+
+      assert.equal notes[1][0], 1
