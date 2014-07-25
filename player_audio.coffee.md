@@ -68,15 +68,21 @@ Schedule a note to be played, use the buffer at the given index, pitch shift by
         playTime: ->
           playTime
 
+        playing: ->
+          playing
+
+        pause: ->
+          playing = !playing
+
         play: ->
           if self.patternMode()
             playTime = 0
 
-          playing = !playing
+          self.pause()
           self.patternMode false
 
         patternPlay: ->
-          playing = !playing
+          self.pause()
           playTime = 0
           self.patternMode true
 

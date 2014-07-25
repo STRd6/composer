@@ -6,6 +6,8 @@ Pattern View
     require "cornerstone"
 
     noteName = require "./note"
+    
+    pageSize = 4
 
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
@@ -21,7 +23,11 @@ Pattern View
         self.activePattern()?.beats v
 
       notes = ->
-        self.activePattern()?.notes() or []
+        if self.patternMode()
+          self.activePattern().notes()
+        else
+          pageStart = self.playTime() - self.playTime() % pageSize
+          self.upcomingSounds pageStart, pageSize
 
       self.attrObservable "gamut", "quantize"
 
@@ -63,9 +69,10 @@ Pattern View
         canvas.drawImage img, x, y
 
       drawTemporalGuides = (canvas) ->
-        # TODO: View Offset
-
-        n = beats() * self.quantize()
+        if self.patternMode()
+          n = self.activePattern().size() * self.quantize()
+        else
+          n = pageSize * self.quantize()
 
         width = canvas.width()/n
 
@@ -133,13 +140,20 @@ Pattern View
           drawNote(canvas, note)
 
         # Draw player cursor
-        # TODO: How do we get play time?
-        canvas.drawRect
-          x: self.playTime() * canvas.width() / beats()
-          y: 0
-          width: 1
-          height: canvas.height()
-          color: CURSOR
+        if self.patternMode()
+          canvas.drawRect
+            x: self.playTime() * canvas.width() / beats()
+            y: 0
+            width: 1
+            height: canvas.height()
+            color: CURSOR
+        else
+          canvas.drawRect
+            x: (self.playTime() % pageSize) * canvas.width() / pageSize
+            y: 0
+            width: 1
+            height: canvas.height()
+            color: CURSOR
 
       self.on "draw", render
 

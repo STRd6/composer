@@ -87,6 +87,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
             activePattern song.patterns()[patternIndex]
             song.setPattern channel, beat, patternIndex
           else if (patternIndex = song.patternAt(channel, beat))?
+            self.patternMode true unless self.playing()
             activePattern song.patterns()[patternIndex]
 
       element.appendChild self.arrangerElement()
