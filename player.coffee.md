@@ -71,6 +71,19 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
       arrangerView = require("./arranger_view")()
       arrangerView.patterns = song.patterns
+      arrangerView.activePatternIndex = self.patternView().activeInstrument
+
+      arrangerView.onclick = (channel, beat) ->
+        if self.patternView().activeToolIndex() is 1 # Eraser
+          song.removePattern channel, beat
+        else
+          patternIndex = self.patternView().activeInstrument()
+
+          if song.canSet(channel, beat, patternIndex)
+            activePattern song.patterns()[patternIndex]
+            song.setPattern channel, beat, patternIndex
+          else if (patternIndex = song.patternAt(channel, beat))?
+            activePattern song.patterns()[patternIndex]
 
       element.appendChild arrangerView.element()
 

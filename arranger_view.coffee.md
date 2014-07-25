@@ -4,16 +4,39 @@ Arranger View
     {LIGHT, DARK} = require "./colors"
 
     patternCount = 10
-    patternColors = [0...patternCount].map (n) ->
-      "hsl(#{n * 360/patternCount}, 87%, 50%)"
+    patternColors = [
+      200
+      0
+      180
+      -90
+      130
+      -50
+      60
+      0
+      -60
+      40
+    ].map (h, i) ->
+      if i is 6
+        s = "0%"
+      else
+        s = "87%"
+
+      if i is 8
+        v = "100%"
+      else
+        v = "50%"
+      "hsl(#{h}, #{s}, #{v})"
 
     require "cornerstone"
+
+    unitX = 20
+    unitY = 20
 
     module.exports = (I={}, self=Model(I))->
       Canvas = require "touch-canvas"
       canvas = Canvas
         height: 80
-        width: 128 * 20
+        width: 128 * unitX
 
       canvasHelpers canvas
 
@@ -35,9 +58,10 @@ Arranger View
         pos.channel = 0|((y - top) / unitY)
 
       canvas.on "touch", (p) ->
+        beat = Math.floor(p.x * canvas.width() / unitX)
+        channel = Math.floor(p.y * canvas.height() / unitY)
 
-      unitX = 20
-      unitY = 20
+        self.onclick?(channel, beat)
 
       drawPosition = (canvas) ->
         canvas.drawText
@@ -74,6 +98,13 @@ Arranger View
           width: canvas.width()
           height: 1
           color: LIGHT
+
+      # External Observables
+      # self.patterns
+      # self.activePatternIndex
+
+      # External Event
+      # self.onclick
 
       self.extend
         activePatternIndex: Observable 0
