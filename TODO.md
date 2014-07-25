@@ -3,13 +3,15 @@ TODO
 
 Padding for first beat, currently crammed up on the left edge
 
-Erase last note placed in stack, not first
-
 Bugs
 ----
 
 Samples and Patterns
 ====================
+
+Song Play vs Pattern Play
+- Loop pattern by default
+- Display all notes from channel patterns when playing whole song
 
 Song is composed of many patterns
 
