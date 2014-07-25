@@ -158,25 +158,28 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     [<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>].some (n) -&gt;
       n <span class="keyword">is</span> i
 
+  <span class="function"><span class="title">render</span></span> = -&gt;
+    canvas.fill <span class="string">"white"</span>
+
+    drawScaleGuides(canvas)
+    drawTemporalGuides(canvas)
+
+    <span class="comment"># Draw notes</span>
+    notes().forEach (note) -&gt;
+      drawNote(canvas, note)
+
+    <span class="comment"># Draw player cursor</span>
+    <span class="comment"># TODO: How do we get play time?</span>
+    canvas.drawRect
+      x: self.playTime() * canvas.width() / beats()
+      y: <span class="number">0</span>
+      width: <span class="number">1</span>
+      height: canvas.height()
+      color: <span class="string">"#F0F"</span>
+
   <span class="function"><span class="title">paint</span></span> = -&gt;
     <span class="keyword">try</span>
-      canvas.fill <span class="string">"white"</span>
-
-      drawScaleGuides(canvas)
-      drawTemporalGuides(canvas)
-
-      <span class="comment"># Draw notes</span>
-      notes().forEach (note) -&gt;
-        drawNote(canvas, note)
-
-      <span class="comment"># Draw player cursor</span>
-      <span class="comment"># TODO: How do we get play time?</span>
-      canvas.drawRect
-        x: self.playTime() * canvas.width() / beats()
-        y: <span class="number">0</span>
-        width: <span class="number">1</span>
-        height: canvas.height()
-        color: <span class="string">"#F0F"</span>
+      render()
 
     requestAnimationFrame(paint)
 

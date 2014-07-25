@@ -47,11 +47,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   timestep = <span class="number">1</span>/<span class="number">60</span> <span class="comment"># Animation Frame timestep, seconds</span>
   minute = <span class="number">60</span> <span class="comment"># seconds</span>
 
+  <span class="function"><span class="title">scheduleSound</span></span> = (current, [time, note, instrument]) -&gt;
+    self.playNote instrument, note, (time - current) * minute / self.tempo()
+
   <span class="comment"># Schedules upcoming sounds to play</span>
   <span class="function"><span class="title">playUpcomingSounds</span></span> = (current, dt) -&gt;
     self.upcomingSounds(current, dt)
-    .forEach ([time, note, instrument]) -&gt;
-      self.playNote instrument, note, (time - current) * minute / self.tempo()
+    .forEach (note) -&gt;
+      scheduleSound(current, note)
 
   <span class="function"><span class="title">playLoop</span></span> = -&gt;
     <span class="keyword">if</span> playing
@@ -105,6 +108,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
     play: -&gt;
       playing = !playing
+      self.patternMode <span class="literal">false</span>
+
+    patternPlay: -&gt;
+      playing = !playing
+      self.patternMode <span class="literal">true</span>
 
     <span class="keyword">loop</span>: -&gt;
       <span class="literal">true</span></code></pre>

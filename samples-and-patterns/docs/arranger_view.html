@@ -80,7 +80,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   pos =
     channel: <span class="number">0</span>
-    beat: <span class="number">0</span>
+    beat: -<span class="number">20</span>
 
   $(canvas.element()).mousemove (e) -&gt;
     {left, top} = canvas.element().getBoundingClientRect()
@@ -94,7 +94,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     beat = Math.floor(p.x * canvas.width() / unitX)
     channel = Math.floor(p.y * canvas.height() / unitY)
 
-    self.onclick?(channel, beat)
+    self.trigger <span class="string">"arrangerClick"</span>, channel, beat
 
   <span class="function"><span class="title">drawPosition</span></span> = (canvas) -&gt;
     canvas.drawText
@@ -122,7 +122,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       size = self.activePattern().size()
       <span class="comment"># Draw hover</span>
       canvas.withAlpha <span class="number">0.25</span>, -&gt;
-        drawPattern(canvas, i, pos.beat, size, patternColors[self.activePatternIndex()])
+        drawPattern(canvas, i, pos.beat, size, patternColors[self.patternToolIndex()])
 
     <span class="comment"># Draw line</span>
     canvas.drawRect
@@ -132,29 +132,19 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       height: <span class="number">1</span>
       color: LIGHT
 
-  <span class="comment"># External Observables</span>
-  <span class="comment"># self.patterns</span>
-  <span class="comment"># self.activePatternIndex</span>
+  self.<span class="literal">on</span> <span class="string">"draw"</span>, -&gt;
+    song = self.song()
 
-  <span class="comment"># External Event</span>
-  <span class="comment"># self.onclick</span>
+    canvas.fill(<span class="string">"white"</span>)
+
+    song.channels().forEach (channel, i) -&gt;
+      patterns = song.channelPatterns(i)
+      drawChannel(canvas, patterns, i)
+
+    drawPosition(canvas)
 
   self.extend
-    activePatternIndex: Observable <span class="number">0</span>
-
-    activePattern: -&gt;
-      self.patterns.get(self.activePatternIndex())
-
-    render: (song) -&gt;
-      canvas.fill(<span class="string">"white"</span>)
-
-      song.channels().forEach (channel, i) -&gt;
-        patterns = song.channelPatterns(i)
-        drawChannel(canvas, patterns, i)
-
-      drawPosition(canvas)
-
-    element: -&gt;
+    arrangerElement: -&gt;
       element</code></pre>
 </div>
         </li>
