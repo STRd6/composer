@@ -125,25 +125,28 @@ Pattern View
         [0, 2, 4, 5, 7, 9, 11].some (n) ->
           n is i
 
+      render = ->
+        canvas.fill "white"
+
+        drawScaleGuides(canvas)
+        drawTemporalGuides(canvas)
+
+        # Draw notes
+        notes().forEach (note) ->
+          drawNote(canvas, note)
+
+        # Draw player cursor
+        # TODO: How do we get play time?
+        canvas.drawRect
+          x: self.playTime() * canvas.width() / beats()
+          y: 0
+          width: 1
+          height: canvas.height()
+          color: "#F0F"
+
       paint = ->
         try
-          canvas.fill "white"
-  
-          drawScaleGuides(canvas)
-          drawTemporalGuides(canvas)
-  
-          # Draw notes
-          notes().forEach (note) ->
-            drawNote(canvas, note)
-  
-          # Draw player cursor
-          # TODO: How do we get play time?
-          canvas.drawRect
-            x: self.playTime() * canvas.width() / beats()
-            y: 0
-            width: 1
-            height: canvas.height()
-            color: "#F0F"
+          render()
 
         requestAnimationFrame(paint)
 

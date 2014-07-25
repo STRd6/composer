@@ -47,7 +47,7 @@ Arranger View
 
       pos =
         channel: 0
-        beat: 0
+        beat: -20
 
       $(canvas.element()).mousemove (e) ->
         {left, top} = canvas.element().getBoundingClientRect()
@@ -61,7 +61,7 @@ Arranger View
         beat = Math.floor(p.x * canvas.width() / unitX)
         channel = Math.floor(p.y * canvas.height() / unitY)
 
-        self.onclick?(channel, beat)
+        self.trigger "arrangerClick", channel, beat
 
       drawPosition = (canvas) ->
         canvas.drawText
@@ -89,7 +89,7 @@ Arranger View
           size = self.activePattern().size()
           # Draw hover
           canvas.withAlpha 0.25, ->
-            drawPattern(canvas, i, pos.beat, size, patternColors[self.activePatternIndex()])
+            drawPattern(canvas, i, pos.beat, size, patternColors[self.patternToolIndex()])
 
         # Draw line
         canvas.drawRect
@@ -99,29 +99,19 @@ Arranger View
           height: 1
           color: LIGHT
 
-      # External Observables
-      # self.patterns
-      # self.activePatternIndex
+      self.on "draw", ->
+        song = self.song()
 
-      # External Event
-      # self.onclick
+        canvas.fill("white")
+
+        song.channels().forEach (channel, i) ->
+          patterns = song.channelPatterns(i)
+          drawChannel(canvas, patterns, i)
+
+        drawPosition(canvas)
 
       self.extend
-        activePatternIndex: Observable 0
-
-        activePattern: ->
-          self.patterns.get(self.activePatternIndex())
-
-        render: (song) ->
-          canvas.fill("white")
-
-          song.channels().forEach (channel, i) ->
-            patterns = song.channelPatterns(i)
-            drawChannel(canvas, patterns, i)
-
-          drawPosition(canvas)
-
-        element: ->
+        arrangerElement: ->
           element
 
 Helpers

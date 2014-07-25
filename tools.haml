@@ -2,13 +2,13 @@
 
 .actions
   %button(click=@play) ►
+  %button(click=@patternPlay) P►
   %label
     Tempo
     %input(value=@tempo)
   %label
     Length
     %input(value=@beats)
-  %button(click=@transpose) Transpose
   %button(click=@saveAs) Save
   %button(click=@loadSong) Load
   %button(click=@publish) Publish
