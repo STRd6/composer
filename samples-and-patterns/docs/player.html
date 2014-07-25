@@ -65,17 +65,20 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.extend
     activePattern: activePattern
-    beats: -&gt;
+    size: -&gt;
       <span class="keyword">if</span> self.patternMode()
         activePattern().size()
       <span class="keyword">else</span>
         song.size()
+
     addNote: (note) -&gt;
       activePattern().notes().push(note)
 
     <span class="comment"># Currently instruments map 1 to 1 with patterns.</span>
     patternToolIndex: -&gt;
-      self.patternView().activeInstrument()
+      self.activeInstrument()
+
+    patterns: song.patterns
 
     song: -&gt;
       song
@@ -101,32 +104,16 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   element = document.body
 
-  <span class="function"><span class="title">initPatternView</span></span> = -&gt;
-    <span class="comment"># This pattern view is really closely entertwined</span>
-    <span class="comment"># Probably want to find a better way of delegating a view</span>
-    patternView = PatternView()
-    bindO activePattern, patternView.pattern
-    bindO self.samples, patternView.samples
-    patternView.tempo = song.tempo
-    patternView.playTime = self.playTime
-    patternView.playNote = self.playNote
-    patternView.play = self.play
-    patternView.patternPlay = self.patternPlay
-
-    self.<span class="function"><span class="title">patternView</span></span> = -&gt;
-      patternView
-
-    element.appendChild require(<span class="string">"./tools"</span>)(patternView)
-
-  initPatternView()
+  self.include PatternView
+  element.appendChild require(<span class="string">"./tools"</span>)(self)
 
   self.include require(<span class="string">"./arranger_view"</span>)
 
   self.<span class="literal">on</span> <span class="string">"arrangerClick"</span>, (channel, beat) -&gt;
-    <span class="keyword">if</span> self.patternView().activeToolIndex() <span class="keyword">is</span> <span class="number">1</span> <span class="comment"># Eraser</span>
+    <span class="keyword">if</span> self.activeToolIndex() <span class="keyword">is</span> <span class="number">1</span> <span class="comment"># Eraser</span>
       song.removePattern channel, beat
     <span class="keyword">else</span>
-      patternIndex = self.patternView().activeInstrument()
+      patternIndex = self.activeInstrument()
 
       <span class="keyword">if</span> song.canSet(channel, beat, patternIndex)
         activePattern song.patterns()[patternIndex]

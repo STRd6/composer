@@ -34,7 +34,7 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">{LIGHT, DARK} = require <span class="string">"./colors"</span>
+            <div class="content"><pre><code class="lang-coffeescript">{LIGHT, DARK, CURSOR} = require <span class="string">"./colors"</span>
 
 patternCount = <span class="number">10</span>
 patternColors = [
@@ -119,7 +119,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       drawPattern(canvas, i, start, pattern.size(), patternColors[index])
 
     <span class="keyword">if</span> i <span class="keyword">is</span> pos.channel
-      size = self.activePattern().size()
+      size = self.patterns()[self.patternToolIndex()].size()
       <span class="comment"># Draw hover</span>
       canvas.withAlpha <span class="number">0.25</span>, -&gt;
         drawPattern(canvas, i, pos.beat, size, patternColors[self.patternToolIndex()])
@@ -141,7 +141,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       patterns = song.channelPatterns(i)
       drawChannel(canvas, patterns, i)
 
-    drawPosition(canvas)
+    <span class="keyword">if</span> self.patternMode()
+      <span class="comment"># TODO</span>
+    <span class="keyword">else</span>
+      canvas.drawRect
+        x: self.playTime() * unitX
+        y: <span class="number">0</span>
+        width: <span class="number">1</span>
+        height: canvas.height()
+        color: CURSOR
 
   self.extend
     arrangerElement: -&gt;

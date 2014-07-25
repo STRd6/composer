@@ -34,7 +34,7 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">{LIGHT, DARK} = require <span class="string">"./colors"</span>
+            <div class="content"><pre><code class="lang-coffeescript">{LIGHT, DARK, CURSOR} = require <span class="string">"./colors"</span>
 
 require <span class="string">"cornerstone"</span>
 
@@ -45,19 +45,16 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     gamut: [-<span class="number">12</span>, <span class="number">18</span>]
     quantize: <span class="number">4</span>
 
-  <span class="comment"># We expect our pattern and samples observables to be bound externally</span>
-  pattern = self.pattern = Observable()
-  samples = self.samples = Observable([])
+  <span class="comment"># Beat length of active pattern</span>
+  beats = self.beats = Observable <span class="number">4</span>
 
-  <span class="comment"># TODO: Make sure this works when changing patterns</span>
-  pattern.observe (p) -&gt;
+  self.activePattern.observe (p) -&gt;
     beats p.beats()
-  beats = self.beats = Observable <span class="number">0</span>
   beats.observe (v) -&gt;
-    pattern()?.beats v
+    self.activePattern()?.beats v
 
   <span class="function"><span class="title">notes</span></span> = -&gt;
-    pattern()?.notes() <span class="keyword">or</span> []
+    self.activePattern()?.notes() <span class="keyword">or</span> []
 
   self.attrObservable <span class="string">"gamut"</span>, <span class="string">"quantize"</span>
 
@@ -91,7 +88,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   <span class="function"><span class="title">drawNote</span></span> = (canvas, note) -&gt;
     [time, note, instrument] = note
 
-    {width, height} = img = samples.get(instrument).image
+    {width, height} = img = self.samples.get(instrument).image
 
     x = time * (canvas.width()<span class="regexp">/beats()) - width/</span><span class="number">2</span>
     y = noteToPosition(note) - height/<span class="number">2</span>
@@ -175,17 +172,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       y: <span class="number">0</span>
       width: <span class="number">1</span>
       height: canvas.height()
-      color: <span class="string">"#F0F"</span>
+      color: CURSOR
 
-  <span class="function"><span class="title">paint</span></span> = -&gt;
-    <span class="keyword">try</span>
-      render()
+  self.<span class="literal">on</span> <span class="string">"draw"</span>, render
 
-    requestAnimationFrame(paint)
-
-  paint()
-
-  samples.observe -&gt;
+  self.samples.observe -&gt;
     self.setCursor()
 
   self.include require <span class="string">"./pattern_tools"</span>
@@ -193,7 +184,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   self.extend
     setCursor: -&gt;
       <span class="keyword">if</span> self.activeToolIndex() <span class="keyword">is</span> <span class="number">0</span>
-        <span class="keyword">if</span> sample = samples.get(self.activeInstrument())
+        <span class="keyword">if</span> sample = self.samples.get(self.activeInstrument())
           {width, height, src:url} = img = sample.image
 
           <span class="comment"># Kill query string so we don't accidentally cache the crossdomain image as</span>

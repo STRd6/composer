@@ -64,9 +64,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
       playTime += dt
 
-      <span class="keyword">if</span> playTime &gt;= self.beats()
+      <span class="keyword">if</span> playTime &gt;= self.size()
         <span class="keyword">if</span> self.<span class="keyword">loop</span>()
-          dt = playTime - self.beats() <span class="comment"># "left over" section wraps to beginning</span>
+          dt = playTime - self.size() <span class="comment"># "left over" section wraps to beginning</span>
           playUpcomingSounds(<span class="number">0</span>, dt)
           playTime = dt
         <span class="keyword">else</span>
@@ -107,11 +107,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       playTime
 
     play: -&gt;
+      <span class="keyword">if</span> self.patternMode()
+        playTime = <span class="number">0</span>
+
       playing = !playing
       self.patternMode <span class="literal">false</span>
 
     patternPlay: -&gt;
       playing = !playing
+      playTime = <span class="number">0</span>
       self.patternMode <span class="literal">true</span>
 
     <span class="keyword">loop</span>: -&gt;
