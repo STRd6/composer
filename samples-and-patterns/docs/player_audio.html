@@ -106,15 +106,21 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
     playTime: -&gt;
       playTime
 
+    playing: -&gt;
+      playing
+
+    pause: -&gt;
+      playing = !playing
+
     play: -&gt;
       <span class="keyword">if</span> self.patternMode()
         playTime = <span class="number">0</span>
 
-      playing = !playing
+      self.pause()
       self.patternMode <span class="literal">false</span>
 
     patternPlay: -&gt;
-      playing = !playing
+      self.pause()
       playTime = <span class="number">0</span>
       self.patternMode <span class="literal">true</span>
 

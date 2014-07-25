@@ -40,6 +40,8 @@ require <span class="string">"cornerstone"</span>
 
 noteName = require <span class="string">"./note"</span>
 
+pageSize = <span class="number">4</span>
+
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
     gamut: [-<span class="number">12</span>, <span class="number">18</span>]
@@ -54,7 +56,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     self.activePattern()?.beats v
 
   <span class="function"><span class="title">notes</span></span> = -&gt;
-    self.activePattern()?.notes() <span class="keyword">or</span> []
+    <span class="keyword">if</span> self.patternMode()
+      self.activePattern().notes()
+    <span class="keyword">else</span>
+      pageStart = self.playTime() - self.playTime() % pageSize
+      self.upcomingSounds pageStart, pageSize
 
   self.attrObservable <span class="string">"gamut"</span>, <span class="string">"quantize"</span>
 
@@ -96,9 +102,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     canvas.drawImage img, x, y
 
   <span class="function"><span class="title">drawTemporalGuides</span></span> = (canvas) -&gt;
-    <span class="comment"># TODO: View Offset</span>
-
-    n = beats() * self.quantize()
+    <span class="keyword">if</span> self.patternMode()
+      n = self.activePattern().size() * self.quantize()
+    <span class="keyword">else</span>
+      n = pageSize * self.quantize()
 
     width = canvas.width()/n
 
@@ -166,13 +173,20 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       drawNote(canvas, note)
 
     <span class="comment"># Draw player cursor</span>
-    <span class="comment"># TODO: How do we get play time?</span>
-    canvas.drawRect
-      x: self.playTime() * canvas.width() / beats()
-      y: <span class="number">0</span>
-      width: <span class="number">1</span>
-      height: canvas.height()
-      color: CURSOR
+    <span class="keyword">if</span> self.patternMode()
+      canvas.drawRect
+        x: self.playTime() * canvas.width() / beats()
+        y: <span class="number">0</span>
+        width: <span class="number">1</span>
+        height: canvas.height()
+        color: CURSOR
+    <span class="keyword">else</span>
+      canvas.drawRect
+        x: (self.playTime() % pageSize) * canvas.width() / pageSize
+        y: <span class="number">0</span>
+        width: <span class="number">1</span>
+        height: canvas.height()
+        color: CURSOR
 
   self.<span class="literal">on</span> <span class="string">"draw"</span>, render
 

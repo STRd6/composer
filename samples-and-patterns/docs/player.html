@@ -119,6 +119,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         activePattern song.patterns()[patternIndex]
         song.setPattern channel, beat, patternIndex
       <span class="keyword">else</span> <span class="keyword">if</span> (patternIndex = song.patternAt(channel, beat))?
+        self.patternMode <span class="literal">true</span> <span class="keyword">unless</span> self.playing()
         activePattern song.patterns()[patternIndex]
 
   element.appendChild self.arrangerElement()
