@@ -40,7 +40,7 @@ require <span class="string">"cornerstone"</span>
 
 noteName = require <span class="string">"./note"</span>
 
-pageSize = <span class="number">4</span>
+pageSize = <span class="number">8</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
@@ -55,12 +55,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   beats.observe (v) -&gt;
     self.activePattern()?.beats v
 
+  pageStart = <span class="number">0</span>
+
   <span class="function"><span class="title">notes</span></span> = -&gt;
     <span class="keyword">if</span> self.patternMode()
       self.activePattern().notes()
     <span class="keyword">else</span>
       pageStart = self.playTime() - self.playTime() % pageSize
-      self.upcomingSounds pageStart, pageSize
+      self.upcomingSounds(pageStart, pageSize)
 
   self.attrObservable <span class="string">"gamut"</span>, <span class="string">"quantize"</span>
 
@@ -96,7 +98,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     {width, height} = img = self.samples.get(instrument).image
 
-    x = time * (canvas.width()<span class="regexp">/beats()) - width/</span><span class="number">2</span>
+    <span class="keyword">if</span> self.patternMode()
+      size = self.activePattern().size()
+      offset = <span class="number">0</span>
+    <span class="keyword">else</span>
+      size = pageSize
+      offset = pageStart
+
+    x = (time - offset) * (canvas.width()<span class="regexp">/size) - width/</span><span class="number">2</span>
     y = noteToPosition(note) - height/<span class="number">2</span>
 
     canvas.drawImage img, x, y

@@ -119,6 +119,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       self.pause()
       self.patternMode <span class="literal">false</span>
 
+    reset: -&gt;
+      playing = <span class="literal">false</span>
+      playTime = <span class="number">0</span>
+
+      self.activePattern self.patterns.get(<span class="number">0</span>)
+
     patternPlay: -&gt;
       self.pause()
       playTime = <span class="number">0</span>
