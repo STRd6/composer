@@ -48,7 +48,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   minute = <span class="number">60</span> <span class="comment"># seconds</span>
 
   <span class="function"><span class="title">scheduleSound</span></span> = (current, [time, note, instrument]) -&gt;
-    self.playNote instrument, note, (time - current) * minute / self.tempo()
+    self.playNote instrument, note, time * minute / self.tempo()
 
   <span class="comment"># Schedules upcoming sounds to play</span>
   <span class="function"><span class="title">playUpcomingSounds</span></span> = (current, dt) -&gt;

@@ -38,6 +38,14 @@
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   <span class="comment"># Autoload from location hash</span>
+  defaults I,
+    unsaved: <span class="literal">false</span>
+
+  self.attrAccessor <span class="string">"unsaved"</span>
+
+  window.<span class="function"><span class="title">onbeforeunload</span></span> = -&gt;
+    <span class="keyword">if</span> self.unsaved()
+      <span class="string">"Your changes haven't yet been saved. If you leave now you will lose your work."</span>
 
   setTimeout -&gt;
     <span class="keyword">if</span> hash = location.hash
@@ -50,11 +58,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   self.extend
     saveAs: -&gt;
       <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>
-        data = self.toJSON()
+        data = self.song().toJSON()
 
         localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>] = JSON.stringify data
 
+        self.unsaved <span class="literal">false</span>
+
     loadSong: -&gt;
+      <span class="comment"># TODO: Prompt unsaved</span>
+
       <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>, <span class="string">"demo"</span>
         data = JSON.parse localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>]
 
@@ -66,10 +78,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       self.reset()
 
     publish: -&gt;
-      Gist.save(self.toJSON()).<span class="keyword">then</span> (id) -&gt;
+      Gist.save(self.song().toJSON()).<span class="keyword">then</span> (id) -&gt;
         location.hash = id
 
         alert <span class="string">"Published as <span class="subst">#{location}</span>\nShare this by copying the url!"</span>
+
+        self.unsaved <span class="literal">false</span>
 
     loadGist: (id) -&gt;
       Gist.load(id).<span class="keyword">then</span> (data) -&gt;

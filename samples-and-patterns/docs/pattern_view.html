@@ -87,8 +87,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   document.body.appendChild canvas.element()
 
   <span class="function"><span class="title">handleResize</span></span> =  -&gt;
-    canvas.width(window.innerWidth)
-    canvas.height(window.innerHeight)
+    <span class="comment"># TODO: Get rid of these hardcoded hacks!</span>
+    canvas.width(window.innerWidth - <span class="number">40</span>)
+    canvas.height(window.innerHeight - (<span class="number">25</span> + <span class="number">94</span>))
 
   handleResize()
   window.addEventListener <span class="string">"resize"</span>, handleResize, <span class="literal">false</span>

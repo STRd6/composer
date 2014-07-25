@@ -86,7 +86,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       .map ([start, end, pattern]) -&gt;
         offset = t - start
 
-        pattern.upcomingNotes(offset, dt)
+        pattern.upcomingNotes(offset, dt).map ([time, note, instrument]) -&gt;
+          [time - offset, note, instrument]
       .flatten()
 
     size: (patterns) -&gt;
