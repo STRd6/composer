@@ -75,7 +75,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="keyword">if</span> dt &gt; <span class="number">0</span>
           t &lt;= time &lt; t + dt
         <span class="keyword">else</span> <span class="keyword">if</span> dt &lt; <span class="number">0</span>
-          t + dt &lt; time &lt;= t</code></pre>
+          t + dt &lt; time &lt;= t
+      .map ([time, note, instrument]) -&gt;
+        [time - t, note, instrument]</code></pre>
 </div>
         </li>
         

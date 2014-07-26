@@ -53,8 +53,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
   <span class="comment"># Schedules upcoming sounds to play</span>
   <span class="function"><span class="title">playUpcomingSounds</span></span> = (current, dt) -&gt;
     self.upcomingSounds(current, dt)
-    .map (note) -&gt; <span class="comment"># Map pattern time into current timeline time</span>
-      [note[<span class="number">0</span>] - current, note[<span class="number">1</span>], note[<span class="number">2</span>]]
     .forEach (note) -&gt;
       scheduleSound(note)
 
