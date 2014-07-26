@@ -23,6 +23,8 @@ table at beat keys with `patternId` values.
         patterns: patternStarts
 
         canSet: (beat, patternIndex, patterns) ->
+          debugger
+
           size = patterns[patternIndex].size()
           
           toInsert = [beat, beat + size]

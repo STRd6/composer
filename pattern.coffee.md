@@ -12,6 +12,8 @@ A `Pattern` is a list of [beat, note, instrument] tuples.
         beats: 4
         notes: []
 
+      I.beats = parseInt(I.beats, 10) or 4 # Force Int
+
       self.attrObservable "beats"
       self.attrAccessor "notes"
 

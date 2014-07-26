@@ -137,3 +137,20 @@ describe "Song", ->
       notes = song.upcomingNotes(3, 16)
 
       assert.equal notes[1][0], 1
+
+  describe "#canSet", ->
+    it "should allow placing a pattern if there is space, not if not", ->
+      song = Song
+        patterns: [
+          beats: 8
+        ]
+        channels: [
+          {
+            data:
+              0: 0
+              8: 0
+          }
+        ]
+
+      assert song.canSet(0, 16, 0)
+      assert !song.canSet(0, 15, 0)

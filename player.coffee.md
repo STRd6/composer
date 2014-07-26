@@ -84,6 +84,8 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
         else
           patternIndex = self.activeInstrument()
 
+          debugger
+
           if song.canSet(channel, beat, patternIndex)
             activePattern song.patterns()[patternIndex]
             song.setPattern channel, beat, patternIndex
