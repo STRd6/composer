@@ -15,7 +15,7 @@ Pattern View
         quantize: 4
 
       # Beat length of active pattern
-      beats = self.beats = Observable 4
+      beats = self.beats = Observable 8
 
       self.activePattern.observe (p) ->
         beats p.beats()

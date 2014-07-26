@@ -9,7 +9,7 @@ A `Pattern` is a list of [beat, note, instrument] tuples.
 
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
-        beats: 4
+        beats: 8
         notes: []
 
       I.beats = parseInt(I.beats, 10) or 4 # Force Int

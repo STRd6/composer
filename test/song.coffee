@@ -3,7 +3,10 @@ Pattern = require "../pattern"
 
 describe "Song", ->
   it "Should know it's size", ->
-    song = Song()
+    song = Song
+      patterns: [
+        beats: 4
+      ]
 
     assert.equal song.size(), 4, "song.size() is #{song.size()}"
 
