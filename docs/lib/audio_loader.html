@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>main</title>
+  <title>lib/audio_loader</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="composer">Composer</h1>
+              <h1 id="audio-loader">Audio Loader</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,32 +32,23 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Setup</p>
-
+              
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># Google Analytics</span>
-require(<span class="string">"analytics"</span>).init(<span class="string">"UA-3464282-15"</span>)
+            <div class="content"><pre><code class="lang-coffeescript">Deferred = require <span class="string">"./deferred"</span>
+loader = require <span class="string">"./loader"</span>
 
-require <span class="string">"appcache"</span>
-require <span class="string">"cornerstone"</span>
-require <span class="string">"jquery-utils"</span></code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-3">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-3">&#182;</a>
-              </div>
-              <p>Compose music on the internets?</p>
+context = require <span class="string">"./audio_context"</span>
 
-            </div>
-            <div class="content"><pre><code class="lang-coffeescript">{applyStylesheet} = require <span class="string">"util"</span>
+module.<span class="function"><span class="title">exports</span></span> = (url) -&gt;
+  deferred = Deferred()
 
-applyStylesheet require <span class="string">"./style"</span>
+  loader(url)
+  .<span class="keyword">then</span> (buffer) -&gt;
+    context.decodeAudioData buffer, deferred.resolve, deferred.reject
+  .<span class="keyword">catch</span>(deferred.reject)
+  .done()
 
-player = require(<span class="string">"./player"</span>)()</code></pre>
+  deferred.promise</code></pre>
 </div>
         </li>
         
@@ -199,6 +190,6 @@ player = require(<span class="string">"./player"</span>)()</code></pre>
 
 }).call(this);
 
-</script><script src="package.js"></script>
+</script><script src="../package.js"></script>
 </body>
 </html>

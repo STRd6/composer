@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>main</title>
+  <title>song</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="composer">Composer</h1>
+              <h1 id="song">Song</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,15 +32,51 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Setup</p>
+              <p>A song has a tempo, a number of channels, and a number of patterns.</p>
+<p>Patterns are placed in the channels.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># Google Analytics</span>
-require(<span class="string">"analytics"</span>).init(<span class="string">"UA-3464282-15"</span>)
+            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 
-require <span class="string">"appcache"</span>
-require <span class="string">"cornerstone"</span>
-require <span class="string">"jquery-utils"</span></code></pre>
+Channel = require <span class="string">"./channel"</span>
+Pattern = require <span class="string">"./pattern"</span>
+
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
+  defaults I,
+    channels: [{
+      data:
+        <span class="number">0</span>: <span class="number">0</span>
+    }, {}, {}, {}]
+    patterns: [{}]
+    tempo: <span class="number">90</span>
+
+  self.attrObservable <span class="string">"tempo"</span>
+
+  self.attrModels <span class="string">"channels"</span>, Channel
+  self.attrModels <span class="string">"patterns"</span>, Pattern
+
+  numPatterns = <span class="number">10</span>
+
+  <span class="comment"># Init Patterns</span>
+  [<span class="number">0.</span>..numPatterns].forEach (n) -&gt;
+    self.patterns()[n] ?= Pattern()
+
+  self.extend
+    channelPatterns: (n) -&gt;
+      self.channels.get(n).patterns(self.patterns())
+
+    setPattern: (channel, beat, patternIndex) -&gt;
+      self.channels.get(channel).setPattern(beat, patternIndex)
+
+    canSet: (channel, beat, patternIndex) -&gt;
+      self.channels.get(channel).canSet(beat, patternIndex, self.patterns())
+
+    patternAt: (channel, beat) -&gt;
+      self.channels.get(channel).patternAt(beat, self.patterns())
+
+    patternsDataAt: (beat) -&gt;
+      self.channels().map (channel) -&gt;
+        channel.patternDataAt(beat, self.patterns()).first()</code></pre>
 </div>
         </li>
         
@@ -50,14 +86,76 @@ require <span class="string">"jquery-utils"</span></code></pre>
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Compose music on the internets?</p>
+              <p>Remove the pattern that starts or is present on <code>beat</code> in the given channel.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">{applyStylesheet} = require <span class="string">"util"</span>
+            <div class="content"><pre><code class="lang-coffeescript">    removePattern: (channel, beat) -&gt;
+      self.channels.get(channel).removePattern(beat, self.patterns())
 
-applyStylesheet require <span class="string">"./style"</span>
+    upcomingNotes: (t, dt) -&gt;
+      patterns = self.patterns()
 
-player = require(<span class="string">"./player"</span>)()</code></pre>
+      self.channels.map (channel) -&gt;
+        channel.upcomingNotes t, dt, patterns
+      .flatten()
+
+    size: -&gt;
+      self.channels().map (channel) -&gt;
+        channel.size(self.patterns())
+      .maximum()
+
+    fromJSON: (data) -&gt;
+      <span class="keyword">if</span> data.patterns?
+        self.patterns data.patterns.map Identity Pattern
+        self.channels data.channels.map Identity Channel
+      <span class="keyword">else</span>
+        self.patterns [<span class="number">0.</span>..numPatterns].map (i) -&gt;
+          <span class="keyword">if</span> i <span class="keyword">is</span> <span class="number">0</span>
+            Pattern
+              beats: parseInt data.beats, <span class="number">10</span>
+              notes: data.notes
+          <span class="keyword">else</span>
+            Pattern()
+
+        self.channels [{
+          data:
+            <span class="number">0</span>: <span class="number">0</span>
+        }, {}, {}, {}].map (channelData) -&gt;
+          Channel(channelData)
+
+      self.tempo data.tempo
+
+      self
+
+  <span class="keyword">return</span> self</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <h2 id="helpers">Helpers</h2>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">Identity</span></span> = (out) -&gt;
+  (x) -&gt;
+    out x</code></pre>
 </div>
         </li>
         

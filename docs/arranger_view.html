@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>player</title>
+  <title>arranger_view</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="player">Player</h1>
+              <h1 id="arranger-view">Arranger View</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,106 +32,128 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Super simple Audio player based on <a href="http://www.html5rocks.com/en/tutorials/webaudio/intro/">http://www.html5rocks.com/en/tutorials/webaudio/intro/</a></p>
-
+              
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
+            <div class="content"><pre><code class="lang-coffeescript">{LIGHT, DARK, CURSOR} = require <span class="string">"./colors"</span>
 
-Sample = require <span class="string">"./sample"</span>
-Song = require <span class="string">"./song"</span>
+patternCount = <span class="number">10</span>
+patternColors = [
+  <span class="number">200</span>
+  <span class="number">0</span>
+  <span class="number">180</span>
+  -<span class="number">90</span>
+  <span class="number">130</span>
+  -<span class="number">50</span>
+  <span class="number">60</span>
+  <span class="number">0</span>
+  -<span class="number">60</span>
+  <span class="number">40</span>
+].map (h, i) -&gt;
+  <span class="keyword">if</span> i <span class="keyword">is</span> <span class="number">6</span>
+    s = <span class="string">"0%"</span>
+  <span class="keyword">else</span>
+    s = <span class="string">"87%"</span>
 
-PatternView = require <span class="string">"./pattern_view"</span>
+  <span class="keyword">if</span> i <span class="keyword">is</span> <span class="number">8</span>
+    v = <span class="string">"100%"</span>
+  <span class="keyword">else</span>
+    v = <span class="string">"50%"</span>
+  <span class="string">"hsl(<span class="subst">#{h}</span>, <span class="subst">#{s}</span>, <span class="subst">#{v}</span>)"</span>
 
-module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
-  defaults I,
-    samples: []
-    patternMode: <span class="literal">false</span>
-    lastChannelIndex: <span class="number">0</span>
+require <span class="string">"cornerstone"</span>
 
-  self.include Bindable
+unitX = <span class="number">20</span>
+unitY = <span class="number">20</span>
 
-  self.attrObservable <span class="string">"samples"</span>
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I))-&gt;
+  Canvas = require <span class="string">"touch-canvas"</span>
+  canvas = Canvas
+    height: <span class="number">80</span>
+    width: <span class="number">128</span> * unitX
 
-  self.attrAccessor <span class="string">"patternMode"</span>, <span class="string">"lastChannelIndex"</span>
+  canvasHelpers canvas
 
-  song = Song()
+  element = document.createElement <span class="string">"div"</span>
+  element.classList.add <span class="string">"arranger-wrap"</span>
 
-  <span class="comment"># Loading default sample pack</span>
-  Sample.loadPack(require(<span class="string">"../samples"</span>))
-  .<span class="keyword">then</span> self.samples
-  .done()
+  element.appendChild canvas.element()
 
-  <span class="comment"># TODO: Make it a real observable function</span>
-  activePattern = Observable song.patterns()[<span class="number">0</span>]
+  pos =
+    channel: <span class="number">0</span>
+    beat: -<span class="number">20</span>
+
+  $(canvas.element()).mousemove (e) -&gt;
+    {left, top} = canvas.element().getBoundingClientRect()
+
+    {pageX:x, pageY:y} = e
+
+    pos.beat = <span class="number">0</span>|((x - left) / unitX)
+    pos.channel = <span class="number">0</span>|((y - top) / unitY)
+
+  canvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p) -&gt;
+    beat = Math.floor(p.x * canvas.width() / unitX)
+    channel = Math.floor(p.y * canvas.height() / unitY)
+
+    self.trigger <span class="string">"arrangerClick"</span>, channel, beat
+
+  <span class="function"><span class="title">drawPosition</span></span> = (canvas) -&gt;
+    canvas.drawText
+      text: <span class="string">"<span class="subst">#{pos.beat}</span>, <span class="subst">#{pos.channel}</span>"</span>
+      x: <span class="number">20</span>
+      y: <span class="number">30</span>
+      color: <span class="string">"black"</span>
+
+  <span class="function"><span class="title">drawPattern</span></span> = (canvas, channel, beat, size, color) -&gt;
+    canvas.drawRect
+      x: beat * unitX
+      y: channel * unitY
+      width: size * unitX
+      height: unitY - <span class="number">1</span>
+      color: color
+      stroke:
+        width: <span class="number">1</span>
+        color: DARK
+
+  <span class="function"><span class="title">drawChannel</span></span> = (canvas, patterns, i) -&gt;
+    patterns.forEach ([start, end, pattern, index]) -&gt;
+      drawPattern(canvas, i, start, pattern.size(), patternColors[index])
+
+    <span class="keyword">if</span> i <span class="keyword">is</span> pos.channel <span class="keyword">and</span> self.activeToolIndex() <span class="keyword">is</span> <span class="number">0</span>
+      size = self.patterns()[self.patternToolIndex()].size()
+      <span class="comment"># Draw hover</span>
+      canvas.withAlpha <span class="number">0.25</span>, -&gt;
+        drawPattern(canvas, i, pos.beat, size, patternColors[self.patternToolIndex()])
+
+    <span class="comment"># Draw line</span>
+    canvas.drawRect
+      x: <span class="number">0</span>
+      y: <span class="number">20</span> * (i + <span class="number">1</span>) - <span class="number">1</span>
+      width: canvas.width()
+      height: <span class="number">1</span>
+      color: LIGHT
+
+  self.<span class="literal">on</span> <span class="string">"draw"</span>, -&gt;
+    song = self.song()
+
+    canvas.fill(<span class="string">"white"</span>)
+
+    song.channels().forEach (channel, i) -&gt;
+      patterns = song.channelPatterns(i)
+      drawChannel(canvas, patterns, i)
+
+    <span class="keyword">if</span> self.patternMode()
+      <span class="comment"># TODO</span>
+    <span class="keyword">else</span>
+      canvas.drawRect
+        x: self.playTime() * unitX
+        y: <span class="number">0</span>
+        width: <span class="number">1</span>
+        height: canvas.height()
+        color: CURSOR
 
   self.extend
-    activePattern: activePattern
-    size: -&gt;
-      <span class="keyword">if</span> self.patternMode()
-        activePattern().size()
-      <span class="keyword">else</span>
-        song.size()
-
-    addNote: (note) -&gt;
-      self.unsaved <span class="literal">true</span>
-      activePattern().notes().push(note)
-
-    <span class="comment"># Currently instruments map 1 to 1 with patterns.</span>
-    patternToolIndex: -&gt;
-      self.activeInstrument()
-
-    patterns: song.patterns
-
-    song: -&gt;
-      song
-
-    tempo: song.tempo
-
-    <span class="comment"># TODO: Should different patterns have different sample banks?</span>
-    playNote: (instrument, note, time) -&gt;
-      buffer = self.samples.get(instrument).buffer
-      self.playBufferNote(buffer, note, time)
-
-    removeNote: -&gt;
-      activePattern().removeNote arguments...
-
-    upcomingSounds: (current, dt) -&gt;
-      <span class="keyword">if</span> self.patternMode()
-        activePattern().upcomingNotes(current, dt)
-      <span class="keyword">else</span>
-        song.upcomingNotes(current, dt)
-
-  self.include require <span class="string">"./player_audio"</span>
-  self.include require <span class="string">"./persistence"</span>
-
-  element = document.body
-
-  self.include PatternView
-  element.appendChild require(<span class="string">"./tools"</span>)(self)
-
-  self.include require(<span class="string">"./arranger_view"</span>)
-
-  self.<span class="literal">on</span> <span class="string">"arrangerClick"</span>, (channel, beat) -&gt;
-    <span class="keyword">if</span> self.activeToolIndex() <span class="keyword">is</span> <span class="number">1</span> <span class="comment"># Eraser</span>
-      song.removePattern channel, beat
-    <span class="keyword">else</span>
-      patternIndex = self.activeInstrument()
-
-      <span class="keyword">if</span> song.canSet(channel, beat, patternIndex)
-        activePattern song.patterns()[patternIndex]
-        song.setPattern channel, beat, patternIndex
-        self.lastChannelIndex channel
-        self.unsaved <span class="literal">true</span>
-      <span class="keyword">else</span> <span class="keyword">if</span> (patternIndex = song.patternAt(channel, beat))?
-        self.patternMode <span class="literal">true</span> <span class="keyword">unless</span> self.playing()
-        activePattern song.patterns()[patternIndex]
-
-  element.appendChild self.arrangerElement()
-
-  animate -&gt;
-    self.trigger(<span class="string">"draw"</span>)
-
-  <span class="keyword">return</span> self</code></pre>
+    arrangerElement: -&gt;
+      element</code></pre>
 </div>
         </li>
         
@@ -155,24 +177,19 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Bind an observable to &quot;be the same as&quot; the source observable.</p>
-
+              
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">bindO</span></span> = (from, to) -&gt;
-  from.observe to
-  to from()
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">canvasHelpers</span></span> = (canvas) -&gt;
+  canvas.<span class="function"><span class="title">withAlpha</span></span> = (alpha, fn) -&gt;
+    oldAlpha = canvas.globalAlpha()
+    canvas.globalAlpha alpha * oldAlpha
 
-<span class="function"><span class="title">animate</span></span> = (fn) -&gt;
-  <span class="function"><span class="title">step</span></span> = -&gt;
     <span class="keyword">try</span>
-      fn()
-    <span class="keyword">catch</span> e
-      <span class="keyword">debugger</span>
-      console.error e
+      fn(canvas)
+    <span class="keyword">finally</span>
+      canvas.globalAlpha oldAlpha
 
-    requestAnimationFrame(step)
-
-  step()</code></pre>
+    <span class="keyword">return</span> canvas</code></pre>
 </div>
         </li>
         

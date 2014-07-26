@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>main</title>
+  <title>pattern_tools</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="composer">Composer</h1>
+              <h1 id="pattern-tools">Pattern Tools</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,32 +32,60 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Setup</p>
-
+              
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># Google Analytics</span>
-require(<span class="string">"analytics"</span>).init(<span class="string">"UA-3464282-15"</span>)
+            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 
-require <span class="string">"appcache"</span>
-require <span class="string">"cornerstone"</span>
-require <span class="string">"jquery-utils"</span></code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-3">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-3">&#182;</a>
-              </div>
-              <p>Compose music on the internets?</p>
+tools = [
+  (self, {beat, note}) -&gt;
+    <span class="comment"># Add Note to Score</span>
+    instrument = self.activeInstrument()
 
-            </div>
-            <div class="content"><pre><code class="lang-coffeescript">{applyStylesheet} = require <span class="string">"util"</span>
+    self.addNote [beat, note, instrument]
 
-applyStylesheet require <span class="string">"./style"</span>
+    self.playNote instrument, note
 
-player = require(<span class="string">"./player"</span>)()</code></pre>
+  (self, {beat, note}) -&gt;
+    <span class="keyword">if</span> self.activePattern().removeNote [beat, note]
+      ;<span class="comment"># TODO: Play remove sound</span>
+]
+
+module.<span class="function"><span class="title">exports</span></span> = (I, self) -&gt;
+  defaults I,
+    activeInstrument: <span class="number">1</span>
+    activeToolIndex: <span class="number">0</span>
+
+  self.attrObservable <span class="string">"activeInstrument"</span>, <span class="string">"activeToolIndex"</span>
+
+  self.extend
+    activeTool: -&gt;
+      tools[self.activeToolIndex()]
+
+  self.activeInstrument.observe (instrument) -&gt;
+    self.playNote instrument
+    self.setCursor()
+
+  self.activeToolIndex.observe -&gt;
+    self.setCursor()
+
+  <span class="comment"># Hotkeys</span>
+  self.include require <span class="string">"hotkeys"</span>
+
+  self.addHotkey <span class="string">"space"</span>, <span class="string">"pause"</span>
+
+  [<span class="number">1.</span><span class="number">.9</span>].forEach (i) -&gt;
+    self.addHotkey i.toString(), -&gt;
+      self.activeInstrument i - <span class="number">1</span>
+      self.activeToolIndex(<span class="number">0</span>)
+
+  self.addHotkey <span class="string">"0"</span>, -&gt;
+    self.activeInstrument <span class="number">9</span>
+    self.activeToolIndex(<span class="number">0</span>)
+
+  self.addHotkey <span class="string">"e"</span>, -&gt;
+    self.activeToolIndex(<span class="number">1</span>)
+
+  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         

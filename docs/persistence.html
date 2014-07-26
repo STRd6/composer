@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>main</title>
+  <title>persistence</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="composer">Composer</h1>
+              <h1 id="persistence">Persistence</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,32 +32,69 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Setup</p>
-
+              
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># Google Analytics</span>
-require(<span class="string">"analytics"</span>).init(<span class="string">"UA-3464282-15"</span>)
+            <div class="content"><pre><code class="lang-coffeescript">Gist = require <span class="string">"./lib/gist"</span>
 
-require <span class="string">"appcache"</span>
-require <span class="string">"cornerstone"</span>
-require <span class="string">"jquery-utils"</span></code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-3">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-3">&#182;</a>
-              </div>
-              <p>Compose music on the internets?</p>
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
+  <span class="comment"># Autoload from location hash</span>
+  defaults I,
+    unsaved: <span class="literal">false</span>
 
-            </div>
-            <div class="content"><pre><code class="lang-coffeescript">{applyStylesheet} = require <span class="string">"util"</span>
+  self.attrAccessor <span class="string">"unsaved"</span>
 
-applyStylesheet require <span class="string">"./style"</span>
+  window.<span class="function"><span class="title">onbeforeunload</span></span> = -&gt;
+    <span class="keyword">if</span> self.unsaved()
+      <span class="string">"Your changes haven't yet been saved. If you leave now you will lose your work."</span>
 
-player = require(<span class="string">"./player"</span>)()</code></pre>
+  setTimeout -&gt;
+    <span class="keyword">if</span> hash = location.hash
+      self.loadGist hash.substr(<span class="number">1</span>)
+  , <span class="number">0</span>
+
+  <span class="comment"># Demo song</span>
+  localStorage.songs_demo ?= JSON.stringify require <span class="string">"./demo_song"</span>
+
+  self.extend
+    saveAs: -&gt;
+      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>
+        data = self.song().toJSON()
+
+        localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>] = JSON.stringify data
+
+        self.unsaved <span class="literal">false</span>
+
+    loadSong: -&gt;
+      <span class="comment"># TODO: Prompt unsaved</span>
+
+      <span class="keyword">if</span> name = prompt <span class="string">"Name"</span>, <span class="string">"demo"</span>
+        data = JSON.parse localStorage[<span class="string">"songs_<span class="subst">#{name}</span>"</span>]
+
+        self.fromJSON(data)
+
+    fromJSON: (data) -&gt;
+      self.song().fromJSON(data)
+
+      self.reset()
+
+    publish: -&gt;
+      Gist.save(self.song().toJSON()).<span class="keyword">then</span> (id) -&gt;
+        location.hash = id
+
+        alert <span class="string">"Published as <span class="subst">#{location}</span>\nShare this by copying the url!"</span>
+
+        self.unsaved <span class="literal">false</span>
+
+    loadGist: (id) -&gt;
+      Gist.load(id).<span class="keyword">then</span> (data) -&gt;
+        self.fromJSON(data)
+        location.hash = id
+      , -&gt;
+        alert <span class="string">"Couldn't load gist with id: <span class="subst">#{id}</span>"</span>
+
+    loadGistPrompt: -&gt;
+      <span class="keyword">if</span> id = prompt <span class="string">"Gist id"</span>, location.hash.substr(<span class="number">1</span>) || <span class="string">"0b4c4656a6eb1d246829"</span>
+        self.loadGist(id)</code></pre>
 </div>
         </li>
         

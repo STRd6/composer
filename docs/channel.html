@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>main</title>
+  <title>channel</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="composer">Composer</h1>
+              <h1 id="channel">Channel</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,15 +32,74 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Setup</p>
+              <p>A channel holds a sequence of patterns. The patterns are stored in the <code>data</code>
+table at beat keys with <code>patternId</code> values.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># Google Analytics</span>
-require(<span class="string">"analytics"</span>).init(<span class="string">"UA-3464282-15"</span>)
+            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"cornerstone"</span>
 
-require <span class="string">"appcache"</span>
-require <span class="string">"cornerstone"</span>
-require <span class="string">"jquery-utils"</span></code></pre>
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
+  defaults I,
+    data: {}
+
+  <span class="function"><span class="title">patternStarts</span></span> = (patterns) -&gt;
+    Object.keys(I.data).map (start) -&gt;
+      start = parseInt(start, <span class="number">10</span>)
+      patternIndex = parseInt(I.data[start], <span class="number">10</span>)
+      pattern = patterns[patternIndex]
+      end = start + pattern.size()
+
+      [start, end, pattern, patternIndex]
+
+  self.extend
+    patterns: patternStarts
+
+    canSet: (beat, patternIndex, patterns) -&gt;
+      <span class="keyword">debugger</span>
+
+      size = patterns[patternIndex].size()
+
+      toInsert = [beat, beat + size]
+
+      <span class="comment"># Can't set if there are any overlaps</span>
+      !patternStarts(patterns).some (segment) -&gt;
+        overlap(toInsert, segment)
+
+    patternDataAt: (beat, patterns) -&gt;
+      patternStarts(patterns).filter ([start, end]) -&gt;
+        start &lt;= beat &lt; end
+
+    patternAt: (beat, patterns) -&gt;
+      self.patternDataAt(beat, patterns)
+      .map ([start, end, pattern, patternIndex]) -&gt;
+        patternIndex
+      .first()
+
+    setPattern: (beat, patternIndex) -&gt;
+      I.data[beat] = patternIndex
+
+    removePattern: (beat, patterns) -&gt;
+      patternStarts(patterns).filter ([start, end]) -&gt;
+        start &lt;= beat &lt; end
+      .forEach ([start]) -&gt;
+        <span class="keyword">delete</span> I.data[start]
+
+    upcomingNotes: (t, dt, patterns) -&gt;
+      patternStarts(patterns).filter ([start, end, pattern]) -&gt;
+        (start &lt;= t &lt; end) <span class="keyword">or</span> <span class="comment"># t is within pattern or</span>
+        (t &lt;= start &lt; t + dt) <span class="comment"># pattern start is within [t, t + dt)</span>
+      .map ([start, end, pattern]) -&gt;
+        offset = t - start
+
+        pattern.upcomingNotes(offset, dt)
+      .flatten()
+
+    size: (patterns) -&gt;
+      patternStarts(patterns).map ([start, end]) -&gt;
+        end
+      .maximum() ? <span class="number">0</span>
+
+  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         
@@ -50,14 +109,26 @@ require <span class="string">"jquery-utils"</span></code></pre>
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Compose music on the internets?</p>
+              <h2 id="helpers">Helpers</h2>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">{applyStylesheet} = require <span class="string">"util"</span>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">{min, max} = Math
 
-applyStylesheet require <span class="string">"./style"</span>
-
-player = require(<span class="string">"./player"</span>)()</code></pre>
+<span class="function"><span class="title">overlap</span></span> = ([a1, a2], [b1, b2]) -&gt;
+  max(<span class="number">0</span>, min(a2, b2) - max(a1, b1)) &gt; <span class="number">0</span></code></pre>
 </div>
         </li>
         

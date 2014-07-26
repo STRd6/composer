@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h2 id="sample">Sample</h2>
+              <h1 id="sample">Sample</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,16 +32,63 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>A sample has an image, a sound file, and a reference pitch.</p>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Q = require <span class="string">"./lib/q"</span>
+Deferred = require <span class="string">"./lib/deferred"</span>
+
+bufferLoader = require <span class="string">"./lib/audio_loader"</span>
+
+<span class="function"><span class="title">urlFor</span></span> = (sha) -&gt;
+  n = <span class="number">4</span>
+  i = parseInt(sha.slice(-<span class="number">1</span>), <span class="number">0x10</span>) % n
+
+  <span class="string">"http://a<span class="subst">#{i}</span>.pixiecdn.com/composer/data/<span class="subst">#{sha}</span>?xdomain"</span>
+
+<span class="function"><span class="title">getImage</span></span> = (url) -&gt;
+  image = <span class="keyword">new</span> Image
+  image.crossOrigin = <span class="literal">true</span>
+  image.src = url
+
+  <span class="keyword">return</span> image</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>A sample has an image and a sound buffer. Both can be loaded from URLs. If they
+are loaded from URLs then they must allow CORS.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">{defaults} = require <span class="string">"util"</span>
+            <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Sample</span></span> = (I={}) -&gt;
 
-module.<span class="function"><span class="title">exports</span></span> = (I) -&gt;
-  defaults I,
-    image: <span class="string">"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAgCAYAAACYTcH3AAABeElEQVRYR+2XMU4DMRBF7RtEoky7J8iSLiIlDR1HoIMT5AQ5QdLlCOloUoLSQTjBtpRI3AD4K0006/V4xxuvguS4WmntmTffM2Pb/vwN80+GvcAIO9GpjLX2pE2MyYIWDDmHEXxP3lYnwXxMnwzZgqEQXAMGzu8/N2Y7fjgaSAnDbfsiVMMgwphBQXBlksDAYFVVMSymKIp6i/OAQbRdCtGcZMpgP5DEGCS1C8HBfJAcBnaQL2RXqihvafOFEgwMwyGGTy0OowGBHW/T4yUegglltAtD7SK0RuzA1Px4icaUk7tO04mDx0HKDqwJRA0jNb2uDk19JimMxphvTt4wh+tHU76vveLloczh6tmUX3di+sxHr+bl+6bxfxBlAELDBdrNFvWv2/2yBToIDLxIypwFpk95D6bM2WH6ALhrNOeSeGpLAO6Fnc8L/dMG1Plu0jrMD8Z9UUrPDa4MV1ObL6qcISfcge/Wpp3X66ZHi6S3thuxdl4I5hcgNeqwgiRFxgAAAABJRU5ErkJggg=="</span>
-    sound: <span class="string">""</span>
-    basePitch: <span class="number">0</span></code></pre>
+  self =
+    image: getImage(I.spriteURL)
+    buffer: <span class="literal">null</span>
+
+  <span class="keyword">return</span> self
+
+Sample.<span class="function"><span class="title">load</span></span> = (data) -&gt;
+  deferred = Deferred()
+  {sprite, sample} = data
+
+  <span class="comment"># Load audio buffer</span>
+  bufferLoader(urlFor(sample))
+  .<span class="keyword">then</span> (buffer) -&gt;
+    deferred.fulfill
+      buffer: buffer
+      image: getImage(urlFor(sprite))
+  .<span class="keyword">catch</span> deferred.reject
+  .done()
+
+  <span class="keyword">return</span> deferred.promise
+
+Sample.<span class="function"><span class="title">loadPack</span></span> = (samplePack) -&gt;
+  Q.all(samplePack.map(Sample.load))</code></pre>
 </div>
         </li>
         
