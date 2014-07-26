@@ -53,7 +53,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   , <span class="number">0</span>
 
   <span class="comment"># Demo song</span>
-  localStorage.songs_demo ?= JSON.stringify {<span class="string">"activeInstrument"</span>:<span class="number">0</span>,<span class="string">"activeToolIndex"</span>:<span class="number">1</span>,<span class="string">"quantize"</span>:<span class="number">4</span>,<span class="string">"tempo"</span>:<span class="string">"120"</span>,<span class="string">"beats"</span>:<span class="string">"16"</span>,<span class="string">"scale"</span>:<span class="number">0</span>,<span class="string">"gamut"</span>:[-<span class="number">12</span>,<span class="number">12</span>],<span class="string">"notes"</span>:[[<span class="number">0</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">0</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">3.25</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">3.5</span>,<span class="number">11</span>,<span class="number">0</span>],[<span class="number">3.75</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">4</span>,<span class="number">9</span>,<span class="number">0</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">4.75</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">7</span>,<span class="number">5</span>,<span class="number">0</span>],[<span class="number">7.5</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">8</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">8</span>,<span class="number">4</span>,<span class="number">0</span>],[<span class="number">11.25</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">11.5</span>,<span class="number">10</span>,<span class="number">0</span>],[<span class="number">11.75</span>,<span class="number">8</span>,<span class="number">0</span>],[<span class="number">12</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">12</span>,<span class="number">3</span>,<span class="number">0</span>],[<span class="number">12.75</span>,<span class="number">7</span>,<span class="number">0</span>],[<span class="number">12.75</span>,<span class="number">15</span>,<span class="number">0</span>]]}
+  localStorage.songs_demo ?= JSON.stringify require <span class="string">"./demo_song"</span>
 
   self.extend
     saveAs: -&gt;
@@ -93,7 +93,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         alert <span class="string">"Couldn't load gist with id: <span class="subst">#{id}</span>"</span>
 
     loadGistPrompt: -&gt;
-      <span class="keyword">if</span> id = prompt <span class="string">"Gist id"</span>, location.hash.substr(<span class="number">1</span>) || <span class="string">"4430ba0c808101866b4d"</span>
+      <span class="keyword">if</span> id = prompt <span class="string">"Gist id"</span>, location.hash.substr(<span class="number">1</span>) || <span class="string">"0b4c4656a6eb1d246829"</span>
         self.loadGist(id)</code></pre>
 </div>
         </li>
