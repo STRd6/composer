@@ -26,16 +26,19 @@ table at beat keys with `patternId` values.
           debugger
 
           size = patterns[patternIndex].size()
-          
+
           toInsert = [beat, beat + size]
 
           # Can't set if there are any overlaps
           !patternStarts(patterns).some (segment) ->
             overlap(toInsert, segment)
 
-        patternAt: (beat, patterns) ->
+        patternDataAt: (beat, patterns) ->
           patternStarts(patterns).filter ([start, end]) ->
             start <= beat < end
+
+        patternAt: (beat, patterns) ->
+          self.patternDataAt(beat, patterns)
           .map ([start, end, pattern, patternIndex]) ->
             patternIndex
           .first()

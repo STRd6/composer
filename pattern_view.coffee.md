@@ -6,7 +6,7 @@ Pattern View
     require "cornerstone"
 
     noteName = require "./note"
-    
+
     pageSize = 8
 
     module.exports = (I={}, self=Model(I)) ->
@@ -15,7 +15,7 @@ Pattern View
         quantize: 4
 
       # Beat length of active pattern
-      beats = self.beats = Observable 8
+      beats = self.beats = Observable self.activePattern().beats()
 
       self.activePattern.observe (p) ->
         beats p.beats()
@@ -50,11 +50,31 @@ Pattern View
         $(".position").text "T: #{beat.toFixed(2)}, #{noteName note}"
 
       canvas.on "touch", (p) ->
-        data =
-          note: Math.round(positionToNote(p.y * canvas.height()))
-          beat: quantize(p.x * beats(), self.quantize())
+        note = Math.round(positionToNote(p.y * canvas.height()))
+        beat = quantize(p.x * beats(), self.quantize())
+        if self.patternMode()
+          data =
+            note: note
+            beat: beat
+        else
+          # Need to find/select pattern at given position
+          # and insert beat into correct place within the pattern
+          beat += pageStart
+          patternsData = self.song().patternsDataAt(beat)
 
-        self.activeTool()(self, data)
+          patternData = patternsData[self.lastChannelIndex()] or patternsData.first()
+
+          if patternData
+            [patternStart, patternEnd, pattern] = patternData
+
+            self.activePattern pattern
+
+            data =
+              note: note
+              beat: beat - patternStart
+
+        if data
+          self.activeTool()(self, data)
 
       # TODO: Need to move this out
       document.body.appendChild canvas.element()
@@ -183,10 +203,10 @@ Pattern View
               {width, height, src:url} = img = sample.image
 
               # Kill query string so we don't accidentally cache the crossdomain image as
-              # non-crossdomain 
-              # TODO: handle it better, probably need to generate resource URLs from the 
+              # non-crossdomain
+              # TODO: handle it better, probably need to generate resource URLs from the
               # raw data of the crossdomain images
-              url = url.replace(/\?.*/, "") 
+              url = url.replace(/\?.*/, "")
 
               # Center cursor
               x = width/2

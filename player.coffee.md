@@ -14,12 +14,13 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       defaults I,
         samples: []
         patternMode: false
+        lastChannelIndex: 0
 
       self.include Bindable
 
       self.attrObservable "samples"
 
-      self.attrAccessor "patternMode"
+      self.attrAccessor "patternMode", "lastChannelIndex"
 
       song = Song()
 
@@ -84,11 +85,10 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
         else
           patternIndex = self.activeInstrument()
 
-          debugger
-
           if song.canSet(channel, beat, patternIndex)
             activePattern song.patterns()[patternIndex]
             song.setPattern channel, beat, patternIndex
+            self.lastChannelIndex channel
             self.unsaved true
           else if (patternIndex = song.patternAt(channel, beat))?
             self.patternMode true unless self.playing()

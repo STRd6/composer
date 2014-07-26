@@ -13,7 +13,7 @@ Patterns are placed in the channels.
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
         channels: [{
-          data: 
+          data:
             0: 0
         }, {}, {}, {}]
         patterns: [{}]
@@ -42,6 +42,10 @@ Patterns are placed in the channels.
 
         patternAt: (channel, beat) ->
           self.channels.get(channel).patternAt(beat, self.patterns())
+
+        patternsDataAt: (beat) ->
+          self.channels().map (channel) ->
+            channel.patternDataAt(beat, self.patterns()).first()
 
 Remove the pattern that starts or is present on `beat` in the given channel.
 

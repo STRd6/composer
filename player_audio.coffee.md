@@ -84,7 +84,7 @@ Schedule a note to be played, use the buffer at the given index, pitch shift by
         reset: ->
           playing = false
           playTime = 0
-          
+
           self.activePattern self.patterns.get(0)
 
         patternPlay: ->
