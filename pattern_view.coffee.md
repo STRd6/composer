@@ -19,8 +19,8 @@ Pattern View
 
       self.activePattern.observe (p) ->
         beats p.beats()
-      beats.observe (v) ->
-        self.activePattern()?.beats v
+      beats.observe (value) ->
+        self.activePattern().beats parseInt(value, 10)
 
       pageStart = 0
 
@@ -192,10 +192,10 @@ Pattern View
               x = width/2
               y = height/2
 
-              $(canvas.element()).css
+              $(document.body).css
                 cursor: "url(#{url}) #{x} #{y}, default"
           else # Eraser
-            $(canvas.element()).css
+            $(document.body).css
               cursor: "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==) 8 8, default"
 
 Helpers

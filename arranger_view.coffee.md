@@ -85,7 +85,7 @@ Arranger View
         patterns.forEach ([start, end, pattern, index]) ->
           drawPattern(canvas, i, start, pattern.size(), patternColors[index])
 
-        if i is pos.channel
+        if i is pos.channel and self.activeToolIndex() is 0
           size = self.patterns()[self.patternToolIndex()].size()
           # Draw hover
           canvas.withAlpha 0.25, ->
