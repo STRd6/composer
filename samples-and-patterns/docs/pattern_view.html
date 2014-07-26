@@ -71,7 +71,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   canvas = Canvas()
 
   $(canvas.element()).mousemove (e) -&gt;
+    {left, top} = canvas.element().getBoundingClientRect()
+
     {pageX:x, pageY:y} = e
+
+    x = x - left
+    y = y - top
+
     note = Math.round positionToNote(y)
     beat = quantize(x / canvas.width() * beats(), self.quantize())
     $(<span class="string">".position"</span>).text <span class="string">"T: <span class="subst">#{beat.toFixed(<span class="number">2</span>)}</span>, <span class="subst">#{noteName note}</span>"</span>
