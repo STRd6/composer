@@ -11,7 +11,7 @@ Save or load anonymous gists.
           description: "A song created with #{window.location}"
           public: true
           files:
-            "pattern0.json":
+            "data.json":
               content: JSON.stringify data
 
         $.ajax base,
@@ -26,4 +26,9 @@ Save or load anonymous gists.
 
       load: (gistId) ->
         $.get("#{base}/#{gistId}").then (data) ->
-          JSON.parse data.files["pattern0.json"].content
+          data = data.files["data.json"]?.content or data.files["pattern0.json"]?.content
+
+          if data
+            JSON.parse data
+          else
+            alert "Failed to load gist with id: #{gistId}"

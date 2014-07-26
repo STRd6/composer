@@ -5,6 +5,14 @@ body
   margin: 0
   overflow: hidden
 
+  & > canvas
+    position: absolute
+    top: 25px
+    left: 0px
+
+canvas
+  user-select: none
+
 .actions
   position: absolute
   top: 0
@@ -29,5 +37,15 @@ body
 
 .position
   position: absolute
-  top: 0
+  top: 30px
   right: 60px
+  pointer-events: none
+
+.arranger-wrap
+  overflow-x: scroll
+  overflow-y: hidden
+  position: absolute
+  bottom: 0
+  left: 0
+  width: 100%
+  height: 94px

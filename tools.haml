@@ -2,13 +2,13 @@
 
 .actions
   %button(click=@play) ►
+  %button(click=@patternPlay) P►
   %label
     Tempo
     %input(value=@tempo)
   %label
     Length
     %input(value=@beats)
-  %button(click=@transpose) Transpose
   %button(click=@saveAs) Save
   %button(click=@loadSong) Load
   %button(click=@publish) Publish
@@ -16,9 +16,10 @@
 
 .tools
   .instruments
-    - each @instruments, (instrument, i) ->
+    - each @samples, (sample, i) ->
       - activate = -> editor.activeToolIndex(0); editor.activeInstrument(i)
-      .tool.instrument(style="background-image: url(#{instrument.src})" click=activate)
+      - # TODO: Shouldn't need to replace querystring in image... but this CORS shit is nuts
+      .tool.instrument(style="background-image: url(#{sample.image.src.replace(/\?.*/, '')})" click=activate)
 
   - eraser = -> editor.activeToolIndex(1)
   .tool.eraser(click=eraser)
