@@ -13,7 +13,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
     module.exports = (I={}, self=Model(I)) ->
       defaults I,
         samples: []
-        patternMode: true
+        patternMode: false
 
       self.include Bindable
 
