@@ -36,3 +36,5 @@ A `Pattern` is a list of [beat, note, instrument] tuples.
               t <= time < t + dt
             else if dt < 0
               t + dt < time <= t
+          .map ([time, note, instrument]) ->
+            [time - t, note, instrument]

@@ -24,8 +24,6 @@ Provides playTime and playing methods.
       # Schedules upcoming sounds to play
       playUpcomingSounds = (current, dt) ->
         self.upcomingSounds(current, dt)
-        .map (note) -> # Map pattern time into current timeline time
-          [note[0] - current, note[1], note[2]]
         .forEach (note) ->
           scheduleSound(note)
 

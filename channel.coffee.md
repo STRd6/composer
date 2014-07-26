@@ -54,8 +54,7 @@ table at beat keys with `patternId` values.
           .map ([start, end, pattern]) ->
             offset = t - start
 
-            pattern.upcomingNotes(offset, dt).map ([time, note, instrument]) ->
-              [time - offset, note, instrument]
+            pattern.upcomingNotes(offset, dt)
           .flatten()
 
         size: (patterns) ->
