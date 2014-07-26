@@ -118,7 +118,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     patterns.forEach ([start, end, pattern, index]) -&gt;
       drawPattern(canvas, i, start, pattern.size(), patternColors[index])
 
-    <span class="keyword">if</span> i <span class="keyword">is</span> pos.channel
+    <span class="keyword">if</span> i <span class="keyword">is</span> pos.channel <span class="keyword">and</span> self.activeToolIndex() <span class="keyword">is</span> <span class="number">0</span>
       size = self.patterns()[self.patternToolIndex()].size()
       <span class="comment"># Draw hover</span>
       canvas.withAlpha <span class="number">0.25</span>, -&gt;

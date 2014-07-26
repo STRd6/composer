@@ -52,8 +52,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.activePattern.observe (p) -&gt;
     beats p.beats()
-  beats.observe (v) -&gt;
-    self.activePattern()?.beats v
+  beats.observe (value) -&gt;
+    self.activePattern().beats parseInt(value, <span class="number">10</span>)
 
   pageStart = <span class="number">0</span>
 
@@ -225,10 +225,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
           x = width/<span class="number">2</span>
           y = height/<span class="number">2</span>
 
-          $(canvas.element()).css
+          $(document.body).css
             cursor: <span class="string">"url(<span class="subst">#{url}</span>) <span class="subst">#{x}</span> <span class="subst">#{y}</span>, default"</span>
       <span class="keyword">else</span> <span class="comment"># Eraser</span>
-        $(canvas.element()).css
+        $(document.body).css
           cursor: <span class="string">"url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==) 8 8, default"</span></code></pre>
 </div>
         </li>
