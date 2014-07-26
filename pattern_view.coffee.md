@@ -38,7 +38,13 @@ Pattern View
       canvas = Canvas()
 
       $(canvas.element()).mousemove (e) ->
+        {left, top} = canvas.element().getBoundingClientRect()
+
         {pageX:x, pageY:y} = e
+
+        x = x - left
+        y = y - top
+
         note = Math.round positionToNote(y)
         beat = quantize(x / canvas.width() * beats(), self.quantize())
         $(".position").text "T: #{beat.toFixed(2)}, #{noteName note}"

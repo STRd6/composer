@@ -17,15 +17,17 @@ Provides playTime and playing methods.
       playTime = 0
       timestep = 1/60 # Animation Frame timestep, seconds
       minute = 60 # seconds
-      
-      scheduleSound = (current, [time, note, instrument]) ->
+
+      scheduleSound = ([time, note, instrument]) ->
         self.playNote instrument, note, time * minute / self.tempo()
 
       # Schedules upcoming sounds to play
       playUpcomingSounds = (current, dt) ->
         self.upcomingSounds(current, dt)
+        .map (note) -> # Map pattern time into current timeline time
+          [note[0] - current, note[1], note[2]]
         .forEach (note) ->
-          scheduleSound(current, note)
+          scheduleSound(note)
 
       playLoop = ->
         if playing
