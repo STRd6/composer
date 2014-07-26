@@ -43,7 +43,7 @@ module.exports =
       description: <span class="string">"A song created with <span class="subst">#{window.location}</span>"</span>
       public: <span class="literal">true</span>
       files:
-        <span class="string">"pattern0.json"</span>:
+        <span class="string">"data.json"</span>:
           content: JSON.stringify data
 
     $.ajax base,
@@ -58,7 +58,12 @@ module.exports =
 
   load: (gistId) -&gt;
     $.get(<span class="string">"<span class="subst">#{base}</span>/<span class="subst">#{gistId}</span>"</span>).<span class="keyword">then</span> (data) -&gt;
-      JSON.parse data.files[<span class="string">"pattern0.json"</span>].content</code></pre>
+      data = data.files[<span class="string">"data.json"</span>]?.content <span class="keyword">or</span> data.files[<span class="string">"pattern0.json"</span>]?.content
+
+      <span class="keyword">if</span> data
+        JSON.parse data
+      <span class="keyword">else</span>
+        alert <span class="string">"Failed to load gist with id: <span class="subst">#{gistId}</span>"</span></code></pre>
 </div>
         </li>
         
