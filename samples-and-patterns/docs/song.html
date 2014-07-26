@@ -44,7 +44,7 @@ Pattern = require <span class="string">"./pattern"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Model(I)) -&gt;
   defaults I,
     channels: [{
-      data: 
+      data:
         <span class="number">0</span>: <span class="number">0</span>
     }, {}, {}, {}]
     patterns: [{}]
@@ -72,7 +72,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       self.channels.get(channel).canSet(beat, patternIndex, self.patterns())
 
     patternAt: (channel, beat) -&gt;
-      self.channels.get(channel).patternAt(beat, self.patterns())</code></pre>
+      self.channels.get(channel).patternAt(beat, self.patterns())
+
+    patternsDataAt: (beat) -&gt;
+      self.channels().map (channel) -&gt;
+        channel.patternDataAt(beat, self.patterns()).first()</code></pre>
 </div>
         </li>
         

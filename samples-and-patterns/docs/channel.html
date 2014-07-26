@@ -65,9 +65,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       !patternStarts(patterns).some (segment) -&gt;
         overlap(toInsert, segment)
 
-    patternAt: (beat, patterns) -&gt;
+    patternDataAt: (beat, patterns) -&gt;
       patternStarts(patterns).filter ([start, end]) -&gt;
         start &lt;= beat &lt; end
+
+    patternAt: (beat, patterns) -&gt;
+      self.patternDataAt(beat, patterns)
       .map ([start, end, pattern, patternIndex]) -&gt;
         patternIndex
       .first()
