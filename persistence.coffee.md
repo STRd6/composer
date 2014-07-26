@@ -20,7 +20,7 @@ Persistence
       , 0
 
       # Demo song
-      localStorage.songs_demo ?= JSON.stringify {"activeInstrument":0,"activeToolIndex":1,"quantize":4,"tempo":"120","beats":"16","scale":0,"gamut":[-12,12],"notes":[[0,10,0],[0,7,0],[3.25,10,0],[3.5,11,0],[3.75,10,0],[4,9,0],[4,5,0],[4.75,5,0],[7,5,0],[7.5,7,0],[8,8,0],[8,4,0],[11.25,8,0],[11.5,10,0],[11.75,8,0],[12,7,0],[12,3,0],[12.75,7,0],[12.75,15,0]]}
+      localStorage.songs_demo ?= JSON.stringify require "./demo_song"
 
       self.extend
         saveAs: ->
@@ -28,7 +28,7 @@ Persistence
             data = self.song().toJSON()
 
             localStorage["songs_#{name}"] = JSON.stringify data
-            
+
             self.unsaved false
 
         loadSong: ->
@@ -60,7 +60,6 @@ Persistence
             alert "Couldn't load gist with id: #{id}"
 
         loadGistPrompt: ->
-          if id = prompt "Gist id", location.hash.substr(1) || "4430ba0c808101866b4d"
+          if id = prompt "Gist id", location.hash.substr(1) || "0b4c4656a6eb1d246829"
             self.loadGist(id)
 
-    
