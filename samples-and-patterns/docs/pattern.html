@@ -43,6 +43,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     beats: <span class="number">4</span>
     notes: []
 
+  I.beats = parseInt(I.beats, <span class="number">10</span>) <span class="keyword">or</span> <span class="number">4</span> <span class="comment"># Force Int</span>
+
   self.attrObservable <span class="string">"beats"</span>
   self.attrAccessor <span class="string">"notes"</span>
 

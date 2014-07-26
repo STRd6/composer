@@ -116,6 +116,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="keyword">else</span>
       patternIndex = self.activeInstrument()
 
+      <span class="keyword">debugger</span>
+
       <span class="keyword">if</span> song.canSet(channel, beat, patternIndex)
         activePattern song.patterns()[patternIndex]
         song.setPattern channel, beat, patternIndex

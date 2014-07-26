@@ -55,6 +55,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     patterns: patternStarts
 
     canSet: (beat, patternIndex, patterns) -&gt;
+      <span class="keyword">debugger</span>
+
       size = patterns[patternIndex].size()
 
       toInsert = [beat, beat + size]
