@@ -27,8 +27,15 @@ Patterns are placed in the channels.
       numPatterns = 10
 
       # Init Patterns
-      [0...numPatterns].forEach (n) ->
-        self.patterns()[n] ?= Pattern()
+      initPatterns = ->
+        [0...numPatterns].forEach (n) ->
+          self.patterns()[n] ?= Pattern()
+
+        # Be sure that our patterns and data are in sync!
+        # TODO: Shouldn't need this hack
+        self.patterns self.patterns().copy()
+
+      initPatterns()
 
       self.extend
         channelPatterns: (n) ->
@@ -82,6 +89,8 @@ Remove the pattern that starts or is present on `beat` in the given channel.
                 0: 0
             }, {}, {}, {}].map (channelData) ->
               Channel(channelData)
+
+          initPatterns()
 
           self.tempo data.tempo
 

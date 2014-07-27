@@ -22,7 +22,7 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
       self.attrAccessor "patternMode", "lastChannelIndex"
 
-      song = Song()
+      global.song = song = Song()
 
       # Loading default sample pack
       Sample.loadPack(require("../samples"))
