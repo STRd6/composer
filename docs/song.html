@@ -58,8 +58,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   numPatterns = <span class="number">10</span>
 
   <span class="comment"># Init Patterns</span>
-  [<span class="number">0.</span>..numPatterns].forEach (n) -&gt;
-    self.patterns()[n] ?= Pattern()
+  <span class="function"><span class="title">initPatterns</span></span> = -&gt;
+    [<span class="number">0.</span>..numPatterns].forEach (n) -&gt;
+      self.patterns()[n] ?= Pattern()
+
+    <span class="comment"># Be sure that our patterns and data are in sync!</span>
+    <span class="comment"># TODO: Shouldn't need this hack</span>
+    self.patterns self.patterns().copy()
+
+  initPatterns()
 
   self.extend
     channelPatterns: (n) -&gt;
@@ -122,6 +129,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
             <span class="number">0</span>: <span class="number">0</span>
         }, {}, {}, {}].map (channelData) -&gt;
           Channel(channelData)
+
+      initPatterns()
 
       self.tempo data.tempo
 
