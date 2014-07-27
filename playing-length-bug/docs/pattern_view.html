@@ -97,7 +97,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       beat += pageStart
       patternsData = self.song().patternsDataAt(beat)
 
-      patternData = patternsData[self.lastChannelIndex()] <span class="keyword">or</span> patternsData.first()
+      patternData = patternsData[self.lastChannelIndex()] <span class="keyword">or</span> patternsData.compact().first()
 
       <span class="keyword">if</span> patternData
         [patternStart, patternEnd, pattern] = patternData
