@@ -18,6 +18,10 @@ describe "Song", ->
 
     assert.equal song.size(), 10
 
+  it "Should have ten patterns", ->
+    song = Song()
+    assert.equal song.toJSON().patterns.length, 10
+
   it "Should know it's tempo", ->
     song = Song
       tempo: 54
@@ -69,7 +73,7 @@ describe "Song", ->
     song = Song
       channels: [
         {
-          data: 
+          data:
             0: 0
         }, {
           data:
@@ -109,7 +113,7 @@ describe "Song", ->
       patterns: [
         pattern1.I
       ]
-        
+
     it "should return all the notes in short timesteps", ->
       assert.equal song.upcomingNotes(0, 1).length, 1
       assert.equal song.upcomingNotes(1, 1).length, 1
