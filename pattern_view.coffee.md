@@ -51,18 +51,20 @@ Pattern View
 
       canvas.on "touch", (p) ->
         note = Math.round(positionToNote(p.y * canvas.height()))
-        beat = quantize(p.x * beats(), self.quantize())
+
         if self.patternMode()
+          beat = quantize(p.x * beats(), self.quantize())
           data =
             note: note
             beat: beat
         else
+          beat = quantize(p.x * pageSize, self.quantize())
           # Need to find/select pattern at given position
           # and insert beat into correct place within the pattern
           beat += pageStart
           patternsData = self.song().patternsDataAt(beat)
 
-          patternData = patternsData[self.lastChannelIndex()] or patternsData.first()
+          patternData = patternsData[self.lastChannelIndex()] or patternsData.compact().first()
 
           if patternData
             [patternStart, patternEnd, pattern] = patternData
