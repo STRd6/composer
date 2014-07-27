@@ -84,18 +84,20 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   canvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p) -&gt;
     note = Math.round(positionToNote(p.y * canvas.height()))
-    beat = quantize(p.x * beats(), self.quantize())
+
     <span class="keyword">if</span> self.patternMode()
+      beat = quantize(p.x * beats(), self.quantize())
       data =
         note: note
         beat: beat
     <span class="keyword">else</span>
+      beat = quantize(p.x * pageSize, self.quantize())
       <span class="comment"># Need to find/select pattern at given position</span>
       <span class="comment"># and insert beat into correct place within the pattern</span>
       beat += pageStart
       patternsData = self.song().patternsDataAt(beat)
 
-      patternData = patternsData[self.lastChannelIndex()] <span class="keyword">or</span> patternsData.first()
+      patternData = patternsData[self.lastChannelIndex()] <span class="keyword">or</span> patternsData.compact().first()
 
       <span class="keyword">if</span> patternData
         [patternStart, patternEnd, pattern] = patternData
