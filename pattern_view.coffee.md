@@ -64,7 +64,7 @@ Pattern View
           beat += pageStart
           patternsData = self.song().patternsDataAt(beat)
 
-          patternData = patternsData[self.lastChannelIndex()] or patternsData.first()
+          patternData = patternsData[self.lastChannelIndex()] or patternsData.compact().first()
 
           if patternData
             [patternStart, patternEnd, pattern] = patternData

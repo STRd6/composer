@@ -161,3 +161,25 @@ describe "Song", ->
 
       assert song.canSet(0, 16, 0)
       assert !song.canSet(0, 15, 0)
+
+  describe "#patternsData", ->
+    it "should get a pattern from each channel", ->
+      song = Song
+        patterns: [{
+          beats: 8
+        }, {
+          beats: 8
+        }]
+        channels: [
+          {
+            data:
+              0: 0
+          }, {
+            data:
+              7: 0
+          }
+        ]
+
+      assert.equal song.patternsDataAt(0).compact().length, 1
+      assert.equal song.patternsDataAt(7).compact().length, 2
+      assert.equal song.patternsDataAt(8).compact().length, 1
