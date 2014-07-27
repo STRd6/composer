@@ -162,7 +162,7 @@ describe "Song", ->
       assert song.canSet(0, 16, 0)
       assert !song.canSet(0, 15, 0)
 
-  describe "#patternsData", ->
+  describe "#patternsDataAt", ->
     it "should get a pattern from each channel", ->
       song = Song
         patterns: [{
