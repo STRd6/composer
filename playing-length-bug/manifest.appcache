@@ -1,0 +1,12 @@
+CACHE MANIFEST
+# 1406470354713
+
+CACHE:
+index.html
+../playing-length-bug.json.js
+https://code.jquery.com/jquery-1.11.0.min.js
+
+NETWORK:
+https://*
+http://*
+*
