@@ -81,7 +81,8 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
 
       self.on "arrangerClick", (channel, beat) ->
         if self.activeToolIndex() is 1 # Eraser
-          song.removePattern channel, beat
+          if song.removePattern channel, beat
+            self.unsaved true
         else
           patternIndex = self.activeInstrument()
 

@@ -23,8 +23,6 @@ table at beat keys with `patternId` values.
         patterns: patternStarts
 
         canSet: (beat, patternIndex, patterns) ->
-          debugger
-
           size = patterns[patternIndex].size()
 
           toInsert = [beat, beat + size]
@@ -47,10 +45,13 @@ table at beat keys with `patternId` values.
           I.data[beat] = patternIndex
 
         removePattern: (beat, patterns) ->
-          patternStarts(patterns).filter ([start, end]) ->
+          patternsAtBeat = patternStarts(patterns).filter ([start, end]) ->
             start <= beat < end
-          .forEach ([start]) ->
+
+          patternsAtBeat.forEach ([start]) ->
             delete I.data[start]
+
+          return patternsAtBeat.length > 0
 
         upcomingNotes: (t, dt, patterns) ->
           patternStarts(patterns).filter ([start, end, pattern]) ->
