@@ -113,7 +113,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.<span class="literal">on</span> <span class="string">"arrangerClick"</span>, (channel, beat) -&gt;
     <span class="keyword">if</span> self.activeToolIndex() <span class="keyword">is</span> <span class="number">1</span> <span class="comment"># Eraser</span>
-      song.removePattern channel, beat
+      <span class="keyword">if</span> song.removePattern channel, beat
+        self.unsaved <span class="literal">true</span>
     <span class="keyword">else</span>
       patternIndex = self.activeInstrument()
 

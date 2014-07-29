@@ -55,8 +55,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     patterns: patternStarts
 
     canSet: (beat, patternIndex, patterns) -&gt;
-      <span class="keyword">debugger</span>
-
       size = patterns[patternIndex].size()
 
       toInsert = [beat, beat + size]
@@ -79,10 +77,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       I.data[beat] = patternIndex
 
     removePattern: (beat, patterns) -&gt;
-      patternStarts(patterns).filter ([start, end]) -&gt;
+      patternsAtBeat = patternStarts(patterns).filter ([start, end]) -&gt;
         start &lt;= beat &lt; end
-      .forEach ([start]) -&gt;
+
+      patternsAtBeat.forEach ([start]) -&gt;
         <span class="keyword">delete</span> I.data[start]
+
+      <span class="keyword">return</span> patternsAtBeat.length &gt; <span class="number">0</span>
 
     upcomingNotes: (t, dt, patterns) -&gt;
       patternStarts(patterns).filter ([start, end, pattern]) -&gt;
