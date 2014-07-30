@@ -186,7 +186,7 @@
     },
     "TODO.md": {
       "path": "TODO.md",
-      "content": "TODO\n====\n\nPadding for first beat, currently crammed up on the left edge\n\nFull Undo/Redo\n\nBugs\n----\n\nTo Later\n========\n\nSpecify additional resources to add to the cache manifest.\n",
+      "content": "TODO\n====\n\nPadding for first beat, currently crammed up on the left edge\n\nFull Undo/Redo\n\nImprove performance on large patterns\n\nBugs\n----\n\nTo Later\n========\n\nSpecify additional resources to add to the cache manifest.\n",
       "mode": "100644",
       "type": "blob"
     },
