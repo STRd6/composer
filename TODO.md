@@ -5,6 +5,8 @@ Padding for first beat, currently crammed up on the left edge
 
 Full Undo/Redo
 
+Improve performance on large patterns
+
 Bugs
 ----
 
