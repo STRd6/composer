@@ -62,7 +62,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
       tools[self.activeToolIndex()]
 
   self.activeInstrument.observe (instrument) -&gt;
-    self.playNote instrument
     self.setCursor()
 
   self.activeToolIndex.observe -&gt;
@@ -75,10 +74,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I, se
 
   [<span class="number">1.</span><span class="number">.9</span>].forEach (i) -&gt;
     self.addHotkey i.toString(), -&gt;
+      self.playNote i - <span class="number">1</span>
       self.activeInstrument i - <span class="number">1</span>
       self.activeToolIndex(<span class="number">0</span>)
 
   self.addHotkey <span class="string">"0"</span>, -&gt;
+    self.playNote <span class="number">9</span>
     self.activeInstrument <span class="number">9</span>
     self.activeToolIndex(<span class="number">0</span>)
 
