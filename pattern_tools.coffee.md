@@ -29,7 +29,6 @@ Pattern Tools
           tools[self.activeToolIndex()]
 
       self.activeInstrument.observe (instrument) ->
-        self.playNote instrument
         self.setCursor()
 
       self.activeToolIndex.observe ->
@@ -42,10 +41,12 @@ Pattern Tools
 
       [1..9].forEach (i) ->
         self.addHotkey i.toString(), ->
+          self.playNote i - 1
           self.activeInstrument i - 1
           self.activeToolIndex(0)
 
       self.addHotkey "0", ->
+        self.playNote 9
         self.activeInstrument 9
         self.activeToolIndex(0)
 
