@@ -17,7 +17,7 @@
 .tools
   .instruments
     - each @samples, (sample, i) ->
-      - activate = -> editor.activeToolIndex(0); editor.activeInstrument(i)
+      - activate = -> editor.activeToolIndex(0); editor.activeInstrument(i); editor.playNote i
       - # TODO: Shouldn't need to replace querystring in image... but this CORS shit is nuts
       .tool.instrument(style="background-image: url(#{sample.image.src.replace(/\?.*/, '')})" click=activate)
 
