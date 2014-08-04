@@ -38,7 +38,7 @@ window["STRd6/composer:master"]({
     },
     "colors.coffee.md": {
       "path": "colors.coffee.md",
-      "content": "Colors\n======\n\n    module.exports =\n      LIGHT: \"rgba(0, 0, 0, 0.0625)\"\n      DARK: \"rgba(0, 0, 0, 0.25)\"\n      CURSOR: \"#F0F\"",
+      "content": "Colors\n======\n\n    module.exports =\n      LIGHT: \"rgba(0, 0, 0, 0.0625)\"\n      DARK: \"rgba(0, 0, 0, 0.25)\"\n      CURSOR: \"#F0F\"\n",
       "mode": "100644",
       "type": "blob"
     },
