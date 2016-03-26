@@ -1,9 +1,9 @@
 CACHE MANIFEST
-# 1448553647335
+# 1459015193213
 
 CACHE:
 index.html
-../update.json.js
+../update.json
 https://code.jquery.com/jquery-1.11.0.min.js
 
 NETWORK:
