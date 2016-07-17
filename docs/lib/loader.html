@@ -28,36 +28,23 @@
     <div class="pilwrap">
       <a class="pilcrow" href="#section-2">&#182;</a>
     </div>
-    
-  </div>
-  <div class="content"><pre><code class="lang-coffeescript">Deferred = require <span class="string">"./deferred"</span></code></pre>
-</div>
-</li>
-<li id="section-3">
-  <div class="annotation">
-    <div class="pilwrap">
-      <a class="pilcrow" href="#section-3">&#182;</a>
-    </div>
     <p>Load binary data and return a promise that will be fullflled with an ArrayBuffer
 or rejected with an error.</p>
 
   </div>
   <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (url) -&gt;
-  deferred = Deferred()
+  <span class="keyword">new</span> Promise (resolve, reject) -&gt;
+    request = <span class="keyword">new</span> XMLHttpRequest()
+    request.open <span class="string">"GET"</span>, url
+    request.responseType = <span class="string">"arraybuffer"</span>
 
-  request = <span class="keyword">new</span> XMLHttpRequest()
-  request.open <span class="string">"GET"</span>, url
-  request.responseType = <span class="string">"arraybuffer"</span>
+    request.<span class="function"><span class="title">onload</span></span> = -&gt;
+      resolve request.response
 
-  request.<span class="function"><span class="title">onload</span></span> = -&gt;
-    deferred.resolve request.response
+    request.<span class="function"><span class="title">onerror</span></span> = -&gt;
+      reject Error(<span class="string">"Failed to load <span class="subst">#{url}</span>"</span>)
 
-  request.<span class="function"><span class="title">onerror</span></span> = -&gt;
-    deferred.reject Error(<span class="string">"Failed to load <span class="subst">#{url}</span>"</span>)
-
-  request.send()
-
-  <span class="keyword">return</span> deferred.promise</code></pre>
+    request.send()</code></pre>
 </div>
 </li>
     </ul>
