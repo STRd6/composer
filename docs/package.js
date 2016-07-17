@@ -295,7 +295,7 @@
     },
     "pixie.cson": {
       "path": "pixie.cson",
-      "content": "title: \"Daniel X's Mario Paint Inspired Composer\"\ndescription: \"\"\"\nThis Mario Paint inspired composer tool is easy and fun. You can create simple and \nbeautiful songs right in your browser and share them with the world!\n\"\"\"\nversion: \"0.1.0\"\nremoteDependencies: [\n  \"https://code.jquery.com/jquery-1.11.0.min.js\"\n]\ndependencies:\n  \"analytics\": \"distri/google-analytics:v0.1.0\"\n  \"appcache\": \"distri/appcache:v0.2.0\"\n  cornerstone: \"distri/cornerstone:v0.3.0-pre.2\"\n  \"hotkeys\": \"distri/hotkeys:v0.2.0\"\n  \"jquery-utils\": \"distri/jquery-utils:v0.2.0\"\n  \"observable\": \"distri/observable:v0.3.7\"\n  \"touch-canvas\": \"distri/touch-canvas:v0.3.1\"\n  util: \"distri/util:v0.1.0\"\n",
+      "content": "title: \"Mario Paint Composer - danielx.net\"\ndescription: \"\"\"\nThis Mario Paint inspired composer tool is easy and fun. You can create simple and \nbeautiful songs right in your browser and share them with the world!\n\"\"\"\nversion: \"0.1.0\"\nremoteDependencies: [\n  \"https://code.jquery.com/jquery-1.11.0.min.js\"\n]\ndependencies:\n  \"analytics\": \"distri/google-analytics:v0.1.0\"\n  \"appcache\": \"distri/appcache:v0.2.0\"\n  cornerstone: \"distri/cornerstone:v0.3.0-pre.2\"\n  \"hotkeys\": \"distri/hotkeys:v0.2.0\"\n  \"jquery-utils\": \"distri/jquery-utils:v0.2.0\"\n  \"observable\": \"distri/observable:v0.3.7\"\n  \"touch-canvas\": \"distri/touch-canvas:v0.3.1\"\n  util: \"distri/util:v0.1.0\"\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -433,7 +433,7 @@
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"title\":\"Daniel X's Mario Paint Inspired Composer\",\"description\":\"This Mario Paint inspired composer tool is easy and fun. You can create simple and \\nbeautiful songs right in your browser and share them with the world!\",\"version\":\"0.1.0\",\"remoteDependencies\":[\"https://code.jquery.com/jquery-1.11.0.min.js\"],\"dependencies\":{\"analytics\":\"distri/google-analytics:v0.1.0\",\"appcache\":\"distri/appcache:v0.2.0\",\"cornerstone\":\"distri/cornerstone:v0.3.0-pre.2\",\"hotkeys\":\"distri/hotkeys:v0.2.0\",\"jquery-utils\":\"distri/jquery-utils:v0.2.0\",\"observable\":\"distri/observable:v0.3.7\",\"touch-canvas\":\"distri/touch-canvas:v0.3.1\",\"util\":\"distri/util:v0.1.0\"}};",
+      "content": "module.exports = {\"title\":\"Mario Paint Composer - danielx.net\",\"description\":\"This Mario Paint inspired composer tool is easy and fun. You can create simple and \\nbeautiful songs right in your browser and share them with the world!\",\"version\":\"0.1.0\",\"remoteDependencies\":[\"https://code.jquery.com/jquery-1.11.0.min.js\"],\"dependencies\":{\"analytics\":\"distri/google-analytics:v0.1.0\",\"appcache\":\"distri/appcache:v0.2.0\",\"cornerstone\":\"distri/cornerstone:v0.3.0-pre.2\",\"hotkeys\":\"distri/hotkeys:v0.2.0\",\"jquery-utils\":\"distri/jquery-utils:v0.2.0\",\"observable\":\"distri/observable:v0.3.7\",\"touch-canvas\":\"distri/touch-canvas:v0.3.1\",\"util\":\"distri/util:v0.1.0\"}};",
       "type": "blob"
     },
     "player": {
