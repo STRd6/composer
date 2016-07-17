@@ -27,7 +27,6 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       # Loading default sample pack
       Sample.loadPack(require("../samples"))
       .then self.samples
-      .done()
 
       # TODO: Make it a real observable function
       activePattern = Observable song.patterns()[0]

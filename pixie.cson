@@ -1,3 +1,8 @@
+title: "Daniel X's Mario Paint Inspired Composer"
+description: """
+This Mario Paint inspired composer tool is easy and fun. You can create simple and 
+beautiful songs right in your browser and share them with the world!
+"""
 version: "0.1.0"
 remoteDependencies: [
   "https://code.jquery.com/jquery-1.11.0.min.js"
@@ -5,10 +10,9 @@ remoteDependencies: [
 dependencies:
   "analytics": "distri/google-analytics:v0.1.0"
   "appcache": "distri/appcache:v0.2.0"
-  "cornerstone": "distri/cornerstone:v0.2.4"
+  cornerstone: "distri/cornerstone:v0.3.0-pre.2"
   "hotkeys": "distri/hotkeys:v0.2.0"
   "jquery-utils": "distri/jquery-utils:v0.2.0"
-  "model": "distri/model:v0.1.2"
-  "observable": "distri/observable:v0.2.0-pre.1"
+  "observable": "distri/observable:v0.3.7"
   "touch-canvas": "distri/touch-canvas:v0.3.1"
   util: "distri/util:v0.1.0"
