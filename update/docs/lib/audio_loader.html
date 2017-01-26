@@ -30,21 +30,15 @@
     </div>
     
   </div>
-  <div class="content"><pre><code class="lang-coffeescript">Deferred = require <span class="string">"./deferred"</span>
-loader = require <span class="string">"./loader"</span>
+  <div class="content"><pre><code class="lang-coffeescript">loader = require <span class="string">"./loader"</span>
 
 context = require <span class="string">"./audio_context"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (url) -&gt;
-  deferred = Deferred()
-
-  loader(url)
-  .<span class="keyword">then</span> (buffer) -&gt;
-    context.decodeAudioData buffer, deferred.resolve, deferred.reject
-  .<span class="keyword">catch</span>(deferred.reject)
-  .done()
-
-  deferred.promise</code></pre>
+  <span class="keyword">new</span> Promise (resolve, reject) -&gt;
+    loader(url)
+    .<span class="keyword">then</span> (buffer) -&gt;
+      context.decodeAudioData buffer, resolve, reject</code></pre>
 </div>
 </li>
     </ul>

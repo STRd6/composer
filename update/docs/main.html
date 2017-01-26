@@ -34,7 +34,6 @@
   <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># Google Analytics</span>
 require(<span class="string">"analytics"</span>).init(<span class="string">"UA-3464282-15"</span>)
 
-require <span class="string">"appcache"</span>
 require <span class="string">"cornerstone"</span>
 require <span class="string">"jquery-utils"</span></code></pre>
 </div>
@@ -47,9 +46,9 @@ require <span class="string">"jquery-utils"</span></code></pre>
     <p>Compose music on the internets?</p>
 
   </div>
-  <div class="content"><pre><code class="lang-coffeescript">{applyStylesheet} = require <span class="string">"util"</span>
-
-applyStylesheet require <span class="string">"./style"</span>
+  <div class="content"><pre><code class="lang-coffeescript">style = document.createElement <span class="string">"style"</span>
+style.innerHTML = require <span class="string">"./style"</span>
+document.head.appendChild style
 
 player = require(<span class="string">"./player"</span>)()</code></pre>
 </div>

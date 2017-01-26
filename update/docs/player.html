@@ -55,7 +55,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   <span class="comment"># Loading default sample pack</span>
   Sample.loadPack(require(<span class="string">"../samples"</span>))
   .<span class="keyword">then</span> self.samples
-  .done()
 
   <span class="comment"># TODO: Make it a real observable function</span>
   activePattern = Observable song.patterns()[<span class="number">0</span>]
@@ -87,6 +86,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     playNote: (instrument, note, time) -&gt;
       buffer = self.samples.get(instrument).buffer
       self.playBufferNote(buffer, note, time)
+
+    about: -&gt;
+      console.log <span class="string">"about"</span>
+      <span class="comment"># TODO: Display About page</span>
 
     removeNote: -&gt;
       activePattern().removeNote arguments...

@@ -30,10 +30,7 @@
     </div>
     
   </div>
-  <div class="content"><pre><code class="lang-coffeescript">Q = require <span class="string">"./lib/q"</span>
-Deferred = require <span class="string">"./lib/deferred"</span>
-
-bufferLoader = require <span class="string">"./lib/audio_loader"</span>
+  <div class="content"><pre><code class="lang-coffeescript">bufferLoader = require <span class="string">"./lib/audio_loader"</span>
 
 <span class="function"><span class="title">urlFor</span></span> = (sha) -&gt;
   n = <span class="number">4</span>
@@ -67,22 +64,16 @@ are loaded from URLs then they must allow CORS.</p>
   <span class="keyword">return</span> self
 
 Sample.<span class="function"><span class="title">load</span></span> = (data) -&gt;
-  deferred = Deferred()
   {sprite, sample} = data
 
   <span class="comment"># Load audio buffer</span>
   bufferLoader(urlFor(sample))
   .<span class="keyword">then</span> (buffer) -&gt;
-    deferred.fulfill
-      buffer: buffer
-      image: getImage(urlFor(sprite))
-  .<span class="keyword">catch</span> deferred.reject
-  .done()
-
-  <span class="keyword">return</span> deferred.promise
+    buffer: buffer
+    image: getImage(urlFor(sprite))
 
 Sample.<span class="function"><span class="title">loadPack</span></span> = (samplePack) -&gt;
-  Q.all(samplePack.map(Sample.load))</code></pre>
+  Promise.all(samplePack.map(Sample.load))</code></pre>
 </div>
 </li>
     </ul>
