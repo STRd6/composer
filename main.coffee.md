@@ -6,14 +6,13 @@ Setup
     # Google Analytics
     require("analytics").init("UA-3464282-15")
 
-    require "appcache"
     require "cornerstone"
     require "jquery-utils"
 
 Compose music on the internets?
 
-    {applyStylesheet} = require "util"
-
-    applyStylesheet require "./style"
+    style = document.createElement "style"
+    style.innerHTML = require "./style"
+    document.head.appendChild style
 
     player = require("./player")()

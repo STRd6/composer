@@ -6,4 +6,4 @@ describe "Sample", ->
     .then (samples) ->
       console.log samples
       done()
-    .done()
+    .catch done

@@ -1,9 +1,6 @@
 Sample
 ======
 
-    Q = require "./lib/q"
-    Deferred = require "./lib/deferred"
-
     bufferLoader = require "./lib/audio_loader"
 
     urlFor = (sha) ->
@@ -31,19 +28,13 @@ are loaded from URLs then they must allow CORS.
       return self
 
     Sample.load = (data) ->
-      deferred = Deferred()
       {sprite, sample} = data
 
       # Load audio buffer
       bufferLoader(urlFor(sample))
       .then (buffer) ->
-        deferred.fulfill
-          buffer: buffer
-          image: getImage(urlFor(sprite))
-      .catch deferred.reject
-      .done()
-
-      return deferred.promise
+        buffer: buffer
+        image: getImage(urlFor(sprite))
 
     Sample.loadPack = (samplePack) ->
-      Q.all(samplePack.map(Sample.load))
+      Promise.all(samplePack.map(Sample.load))

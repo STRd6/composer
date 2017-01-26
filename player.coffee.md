@@ -27,7 +27,6 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
       # Loading default sample pack
       Sample.loadPack(require("../samples"))
       .then self.samples
-      .done()
 
       # TODO: Make it a real observable function
       activePattern = Observable song.patterns()[0]
@@ -59,6 +58,10 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
         playNote: (instrument, note, time) ->
           buffer = self.samples.get(instrument).buffer
           self.playBufferNote(buffer, note, time)
+        
+        about: ->
+          console.log "about"
+          # TODO: Display About page
 
         removeNote: ->
           activePattern().removeNote arguments...
