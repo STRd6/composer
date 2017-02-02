@@ -28,29 +28,21 @@
     <div class="pilwrap">
       <a class="pilcrow" href="#section-2">&#182;</a>
     </div>
-    <p>Setup</p>
-
+    
   </div>
   <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># Google Analytics</span>
 require(<span class="string">"analytics"</span>).init(<span class="string">"UA-3464282-15"</span>)
 
 require <span class="string">"cornerstone"</span>
-require <span class="string">"jquery-utils"</span></code></pre>
-</div>
-</li>
-<li id="section-3">
-  <div class="annotation">
-    <div class="pilwrap">
-      <a class="pilcrow" href="#section-3">&#182;</a>
-    </div>
-    <p>Compose music on the internets?</p>
+require <span class="string">"jquery-utils"</span>
 
-  </div>
-  <div class="content"><pre><code class="lang-coffeescript">style = document.createElement <span class="string">"style"</span>
+style = document.createElement <span class="string">"style"</span>
 style.innerHTML = require <span class="string">"./style"</span>
 document.head.appendChild style
 
-player = require(<span class="string">"./player"</span>)()</code></pre>
+player = require(<span class="string">"./player"</span>)()
+
+require(<span class="string">"./lib/feedback-tab"</span>)(<span class="string">"https://docs.google.com/forms/d/e/1FAIpQLSeRz9rCsLJLacvpJNAtAPhj0AN0LM155INP01Y8Tt4k2pIlmA/viewform"</span>)</code></pre>
 </div>
 </li>
     </ul>
