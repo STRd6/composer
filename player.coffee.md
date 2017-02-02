@@ -59,6 +59,10 @@ Super simple Audio player based on http://www.html5rocks.com/en/tutorials/webaud
           buffer = self.samples.get(instrument).buffer
           self.playBufferNote(buffer, note, time)
 
+        about: ->
+          console.log "about"
+          # TODO: Display About page
+
         removeNote: ->
           activePattern().removeNote arguments...
 

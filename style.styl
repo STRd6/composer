@@ -2,6 +2,7 @@ html, body
   height: 100%
 
 body
+  font-family: Sans-Serif
   margin: 0
   overflow: hidden
 
@@ -49,3 +50,22 @@ canvas
   left: 0
   width: 100%
   height: 94px
+
+#feedback
+  background-color: rgb(103, 58, 183)
+  border: 2px solid white
+  border-top: 0
+  box-shadow: 1px 2px 5px black
+  color: white
+  font-weight: bold
+  padding: 4px 0.5em
+  position: absolute
+  left: 700px
+  text-decoration: none
+  text-shadow: 1px 1px black
+  top: 0
+  transition-property: padding-top
+  transition-duration: 0.25s
+
+  &:hover
+    padding-top: 1em

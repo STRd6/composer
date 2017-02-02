@@ -1,6 +1,6 @@
 title: "Mario Paint Music Composer - danielx.net"
 description: """
-This Mario Paint inspired composer tool is easy and fun. You can create simple and 
+This Mario Paint inspired composer tool is easy and fun. You can create simple and
 beautiful songs right in your browser and share them with the world!
 """
 version: "0.1.0"
@@ -9,10 +9,8 @@ remoteDependencies: [
 ]
 dependencies:
   "analytics": "distri/google-analytics:v0.1.0"
-  "appcache": "distri/appcache:v0.2.0"
   cornerstone: "distri/cornerstone:v0.3.0-pre.2"
   "hotkeys": "distri/hotkeys:v0.2.0"
   "jquery-utils": "distri/jquery-utils:v0.2.0"
-  "observable": "distri/observable:v0.3.7"
+  "observable": "distri/observable:v0.3.8"
   "touch-canvas": "distri/touch-canvas:v0.3.1"
-  util: "distri/util:v0.1.0"
