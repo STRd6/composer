@@ -245,6 +245,12 @@
       "mode": "100644",
       "type": "blob"
     },
+    "lib/feedback-tab.coffee": {
+      "path": "lib/feedback-tab.coffee",
+      "content": "module.exports = (href) ->\n  tab = document.createElement 'a'\n  tab.textContent = \"Feedback\"\n  tab.id = \"feedback\"\n  tab.href = href\n  tab.target = \"_blank\"\n\n  document.body.appendChild(tab)\n",
+      "mode": "100644",
+      "type": "blob"
+    },
     "lib/gist.coffee.md": {
       "path": "lib/gist.coffee.md",
       "content": "Gist\n====\n\nSave or load anonymous gists.\n\n    base = \"https://api.github.com/gists\"\n\n    module.exports =\n      save: (data) ->\n        data =\n          description: \"A song created with #{window.location}\"\n          public: true\n          files:\n            \"data.json\":\n              content: JSON.stringify data\n\n        $.ajax base,\n          headers:\n            Accept: \"application/vnd.github.v3+json\"\n          contentType: \"application/json; charset=utf-8\"\n          data: JSON.stringify data\n          dataType: \"json\"\n          type: \"POST\"\n        .then (result) ->\n          result.id\n\n      load: (gistId) ->\n        $.get(\"#{base}/#{gistId}\").then (data) ->\n          data = data.files[\"data.json\"]?.content or data.files[\"pattern0.json\"]?.content\n\n          if data\n            JSON.parse data\n          else\n            alert \"Failed to load gist with id: #{gistId}\"\n",
@@ -259,7 +265,7 @@
     },
     "main.coffee.md": {
       "path": "main.coffee.md",
-      "content": "Composer\n========\n\nSetup\n\n    # Google Analytics\n    require(\"analytics\").init(\"UA-3464282-15\")\n\n    require \"appcache\"\n    require \"cornerstone\"\n    require \"jquery-utils\"\n\nCompose music on the internets?\n\n    {applyStylesheet} = require \"util\"\n\n    applyStylesheet require \"./style\"\n\n    player = require(\"./player\")()\n",
+      "content": "Composer\n========\n\n    # Google Analytics\n    require(\"analytics\").init(\"UA-3464282-15\")\n\n    require \"cornerstone\"\n    require \"jquery-utils\"\n\n    style = document.createElement \"style\"\n    style.innerHTML = require \"./style\"\n    document.head.appendChild style\n\n    player = require(\"./player\")()\n\n    require(\"./lib/feedback-tab\")(\"https://docs.google.com/forms/d/e/1FAIpQLSeRz9rCsLJLacvpJNAtAPhj0AN0LM155INP01Y8Tt4k2pIlmA/viewform\")\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -287,21 +293,21 @@
       "mode": "100644",
       "type": "blob"
     },
-    "persistence.coffee.md": {
-      "path": "persistence.coffee.md",
-      "content": "Persistence\n===========\n\n    Gist = require \"./lib/gist\"\n\n    module.exports = (I={}, self) ->\n      # Autoload from location hash\n      defaults I,\n        unsaved: false\n\n      self.attrAccessor \"unsaved\"\n\n      window.onbeforeunload = ->\n        if self.unsaved()\n          \"Your changes haven't yet been saved. If you leave now you will lose your work.\"\n\n      setTimeout ->\n        if hash = location.hash\n          self.loadGist hash.substr(1)\n      , 0\n\n      # Demo song\n      localStorage.songs_demo ?= JSON.stringify require \"./demo_song\"\n\n      self.extend\n        saveAs: ->\n          if name = prompt \"Name\"\n            data = self.song().toJSON()\n\n            localStorage[\"songs_#{name}\"] = JSON.stringify data\n\n            self.unsaved false\n\n        loadSong: ->\n          # TODO: Prompt unsaved\n\n          if name = prompt \"Name\", \"demo\"\n            data = JSON.parse localStorage[\"songs_#{name}\"]\n\n            self.fromJSON(data)\n\n        fromJSON: (data) ->\n          self.song().fromJSON(data)\n\n          self.reset()\n\n        publish: ->\n          Gist.save(self.song().toJSON()).then (id) ->\n            location.hash = id\n\n            alert \"Published as #{location}\\nShare this by copying the url!\"\n\n            self.unsaved false\n\n        loadGist: (id) ->\n          Gist.load(id).then (data) ->\n            self.fromJSON(data)\n            location.hash = id\n          , ->\n            alert \"Couldn't load gist with id: #{id}\"\n\n        loadGistPrompt: ->\n          if id = prompt \"Gist id\", location.hash.substr(1) || \"0b4c4656a6eb1d246829\"\n            self.loadGist(id)\n\n",
+    "persistence.coffee": {
+      "path": "persistence.coffee",
+      "content": "Gist = require \"./lib/gist\"\n\nmodule.exports = (I={}, self) ->\n  # Autoload from location hash\n  defaults I,\n    unsaved: false\n\n  self.attrAccessor \"unsaved\"\n\n  # NOTE: Track `prompted` so in an iframe it won't trigger twice\n  prompted = false\n  window.addEventListener \"beforeunload\", (e) ->\n    return if prompted\n    prompted = true\n    setTimeout ->\n      prompted = false\n\n    if self.unsaved()\n      e.returnValue = \"Your changes haven't yet been saved. If you leave now you will lose your work.\"\n\n    return e.returnValue\n\n  setTimeout ->\n    if hash = location.hash\n      self.loadGist hash.substr(1)\n  , 0\n\n  # Demo song\n  localStorage.songs_demo ?= JSON.stringify require \"./demo_song\"\n\n  self.extend\n    saveAs: ->\n      if name = prompt \"Name\"\n        data = self.song().toJSON()\n\n        localStorage[\"songs_#{name}\"] = JSON.stringify data\n\n        self.unsaved false\n\n    loadSong: ->\n      # TODO: Prompt unsaved\n\n      if name = prompt \"Name\", \"demo\"\n        data = JSON.parse localStorage[\"songs_#{name}\"]\n\n        self.fromJSON(data)\n\n    fromJSON: (data) ->\n      self.song().fromJSON(data)\n\n      self.reset()\n\n    publish: ->\n      Gist.save(self.song().toJSON()).then (id) ->\n        location.hash = id\n\n        alert \"Published as #{location}\\nShare this by copying the url!\"\n\n        self.unsaved false\n\n    loadGist: (id) ->\n      Gist.load(id).then (data) ->\n        self.fromJSON(data)\n        location.hash = id\n      , ->\n        alert \"Couldn't load gist with id: #{id}\"\n\n    loadGistPrompt: ->\n      if id = prompt \"Gist id\", location.hash.substr(1) || \"0b4c4656a6eb1d246829\"\n        self.loadGist(id)\n\n",
       "mode": "100644",
       "type": "blob"
     },
     "pixie.cson": {
       "path": "pixie.cson",
-      "content": "title: \"Mario Paint Music Composer - danielx.net\"\ndescription: \"\"\"\nThis Mario Paint inspired composer tool is easy and fun. You can create simple and \nbeautiful songs right in your browser and share them with the world!\n\"\"\"\nversion: \"0.1.0\"\nremoteDependencies: [\n  \"https://code.jquery.com/jquery-1.11.0.min.js\"\n]\ndependencies:\n  \"analytics\": \"distri/google-analytics:v0.1.0\"\n  \"appcache\": \"distri/appcache:v0.2.0\"\n  cornerstone: \"distri/cornerstone:v0.3.0-pre.2\"\n  \"hotkeys\": \"distri/hotkeys:v0.2.0\"\n  \"jquery-utils\": \"distri/jquery-utils:v0.2.0\"\n  \"observable\": \"distri/observable:v0.3.7\"\n  \"touch-canvas\": \"distri/touch-canvas:v0.3.1\"\n  util: \"distri/util:v0.1.0\"\n",
+      "content": "title: \"Mario Paint Music Composer - danielx.net\"\ndescription: \"\"\"\nThis Mario Paint inspired composer tool is easy and fun. You can create simple and\nbeautiful songs right in your browser and share them with the world!\n\"\"\"\nversion: \"0.1.0\"\nremoteDependencies: [\n  \"https://code.jquery.com/jquery-1.11.0.min.js\"\n]\ndependencies:\n  \"analytics\": \"distri/google-analytics:v0.1.0\"\n  cornerstone: \"distri/cornerstone:v0.3.0-pre.2\"\n  \"hotkeys\": \"distri/hotkeys:v0.2.0\"\n  \"jquery-utils\": \"distri/jquery-utils:v0.2.0\"\n  \"observable\": \"distri/observable:v0.3.8\"\n  \"touch-canvas\": \"distri/touch-canvas:v0.3.1\"\n",
       "mode": "100644",
       "type": "blob"
     },
     "player.coffee.md": {
       "path": "player.coffee.md",
-      "content": "Player\n======\n\nSuper simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/\n\n    require \"cornerstone\"\n\n    Sample = require \"./sample\"\n    Song = require \"./song\"\n\n    PatternView = require \"./pattern_view\"\n\n    module.exports = (I={}, self=Model(I)) ->\n      defaults I,\n        samples: []\n        patternMode: false\n        lastChannelIndex: 0\n\n      self.include Bindable\n\n      self.attrObservable \"samples\"\n\n      self.attrAccessor \"patternMode\", \"lastChannelIndex\"\n\n      song = Song()\n\n      # Loading default sample pack\n      Sample.loadPack(require(\"../samples\"))\n      .then self.samples\n\n      # TODO: Make it a real observable function\n      activePattern = Observable song.patterns()[0]\n\n      self.extend\n        activePattern: activePattern\n        size: ->\n          if self.patternMode()\n            activePattern().size()\n          else\n            song.size()\n\n        addNote: (note) ->\n          self.unsaved true\n          activePattern().notes().push(note)\n\n        # Currently instruments map 1 to 1 with patterns.\n        patternToolIndex: ->\n          self.activeInstrument()\n\n        patterns: song.patterns\n\n        song: ->\n          song\n\n        tempo: song.tempo\n\n        # TODO: Should different patterns have different sample banks?\n        playNote: (instrument, note, time) ->\n          buffer = self.samples.get(instrument).buffer\n          self.playBufferNote(buffer, note, time)\n\n        removeNote: ->\n          activePattern().removeNote arguments...\n\n        upcomingSounds: (current, dt) ->\n          if self.patternMode()\n            activePattern().upcomingNotes(current, dt)\n          else\n            song.upcomingNotes(current, dt)\n\n      self.include require \"./player_audio\"\n      self.include require \"./persistence\"\n\n      element = document.body\n\n      self.include PatternView\n      element.appendChild require(\"./tools\")(self)\n\n      self.include require(\"./arranger_view\")\n\n      self.on \"arrangerClick\", (channel, beat) ->\n        if self.activeToolIndex() is 1 # Eraser\n          if song.removePattern channel, beat\n            self.unsaved true\n        else\n          patternIndex = self.activeInstrument()\n\n          if song.canSet(channel, beat, patternIndex)\n            activePattern song.patterns()[patternIndex]\n            song.setPattern channel, beat, patternIndex\n            self.lastChannelIndex channel\n            self.unsaved true\n          else if (patternIndex = song.patternAt(channel, beat))?\n            self.patternMode true unless self.playing()\n            activePattern song.patterns()[patternIndex]\n\n      element.appendChild self.arrangerElement()\n\n      animate ->\n        self.trigger(\"draw\")\n\n      return self\n\nHelpers\n-------\n\nBind an observable to \"be the same as\" the source observable.\n\n    bindO = (from, to) ->\n      from.observe to\n      to from()\n\n    animate = (fn) ->\n      step = ->\n        try\n          fn()\n        catch e\n          debugger\n          console.error e\n\n        requestAnimationFrame(step)\n\n      step()\n",
+      "content": "Player\n======\n\nSuper simple Audio player based on http://www.html5rocks.com/en/tutorials/webaudio/intro/\n\n    require \"cornerstone\"\n\n    Sample = require \"./sample\"\n    Song = require \"./song\"\n\n    PatternView = require \"./pattern_view\"\n\n    module.exports = (I={}, self=Model(I)) ->\n      defaults I,\n        samples: []\n        patternMode: false\n        lastChannelIndex: 0\n\n      self.include Bindable\n\n      self.attrObservable \"samples\"\n\n      self.attrAccessor \"patternMode\", \"lastChannelIndex\"\n\n      song = Song()\n\n      # Loading default sample pack\n      Sample.loadPack(require(\"../samples\"))\n      .then self.samples\n\n      # TODO: Make it a real observable function\n      activePattern = Observable song.patterns()[0]\n\n      self.extend\n        activePattern: activePattern\n        size: ->\n          if self.patternMode()\n            activePattern().size()\n          else\n            song.size()\n\n        addNote: (note) ->\n          self.unsaved true\n          activePattern().notes().push(note)\n\n        # Currently instruments map 1 to 1 with patterns.\n        patternToolIndex: ->\n          self.activeInstrument()\n\n        patterns: song.patterns\n\n        song: ->\n          song\n\n        tempo: song.tempo\n\n        # TODO: Should different patterns have different sample banks?\n        playNote: (instrument, note, time) ->\n          buffer = self.samples.get(instrument).buffer\n          self.playBufferNote(buffer, note, time)\n\n        about: ->\n          console.log \"about\"\n          # TODO: Display About page\n\n        removeNote: ->\n          activePattern().removeNote arguments...\n\n        upcomingSounds: (current, dt) ->\n          if self.patternMode()\n            activePattern().upcomingNotes(current, dt)\n          else\n            song.upcomingNotes(current, dt)\n\n      self.include require \"./player_audio\"\n      self.include require \"./persistence\"\n\n      element = document.body\n\n      self.include PatternView\n      element.appendChild require(\"./tools\")(self)\n\n      self.include require(\"./arranger_view\")\n\n      self.on \"arrangerClick\", (channel, beat) ->\n        if self.activeToolIndex() is 1 # Eraser\n          if song.removePattern channel, beat\n            self.unsaved true\n        else\n          patternIndex = self.activeInstrument()\n\n          if song.canSet(channel, beat, patternIndex)\n            activePattern song.patterns()[patternIndex]\n            song.setPattern channel, beat, patternIndex\n            self.lastChannelIndex channel\n            self.unsaved true\n          else if (patternIndex = song.patternAt(channel, beat))?\n            self.patternMode true unless self.playing()\n            activePattern song.patterns()[patternIndex]\n\n      element.appendChild self.arrangerElement()\n\n      animate ->\n        self.trigger(\"draw\")\n\n      return self\n\nHelpers\n-------\n\nBind an observable to \"be the same as\" the source observable.\n\n    bindO = (from, to) ->\n      from.observe to\n      to from()\n\n    animate = (fn) ->\n      step = ->\n        try\n          fn()\n        catch e\n          debugger\n          console.error e\n\n        requestAnimationFrame(step)\n\n      step()\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -331,7 +337,13 @@
     },
     "style.styl": {
       "path": "style.styl",
-      "content": "html, body\n  height: 100%\n\nbody\n  margin: 0\n  overflow: hidden\n\n  & > canvas\n    position: absolute\n    top: 25px\n    left: 0px\n\ncanvas\n  user-select: none\n\n.actions\n  position: absolute\n  top: 0\n  left: 0\n\n.tools\n  background-color: rgba(0, 0, 0, 0.0625)\n  width: 40px\n  height: 100%\n  position: absolute\n  right: 0\n  top: 0\n\n  .tool\n    width: 32px\n    height: 32px\n    background-repeat: no-repeat\n    background-position: 50% 50%\n\n  .eraser\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==\")\n\n.position\n  position: absolute\n  top: 30px\n  right: 60px\n  pointer-events: none\n\n.arranger-wrap\n  overflow-x: scroll\n  overflow-y: hidden\n  position: absolute\n  bottom: 0\n  left: 0\n  width: 100%\n  height: 94px\n",
+      "content": "html, body\n  height: 100%\n\nbody\n  font-family: Sans-Serif\n  margin: 0\n  overflow: hidden\n\n  & > canvas\n    position: absolute\n    top: 25px\n    left: 0px\n\ncanvas\n  user-select: none\n\n.actions\n  position: absolute\n  top: 0\n  left: 0\n\n.tools\n  background-color: rgba(0, 0, 0, 0.0625)\n  width: 40px\n  height: 100%\n  position: absolute\n  right: 0\n  top: 0\n\n  .tool\n    width: 32px\n    height: 32px\n    background-repeat: no-repeat\n    background-position: 50% 50%\n\n  .eraser\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==\")\n\n.position\n  position: absolute\n  top: 30px\n  right: 60px\n  pointer-events: none\n\n.arranger-wrap\n  overflow-x: scroll\n  overflow-y: hidden\n  position: absolute\n  bottom: 0\n  left: 0\n  width: 100%\n  height: 94px\n\n#feedback\n  background-color: rgb(103, 58, 183)\n  border: 2px solid white\n  border-top: 0\n  box-shadow: 1px 2px 5px black\n  color: white\n  font-weight: bold\n  padding: 4px 0.5em\n  position: absolute\n  left: 700px\n  text-decoration: none\n  text-shadow: 1px 1px black\n  top: 0\n  transition-property: padding-top\n  transition-duration: 0.25s\n\n  &:hover\n    padding-top: 1em\n",
+      "mode": "100644",
+      "type": "blob"
+    },
+    "templates/about.jadelet": {
+      "path": "templates/about.jadelet",
+      "content": "about\n  h1 About\n  p Created by Daniel X. Moore\n  p TODO: Feedack\n  email\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -353,9 +365,9 @@
       "mode": "100644",
       "type": "blob"
     },
-    "tools.haml": {
-      "path": "tools.haml",
-      "content": "- editor = this\n\n%div\n  .actions\n    %button(click=@play) ►\n    %button(click=@patternPlay) P►\n    %label\n      Tempo\n      %input(value=@tempo)\n    %label\n      Length\n      %input(value=@beats)\n    %button(click=@saveAs) Save\n    %button(click=@loadSong) Load\n    %button(click=@publish) Publish\n    %button(click=@loadGistPrompt) Load Gist\n  \n  .tools\n    .instruments\n      - @samples.forEach (sample, i) ->\n        - activate = -> editor.activeToolIndex(0); editor.activeInstrument(i); editor.playNote i\n        - # TODO: Shouldn't need to replace querystring in image... but this CORS shit is nuts\n        .tool.instrument(style=\"background-image: url(#{sample.image.src.replace(/\\?.*/, '')})\" click=activate)\n  \n    - eraser = -> editor.activeToolIndex(1)\n    .tool.eraser(click=eraser)\n  \n  .position\n",
+    "tools.jadelet": {
+      "path": "tools.jadelet",
+      "content": "- editor = this\n\ndiv\n  .actions\n    button(click=@play) ►\n    button(click=@patternPlay) P►\n    label\n      Tempo\n      input(value=@tempo)\n    label\n      Length\n      input(value=@beats)\n    button(click=@saveAs) Save\n    button(click=@loadSong) Load\n    button(click=@publish) Publish\n    button(click=@loadGistPrompt) Load Gist\n    button(click=@about) About\n\n  .tools\n    .instruments\n      - @samples.forEach (sample, i) ->\n        - activate = -> editor.activeToolIndex(0); editor.activeInstrument(i); editor.playNote i\n        - # TODO: Shouldn't need to replace querystring in image... but this CORS shit is nuts\n        .tool.instrument(style=\"background-image: url(#{sample.image.src.replace(/\\?.*/, '')})\" click=activate)\n\n    - eraser = -> editor.activeToolIndex(1)\n    .tool.eraser(click=eraser)\n\n  .position\n",
       "mode": "100644",
       "type": "blob"
     }
@@ -391,6 +403,11 @@
       "content": "(function() {\n  var context, loader;\n\n  loader = require(\"./loader\");\n\n  context = require(\"./audio_context\");\n\n  module.exports = function(url) {\n    return new Promise(function(resolve, reject) {\n      return loader(url).then(function(buffer) {\n        return context.decodeAudioData(buffer, resolve, reject);\n      });\n    });\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
+    "lib/feedback-tab": {
+      "path": "lib/feedback-tab",
+      "content": "(function() {\n  module.exports = function(href) {\n    var tab;\n    tab = document.createElement('a');\n    tab.textContent = \"Feedback\";\n    tab.id = \"feedback\";\n    tab.href = href;\n    tab.target = \"_blank\";\n    return document.body.appendChild(tab);\n  };\n\n}).call(this);\n",
+      "type": "blob"
+    },
     "lib/gist": {
       "path": "lib/gist",
       "content": "(function() {\n  var base;\n\n  base = \"https://api.github.com/gists\";\n\n  module.exports = {\n    save: function(data) {\n      data = {\n        description: \"A song created with \" + window.location,\n        \"public\": true,\n        files: {\n          \"data.json\": {\n            content: JSON.stringify(data)\n          }\n        }\n      };\n      return $.ajax(base, {\n        headers: {\n          Accept: \"application/vnd.github.v3+json\"\n        },\n        contentType: \"application/json; charset=utf-8\",\n        data: JSON.stringify(data),\n        dataType: \"json\",\n        type: \"POST\"\n      }).then(function(result) {\n        return result.id;\n      });\n    },\n    load: function(gistId) {\n      return $.get(\"\" + base + \"/\" + gistId).then(function(data) {\n        var _ref, _ref1;\n        data = ((_ref = data.files[\"data.json\"]) != null ? _ref.content : void 0) || ((_ref1 = data.files[\"pattern0.json\"]) != null ? _ref1.content : void 0);\n        if (data) {\n          return JSON.parse(data);\n        } else {\n          return alert(\"Failed to load gist with id: \" + gistId);\n        }\n      });\n    }\n  };\n\n}).call(this);\n",
@@ -403,7 +420,7 @@
     },
     "main": {
       "path": "main",
-      "content": "(function() {\n  var applyStylesheet, player;\n\n  require(\"analytics\").init(\"UA-3464282-15\");\n\n  require(\"appcache\");\n\n  require(\"cornerstone\");\n\n  require(\"jquery-utils\");\n\n  applyStylesheet = require(\"util\").applyStylesheet;\n\n  applyStylesheet(require(\"./style\"));\n\n  player = require(\"./player\")();\n\n}).call(this);\n",
+      "content": "(function() {\n  var player, style;\n\n  require(\"analytics\").init(\"UA-3464282-15\");\n\n  require(\"cornerstone\");\n\n  require(\"jquery-utils\");\n\n  style = document.createElement(\"style\");\n\n  style.innerHTML = require(\"./style\");\n\n  document.head.appendChild(style);\n\n  player = require(\"./player\")();\n\n  require(\"./lib/feedback-tab\")(\"https://docs.google.com/forms/d/e/1FAIpQLSeRz9rCsLJLacvpJNAtAPhj0AN0LM155INP01Y8Tt4k2pIlmA/viewform\");\n\n}).call(this);\n",
       "type": "blob"
     },
     "note": {
@@ -428,17 +445,17 @@
     },
     "persistence": {
       "path": "persistence",
-      "content": "(function() {\n  var Gist;\n\n  Gist = require(\"./lib/gist\");\n\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    defaults(I, {\n      unsaved: false\n    });\n    self.attrAccessor(\"unsaved\");\n    window.onbeforeunload = function() {\n      if (self.unsaved()) {\n        return \"Your changes haven't yet been saved. If you leave now you will lose your work.\";\n      }\n    };\n    setTimeout(function() {\n      var hash;\n      if (hash = location.hash) {\n        return self.loadGist(hash.substr(1));\n      }\n    }, 0);\n    if (localStorage.songs_demo == null) {\n      localStorage.songs_demo = JSON.stringify(require(\"./demo_song\"));\n    }\n    return self.extend({\n      saveAs: function() {\n        var data, name;\n        if (name = prompt(\"Name\")) {\n          data = self.song().toJSON();\n          localStorage[\"songs_\" + name] = JSON.stringify(data);\n          return self.unsaved(false);\n        }\n      },\n      loadSong: function() {\n        var data, name;\n        if (name = prompt(\"Name\", \"demo\")) {\n          data = JSON.parse(localStorage[\"songs_\" + name]);\n          return self.fromJSON(data);\n        }\n      },\n      fromJSON: function(data) {\n        self.song().fromJSON(data);\n        return self.reset();\n      },\n      publish: function() {\n        return Gist.save(self.song().toJSON()).then(function(id) {\n          location.hash = id;\n          alert(\"Published as \" + location + \"\\nShare this by copying the url!\");\n          return self.unsaved(false);\n        });\n      },\n      loadGist: function(id) {\n        return Gist.load(id).then(function(data) {\n          self.fromJSON(data);\n          return location.hash = id;\n        }, function() {\n          return alert(\"Couldn't load gist with id: \" + id);\n        });\n      },\n      loadGistPrompt: function() {\n        var id;\n        if (id = prompt(\"Gist id\", location.hash.substr(1) || \"0b4c4656a6eb1d246829\")) {\n          return self.loadGist(id);\n        }\n      }\n    });\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var Gist;\n\n  Gist = require(\"./lib/gist\");\n\n  module.exports = function(I, self) {\n    var prompted;\n    if (I == null) {\n      I = {};\n    }\n    defaults(I, {\n      unsaved: false\n    });\n    self.attrAccessor(\"unsaved\");\n    prompted = false;\n    window.addEventListener(\"beforeunload\", function(e) {\n      if (prompted) {\n        return;\n      }\n      prompted = true;\n      setTimeout(function() {\n        return prompted = false;\n      });\n      if (self.unsaved()) {\n        e.returnValue = \"Your changes haven't yet been saved. If you leave now you will lose your work.\";\n      }\n      return e.returnValue;\n    });\n    setTimeout(function() {\n      var hash;\n      if (hash = location.hash) {\n        return self.loadGist(hash.substr(1));\n      }\n    }, 0);\n    if (localStorage.songs_demo == null) {\n      localStorage.songs_demo = JSON.stringify(require(\"./demo_song\"));\n    }\n    return self.extend({\n      saveAs: function() {\n        var data, name;\n        if (name = prompt(\"Name\")) {\n          data = self.song().toJSON();\n          localStorage[\"songs_\" + name] = JSON.stringify(data);\n          return self.unsaved(false);\n        }\n      },\n      loadSong: function() {\n        var data, name;\n        if (name = prompt(\"Name\", \"demo\")) {\n          data = JSON.parse(localStorage[\"songs_\" + name]);\n          return self.fromJSON(data);\n        }\n      },\n      fromJSON: function(data) {\n        self.song().fromJSON(data);\n        return self.reset();\n      },\n      publish: function() {\n        return Gist.save(self.song().toJSON()).then(function(id) {\n          location.hash = id;\n          alert(\"Published as \" + location + \"\\nShare this by copying the url!\");\n          return self.unsaved(false);\n        });\n      },\n      loadGist: function(id) {\n        return Gist.load(id).then(function(data) {\n          self.fromJSON(data);\n          return location.hash = id;\n        }, function() {\n          return alert(\"Couldn't load gist with id: \" + id);\n        });\n      },\n      loadGistPrompt: function() {\n        var id;\n        if (id = prompt(\"Gist id\", location.hash.substr(1) || \"0b4c4656a6eb1d246829\")) {\n          return self.loadGist(id);\n        }\n      }\n    });\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"title\":\"Mario Paint Music Composer - danielx.net\",\"description\":\"This Mario Paint inspired composer tool is easy and fun. You can create simple and \\nbeautiful songs right in your browser and share them with the world!\",\"version\":\"0.1.0\",\"remoteDependencies\":[\"https://code.jquery.com/jquery-1.11.0.min.js\"],\"dependencies\":{\"analytics\":\"distri/google-analytics:v0.1.0\",\"appcache\":\"distri/appcache:v0.2.0\",\"cornerstone\":\"distri/cornerstone:v0.3.0-pre.2\",\"hotkeys\":\"distri/hotkeys:v0.2.0\",\"jquery-utils\":\"distri/jquery-utils:v0.2.0\",\"observable\":\"distri/observable:v0.3.7\",\"touch-canvas\":\"distri/touch-canvas:v0.3.1\",\"util\":\"distri/util:v0.1.0\"}};",
+      "content": "module.exports = {\"title\":\"Mario Paint Music Composer - danielx.net\",\"description\":\"This Mario Paint inspired composer tool is easy and fun. You can create simple and\\nbeautiful songs right in your browser and share them with the world!\",\"version\":\"0.1.0\",\"remoteDependencies\":[\"https://code.jquery.com/jquery-1.11.0.min.js\"],\"dependencies\":{\"analytics\":\"distri/google-analytics:v0.1.0\",\"cornerstone\":\"distri/cornerstone:v0.3.0-pre.2\",\"hotkeys\":\"distri/hotkeys:v0.2.0\",\"jquery-utils\":\"distri/jquery-utils:v0.2.0\",\"observable\":\"distri/observable:v0.3.8\",\"touch-canvas\":\"distri/touch-canvas:v0.3.1\"}};",
       "type": "blob"
     },
     "player": {
       "path": "player",
-      "content": "(function() {\n  var PatternView, Sample, Song, animate, bindO;\n\n  require(\"cornerstone\");\n\n  Sample = require(\"./sample\");\n\n  Song = require(\"./song\");\n\n  PatternView = require(\"./pattern_view\");\n\n  module.exports = function(I, self) {\n    var activePattern, element, song;\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Model(I);\n    }\n    defaults(I, {\n      samples: [],\n      patternMode: false,\n      lastChannelIndex: 0\n    });\n    self.include(Bindable);\n    self.attrObservable(\"samples\");\n    self.attrAccessor(\"patternMode\", \"lastChannelIndex\");\n    song = Song();\n    Sample.loadPack(require(\"../samples\")).then(self.samples);\n    activePattern = Observable(song.patterns()[0]);\n    self.extend({\n      activePattern: activePattern,\n      size: function() {\n        if (self.patternMode()) {\n          return activePattern().size();\n        } else {\n          return song.size();\n        }\n      },\n      addNote: function(note) {\n        self.unsaved(true);\n        return activePattern().notes().push(note);\n      },\n      patternToolIndex: function() {\n        return self.activeInstrument();\n      },\n      patterns: song.patterns,\n      song: function() {\n        return song;\n      },\n      tempo: song.tempo,\n      playNote: function(instrument, note, time) {\n        var buffer;\n        buffer = self.samples.get(instrument).buffer;\n        return self.playBufferNote(buffer, note, time);\n      },\n      removeNote: function() {\n        var _ref;\n        return (_ref = activePattern()).removeNote.apply(_ref, arguments);\n      },\n      upcomingSounds: function(current, dt) {\n        if (self.patternMode()) {\n          return activePattern().upcomingNotes(current, dt);\n        } else {\n          return song.upcomingNotes(current, dt);\n        }\n      }\n    });\n    self.include(require(\"./player_audio\"));\n    self.include(require(\"./persistence\"));\n    element = document.body;\n    self.include(PatternView);\n    element.appendChild(require(\"./tools\")(self));\n    self.include(require(\"./arranger_view\"));\n    self.on(\"arrangerClick\", function(channel, beat) {\n      var patternIndex;\n      if (self.activeToolIndex() === 1) {\n        if (song.removePattern(channel, beat)) {\n          return self.unsaved(true);\n        }\n      } else {\n        patternIndex = self.activeInstrument();\n        if (song.canSet(channel, beat, patternIndex)) {\n          activePattern(song.patterns()[patternIndex]);\n          song.setPattern(channel, beat, patternIndex);\n          self.lastChannelIndex(channel);\n          return self.unsaved(true);\n        } else if ((patternIndex = song.patternAt(channel, beat)) != null) {\n          if (!self.playing()) {\n            self.patternMode(true);\n          }\n          return activePattern(song.patterns()[patternIndex]);\n        }\n      }\n    });\n    element.appendChild(self.arrangerElement());\n    animate(function() {\n      return self.trigger(\"draw\");\n    });\n    return self;\n  };\n\n  bindO = function(from, to) {\n    from.observe(to);\n    return to(from());\n  };\n\n  animate = function(fn) {\n    var step;\n    step = function() {\n      var e;\n      try {\n        fn();\n      } catch (_error) {\n        e = _error;\n        debugger;\n        console.error(e);\n      }\n      return requestAnimationFrame(step);\n    };\n    return step();\n  };\n\n}).call(this);\n",
+      "content": "(function() {\n  var PatternView, Sample, Song, animate, bindO;\n\n  require(\"cornerstone\");\n\n  Sample = require(\"./sample\");\n\n  Song = require(\"./song\");\n\n  PatternView = require(\"./pattern_view\");\n\n  module.exports = function(I, self) {\n    var activePattern, element, song;\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Model(I);\n    }\n    defaults(I, {\n      samples: [],\n      patternMode: false,\n      lastChannelIndex: 0\n    });\n    self.include(Bindable);\n    self.attrObservable(\"samples\");\n    self.attrAccessor(\"patternMode\", \"lastChannelIndex\");\n    song = Song();\n    Sample.loadPack(require(\"../samples\")).then(self.samples);\n    activePattern = Observable(song.patterns()[0]);\n    self.extend({\n      activePattern: activePattern,\n      size: function() {\n        if (self.patternMode()) {\n          return activePattern().size();\n        } else {\n          return song.size();\n        }\n      },\n      addNote: function(note) {\n        self.unsaved(true);\n        return activePattern().notes().push(note);\n      },\n      patternToolIndex: function() {\n        return self.activeInstrument();\n      },\n      patterns: song.patterns,\n      song: function() {\n        return song;\n      },\n      tempo: song.tempo,\n      playNote: function(instrument, note, time) {\n        var buffer;\n        buffer = self.samples.get(instrument).buffer;\n        return self.playBufferNote(buffer, note, time);\n      },\n      about: function() {\n        return console.log(\"about\");\n      },\n      removeNote: function() {\n        var _ref;\n        return (_ref = activePattern()).removeNote.apply(_ref, arguments);\n      },\n      upcomingSounds: function(current, dt) {\n        if (self.patternMode()) {\n          return activePattern().upcomingNotes(current, dt);\n        } else {\n          return song.upcomingNotes(current, dt);\n        }\n      }\n    });\n    self.include(require(\"./player_audio\"));\n    self.include(require(\"./persistence\"));\n    element = document.body;\n    self.include(PatternView);\n    element.appendChild(require(\"./tools\")(self));\n    self.include(require(\"./arranger_view\"));\n    self.on(\"arrangerClick\", function(channel, beat) {\n      var patternIndex;\n      if (self.activeToolIndex() === 1) {\n        if (song.removePattern(channel, beat)) {\n          return self.unsaved(true);\n        }\n      } else {\n        patternIndex = self.activeInstrument();\n        if (song.canSet(channel, beat, patternIndex)) {\n          activePattern(song.patterns()[patternIndex]);\n          song.setPattern(channel, beat, patternIndex);\n          self.lastChannelIndex(channel);\n          return self.unsaved(true);\n        } else if ((patternIndex = song.patternAt(channel, beat)) != null) {\n          if (!self.playing()) {\n            self.patternMode(true);\n          }\n          return activePattern(song.patterns()[patternIndex]);\n        }\n      }\n    });\n    element.appendChild(self.arrangerElement());\n    animate(function() {\n      return self.trigger(\"draw\");\n    });\n    return self;\n  };\n\n  bindO = function(from, to) {\n    from.observe(to);\n    return to(from());\n  };\n\n  animate = function(fn) {\n    var step;\n    step = function() {\n      var e;\n      try {\n        fn();\n      } catch (_error) {\n        e = _error;\n        debugger;\n        console.error(e);\n      }\n      return requestAnimationFrame(step);\n    };\n    return step();\n  };\n\n}).call(this);\n",
       "type": "blob"
     },
     "player_audio": {
@@ -463,7 +480,12 @@
     },
     "style": {
       "path": "style",
-      "content": "module.exports = \"html,\\nbody {\\n  height: 100%;\\n}\\nbody {\\n  margin: 0;\\n  overflow: hidden;\\n}\\nbody > canvas {\\n  position: absolute;\\n  top: 25px;\\n  left: 0px;\\n}\\ncanvas {\\n  user-select: none;\\n}\\n.actions {\\n  position: absolute;\\n  top: 0;\\n  left: 0;\\n}\\n.tools {\\n  background-color: rgba(0,0,0,0.063);\\n  width: 40px;\\n  height: 100%;\\n  position: absolute;\\n  right: 0;\\n  top: 0;\\n}\\n.tools .tool {\\n  width: 32px;\\n  height: 32px;\\n  background-repeat: no-repeat;\\n  background-position: 50% 50%;\\n}\\n.tools .eraser {\\n  background-image: url(\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==\\\");\\n}\\n.position {\\n  position: absolute;\\n  top: 30px;\\n  right: 60px;\\n  pointer-events: none;\\n}\\n.arranger-wrap {\\n  overflow-x: scroll;\\n  overflow-y: hidden;\\n  position: absolute;\\n  bottom: 0;\\n  left: 0;\\n  width: 100%;\\n  height: 94px;\\n}\\n\";",
+      "content": "module.exports = \"html,\\nbody {\\n  height: 100%;\\n}\\nbody {\\n  font-family: Sans-Serif;\\n  margin: 0;\\n  overflow: hidden;\\n}\\nbody > canvas {\\n  position: absolute;\\n  top: 25px;\\n  left: 0px;\\n}\\ncanvas {\\n  user-select: none;\\n}\\n.actions {\\n  position: absolute;\\n  top: 0;\\n  left: 0;\\n}\\n.tools {\\n  background-color: rgba(0,0,0,0.063);\\n  width: 40px;\\n  height: 100%;\\n  position: absolute;\\n  right: 0;\\n  top: 0;\\n}\\n.tools .tool {\\n  width: 32px;\\n  height: 32px;\\n  background-repeat: no-repeat;\\n  background-position: 50% 50%;\\n}\\n.tools .eraser {\\n  background-image: url(\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==\\\");\\n}\\n.position {\\n  position: absolute;\\n  top: 30px;\\n  right: 60px;\\n  pointer-events: none;\\n}\\n.arranger-wrap {\\n  overflow-x: scroll;\\n  overflow-y: hidden;\\n  position: absolute;\\n  bottom: 0;\\n  left: 0;\\n  width: 100%;\\n  height: 94px;\\n}\\n#feedback {\\n  background-color: #673ab7;\\n  border: 2px solid #fff;\\n  border-top: 0;\\n  box-shadow: 1px 2px 5px #000;\\n  color: #fff;\\n  font-weight: bold;\\n  padding: 4px 0.5em;\\n  position: absolute;\\n  left: 700px;\\n  text-decoration: none;\\n  text-shadow: 1px 1px #000;\\n  top: 0;\\n  transition-property: padding-top;\\n  transition-duration: 0.25s;\\n}\\n#feedback:hover {\\n  padding-top: 1em;\\n}\\n\";",
+      "type": "blob"
+    },
+    "templates/about": {
+      "path": "templates/about",
+      "content": "module.exports = function(data) {\n  \"use strict\";\n  return (function() {\n    var __root;\n    __root = require(\"/lib/hamlet-runtime\")(this);\n    __root.buffer(__root.element(\"about\", this, {}, function(__root) {\n      __root.buffer(__root.element(\"h1\", this, {}, function(__root) {\n        __root.buffer(\"About\\n\");\n      }));\n      __root.buffer(__root.element(\"p\", this, {}, function(__root) {\n        __root.buffer(\"Created by Daniel X. Moore\\n\");\n      }));\n      __root.buffer(__root.element(\"p\", this, {}, function(__root) {\n        __root.buffer(\"TODO: Feedack\\n\");\n      }));\n      __root.buffer(__root.element(\"email\", this, {}, function(__root) {}));\n    }));\n    return __root.root;\n  }).call(data);\n};\n",
       "type": "blob"
     },
     "test/loader": {
@@ -483,7 +505,7 @@
     },
     "tools": {
       "path": "tools",
-      "content": "module.exports = function(data) {\n  \"use strict\";\n  return (function() {\n    var editor, __root;\n    __root = require(\"/lib/hamlet-runtime\")(this);\n    editor = this;\n    __root.buffer(__root.element(\"div\", this, {}, function(__root) {\n      __root.buffer(__root.element(\"div\", this, {\n        \"class\": [\"actions\"]\n      }, function(__root) {\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.play\n        }, function(__root) {\n          __root.buffer(\"►\\n\");\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.patternPlay\n        }, function(__root) {\n          __root.buffer(\"P►\\n\");\n        }));\n        __root.buffer(__root.element(\"label\", this, {}, function(__root) {\n          __root.buffer(\"Tempo\\n\");\n          __root.buffer(__root.element(\"input\", this, {\n            \"value\": this.tempo\n          }, function(__root) {}));\n        }));\n        __root.buffer(__root.element(\"label\", this, {}, function(__root) {\n          __root.buffer(\"Length\\n\");\n          __root.buffer(__root.element(\"input\", this, {\n            \"value\": this.beats\n          }, function(__root) {}));\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.saveAs\n        }, function(__root) {\n          __root.buffer(\"Save\\n\");\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.loadSong\n        }, function(__root) {\n          __root.buffer(\"Load\\n\");\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.publish\n        }, function(__root) {\n          __root.buffer(\"Publish\\n\");\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.loadGistPrompt\n        }, function(__root) {\n          __root.buffer(\"Load Gist\\n\");\n        }));\n      }));\n      __root.buffer(__root.element(\"div\", this, {\n        \"class\": [\"tools\"]\n      }, function(__root) {\n        var eraser;\n        __root.buffer(__root.element(\"div\", this, {\n          \"class\": [\"instruments\"]\n        }, function(__root) {\n          this.samples.forEach(function(sample, i) {\n            var activate;\n            activate = function() {\n              editor.activeToolIndex(0);\n              editor.activeInstrument(i);\n              return editor.playNote(i);\n            };\n            return __root.buffer(__root.element(\"div\", this, {\n              \"class\": [\"tool\", \"instrument\"],\n              \"style\": \"background-image: url(\" + (sample.image.src.replace(/\\?.*/, '')) + \")\",\n              \"click\": activate\n            }, function(__root) {}));\n          });\n        }));\n        eraser = function() {\n          return editor.activeToolIndex(1);\n        };\n        __root.buffer(__root.element(\"div\", this, {\n          \"class\": [\"tool\", \"eraser\"],\n          \"click\": eraser\n        }, function(__root) {}));\n      }));\n      __root.buffer(__root.element(\"div\", this, {\n        \"class\": [\"position\"]\n      }, function(__root) {}));\n    }));\n    return __root.root;\n  }).call(data);\n};\n",
+      "content": "module.exports = function(data) {\n  \"use strict\";\n  return (function() {\n    var editor, __root;\n    __root = require(\"/lib/hamlet-runtime\")(this);\n    editor = this;\n    __root.buffer(__root.element(\"div\", this, {}, function(__root) {\n      __root.buffer(__root.element(\"div\", this, {\n        \"class\": [\"actions\"]\n      }, function(__root) {\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.play\n        }, function(__root) {\n          __root.buffer(\"►\\n\");\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.patternPlay\n        }, function(__root) {\n          __root.buffer(\"P►\\n\");\n        }));\n        __root.buffer(__root.element(\"label\", this, {}, function(__root) {\n          __root.buffer(__root.element(\"Tempo\", this, {}, function(__root) {}));\n          __root.buffer(__root.element(\"input\", this, {\n            \"value\": this.tempo\n          }, function(__root) {}));\n        }));\n        __root.buffer(__root.element(\"label\", this, {}, function(__root) {\n          __root.buffer(__root.element(\"Length\", this, {}, function(__root) {}));\n          __root.buffer(__root.element(\"input\", this, {\n            \"value\": this.beats\n          }, function(__root) {}));\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.saveAs\n        }, function(__root) {\n          __root.buffer(\"Save\\n\");\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.loadSong\n        }, function(__root) {\n          __root.buffer(\"Load\\n\");\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.publish\n        }, function(__root) {\n          __root.buffer(\"Publish\\n\");\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.loadGistPrompt\n        }, function(__root) {\n          __root.buffer(\"Load Gist\\n\");\n        }));\n        __root.buffer(__root.element(\"button\", this, {\n          \"click\": this.about\n        }, function(__root) {\n          __root.buffer(\"About\\n\");\n        }));\n      }));\n      __root.buffer(__root.element(\"div\", this, {\n        \"class\": [\"tools\"]\n      }, function(__root) {\n        var eraser;\n        __root.buffer(__root.element(\"div\", this, {\n          \"class\": [\"instruments\"]\n        }, function(__root) {\n          this.samples.forEach(function(sample, i) {\n            var activate;\n            activate = function() {\n              editor.activeToolIndex(0);\n              editor.activeInstrument(i);\n              return editor.playNote(i);\n            };\n            return __root.buffer(__root.element(\"div\", this, {\n              \"class\": [\"tool\", \"instrument\"],\n              \"style\": \"background-image: url(\" + (sample.image.src.replace(/\\?.*/, '')) + \")\",\n              \"click\": activate\n            }, function(__root) {}));\n          });\n        }));\n        eraser = function() {\n          return editor.activeToolIndex(1);\n        };\n        __root.buffer(__root.element(\"div\", this, {\n          \"class\": [\"tool\", \"eraser\"],\n          \"click\": eraser\n        }, function(__root) {}));\n      }));\n      __root.buffer(__root.element(\"div\", this, {\n        \"class\": [\"position\"]\n      }, function(__root) {}));\n    }));\n    return __root.root;\n  }).call(data);\n};\n",
       "type": "blob"
     },
     "lib/hamlet-runtime": {
@@ -493,7 +515,23 @@
     }
   },
   "progenitor": {
-    "url": "https://danielx.net/editor/meta-descriptions/"
+    "url": "https://danielx.net/editor/"
+  },
+  "config": {
+    "title": "Mario Paint Music Composer - danielx.net",
+    "description": "This Mario Paint inspired composer tool is easy and fun. You can create simple and\nbeautiful songs right in your browser and share them with the world!",
+    "version": "0.1.0",
+    "remoteDependencies": [
+      "https://code.jquery.com/jquery-1.11.0.min.js"
+    ],
+    "dependencies": {
+      "analytics": "distri/google-analytics:v0.1.0",
+      "cornerstone": "distri/cornerstone:v0.3.0-pre.2",
+      "hotkeys": "distri/hotkeys:v0.2.0",
+      "jquery-utils": "distri/jquery-utils:v0.2.0",
+      "observable": "distri/observable:v0.3.8",
+      "touch-canvas": "distri/touch-canvas:v0.3.1"
+    }
   },
   "version": "0.1.0",
   "entryPoint": "main",
@@ -691,167 +729,6 @@
         "subscribers_count": 2,
         "branch": "v0.1.0",
         "publishBranch": "gh-pages"
-      },
-      "dependencies": {}
-    },
-    "appcache": {
-      "source": {
-        "LICENSE": {
-          "path": "LICENSE",
-          "mode": "100644",
-          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
-          "type": "blob"
-        },
-        "README.md": {
-          "path": "README.md",
-          "mode": "100644",
-          "content": "appcache\n========\n\nHTML5 AppCache Helpers\n",
-          "type": "blob"
-        },
-        "main.coffee.md": {
-          "path": "main.coffee.md",
-          "mode": "100644",
-          "content": "App Cache\n=========\n\nSome helpers for working with HTML5 application cache.\n\nhttp://www.html5rocks.com/en/tutorials/appcache/beginner/\n\n    applicationCache = window.applicationCache\n\n    applicationCache.addEventListener 'updateready', (e) ->\n      if applicationCache.status is applicationCache.UPDATEREADY\n        # Browser downloaded a new app cache.\n        if confirm('A new version of this site is available. Load it?')\n          window.location.reload()\n    , false\n",
-          "type": "blob"
-        },
-        "pixie.cson": {
-          "path": "pixie.cson",
-          "mode": "100644",
-          "content": "version: \"0.2.0\"\nentryPoint: \"main\"\n",
-          "type": "blob"
-        }
-      },
-      "distribution": {
-        "main": {
-          "path": "main",
-          "content": "(function() {\n  var applicationCache;\n\n  applicationCache = window.applicationCache;\n\n  applicationCache.addEventListener('updateready', function(e) {\n    if (applicationCache.status === applicationCache.UPDATEREADY) {\n      if (confirm('A new version of this site is available. Load it?')) {\n        return window.location.reload();\n      }\n    }\n  }, false);\n\n}).call(this);\n\n//# sourceURL=main.coffee",
-          "type": "blob"
-        },
-        "pixie": {
-          "path": "pixie",
-          "content": "module.exports = {\"version\":\"0.2.0\",\"entryPoint\":\"main\"};",
-          "type": "blob"
-        }
-      },
-      "progenitor": {
-        "url": "http://strd6.github.io/editor/"
-      },
-      "version": "0.2.0",
-      "entryPoint": "main",
-      "repository": {
-        "id": 14539483,
-        "name": "appcache",
-        "full_name": "distri/appcache",
-        "owner": {
-          "login": "distri",
-          "id": 6005125,
-          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
-          "gravatar_id": null,
-          "url": "https://api.github.com/users/distri",
-          "html_url": "https://github.com/distri",
-          "followers_url": "https://api.github.com/users/distri/followers",
-          "following_url": "https://api.github.com/users/distri/following{/other_user}",
-          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
-          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
-          "organizations_url": "https://api.github.com/users/distri/orgs",
-          "repos_url": "https://api.github.com/users/distri/repos",
-          "events_url": "https://api.github.com/users/distri/events{/privacy}",
-          "received_events_url": "https://api.github.com/users/distri/received_events",
-          "type": "Organization",
-          "site_admin": false
-        },
-        "private": false,
-        "html_url": "https://github.com/distri/appcache",
-        "description": "HTML5 AppCache Helpers",
-        "fork": false,
-        "url": "https://api.github.com/repos/distri/appcache",
-        "forks_url": "https://api.github.com/repos/distri/appcache/forks",
-        "keys_url": "https://api.github.com/repos/distri/appcache/keys{/key_id}",
-        "collaborators_url": "https://api.github.com/repos/distri/appcache/collaborators{/collaborator}",
-        "teams_url": "https://api.github.com/repos/distri/appcache/teams",
-        "hooks_url": "https://api.github.com/repos/distri/appcache/hooks",
-        "issue_events_url": "https://api.github.com/repos/distri/appcache/issues/events{/number}",
-        "events_url": "https://api.github.com/repos/distri/appcache/events",
-        "assignees_url": "https://api.github.com/repos/distri/appcache/assignees{/user}",
-        "branches_url": "https://api.github.com/repos/distri/appcache/branches{/branch}",
-        "tags_url": "https://api.github.com/repos/distri/appcache/tags",
-        "blobs_url": "https://api.github.com/repos/distri/appcache/git/blobs{/sha}",
-        "git_tags_url": "https://api.github.com/repos/distri/appcache/git/tags{/sha}",
-        "git_refs_url": "https://api.github.com/repos/distri/appcache/git/refs{/sha}",
-        "trees_url": "https://api.github.com/repos/distri/appcache/git/trees{/sha}",
-        "statuses_url": "https://api.github.com/repos/distri/appcache/statuses/{sha}",
-        "languages_url": "https://api.github.com/repos/distri/appcache/languages",
-        "stargazers_url": "https://api.github.com/repos/distri/appcache/stargazers",
-        "contributors_url": "https://api.github.com/repos/distri/appcache/contributors",
-        "subscribers_url": "https://api.github.com/repos/distri/appcache/subscribers",
-        "subscription_url": "https://api.github.com/repos/distri/appcache/subscription",
-        "commits_url": "https://api.github.com/repos/distri/appcache/commits{/sha}",
-        "git_commits_url": "https://api.github.com/repos/distri/appcache/git/commits{/sha}",
-        "comments_url": "https://api.github.com/repos/distri/appcache/comments{/number}",
-        "issue_comment_url": "https://api.github.com/repos/distri/appcache/issues/comments/{number}",
-        "contents_url": "https://api.github.com/repos/distri/appcache/contents/{+path}",
-        "compare_url": "https://api.github.com/repos/distri/appcache/compare/{base}...{head}",
-        "merges_url": "https://api.github.com/repos/distri/appcache/merges",
-        "archive_url": "https://api.github.com/repos/distri/appcache/{archive_format}{/ref}",
-        "downloads_url": "https://api.github.com/repos/distri/appcache/downloads",
-        "issues_url": "https://api.github.com/repos/distri/appcache/issues{/number}",
-        "pulls_url": "https://api.github.com/repos/distri/appcache/pulls{/number}",
-        "milestones_url": "https://api.github.com/repos/distri/appcache/milestones{/number}",
-        "notifications_url": "https://api.github.com/repos/distri/appcache/notifications{?since,all,participating}",
-        "labels_url": "https://api.github.com/repos/distri/appcache/labels{/name}",
-        "releases_url": "https://api.github.com/repos/distri/appcache/releases{/id}",
-        "created_at": "2013-11-19T22:09:16Z",
-        "updated_at": "2013-11-29T20:49:51Z",
-        "pushed_at": "2013-11-19T22:10:28Z",
-        "git_url": "git://github.com/distri/appcache.git",
-        "ssh_url": "git@github.com:distri/appcache.git",
-        "clone_url": "https://github.com/distri/appcache.git",
-        "svn_url": "https://github.com/distri/appcache",
-        "homepage": null,
-        "size": 240,
-        "stargazers_count": 0,
-        "watchers_count": 0,
-        "language": "CoffeeScript",
-        "has_issues": true,
-        "has_downloads": true,
-        "has_wiki": true,
-        "forks_count": 0,
-        "mirror_url": null,
-        "open_issues_count": 0,
-        "forks": 0,
-        "open_issues": 0,
-        "watchers": 0,
-        "default_branch": "master",
-        "master_branch": "master",
-        "permissions": {
-          "admin": true,
-          "push": true,
-          "pull": true
-        },
-        "organization": {
-          "login": "distri",
-          "id": 6005125,
-          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
-          "gravatar_id": null,
-          "url": "https://api.github.com/users/distri",
-          "html_url": "https://github.com/distri",
-          "followers_url": "https://api.github.com/users/distri/followers",
-          "following_url": "https://api.github.com/users/distri/following{/other_user}",
-          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
-          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
-          "organizations_url": "https://api.github.com/users/distri/orgs",
-          "repos_url": "https://api.github.com/users/distri/repos",
-          "events_url": "https://api.github.com/users/distri/events{/privacy}",
-          "received_events_url": "https://api.github.com/users/distri/received_events",
-          "type": "Organization",
-          "site_admin": false
-        },
-        "network_count": 0,
-        "subscribers_count": 1,
-        "branch": "v0.2.0",
-        "defaultBranch": "master"
       },
       "dependencies": {}
     },
@@ -3422,13 +3299,13 @@
         },
         "main.coffee.md": {
           "path": "main.coffee.md",
-          "content": "Observable\n==========\n\n`Observable` allows for observing arrays, functions, and objects.\n\nFunction dependencies are automagically observed.\n\nStandard array methods are proxied through to the underlying array.\n\n    Observable = (value, context) ->\n\nReturn the object if it is already an observable object.\n\n      return value if typeof value?.observe is \"function\"\n\nMaintain a set of listeners to observe changes and provide a helper to notify each observer.\n\n      listeners = []\n\n      notify = (newValue) ->\n        copy(listeners).forEach (listener) ->\n          listener(newValue)\n\nOur observable function is stored as a reference to `self`.\n\nIf `value` is a function compute dependencies and listen to observables that it depends on.\n\n      if typeof value is 'function'\n        fn = value\n\nOur return function is a function that holds only a cached value which is updated\nwhen it's dependencies change.\n\nThe `magicDependency` call is so other functions can depend on this computed function the\nsame way we depend on other types of observables.\n\n        self = ->\n          # Automagic dependency observation\n          magicDependency(self)\n\n          return value\n\n        changed = ->\n          value = computeDependencies(self, fn, changed, context)\n          notify(value)\n\n        changed()\n\n      else\n\nWhen called with zero arguments it is treated as a getter. When called with one argument it is treated as a setter.\n\nChanges to the value will trigger notifications.\n\nThe value is always returned.\n\n        self = (newValue) ->\n          if arguments.length > 0\n            if value != newValue\n              value = newValue\n\n              notify(newValue)\n          else\n            # Automagic dependency observation\n            magicDependency(self)\n\n          return value\n\nThis `each` iterator is similar to [the Maybe monad](http://en.wikipedia.org/wiki/Monad_&#40;functional_programming&#41;#The_Maybe_monad) in that our observable may contain a single value or nothing at all.\n\n      self.each = (callback) ->\n        magicDependency(self)\n\n        if value?\n          [value].forEach (item) ->\n            callback.call(item, item)\n\n        return self\n\nIf the value is an array then proxy array methods and add notifications to mutation events.\n\n      if Array.isArray(value)\n        [\n          \"concat\"\n          \"every\"\n          \"filter\"\n          \"forEach\"\n          \"indexOf\"\n          \"join\"\n          \"lastIndexOf\"\n          \"map\"\n          \"reduce\"\n          \"reduceRight\"\n          \"slice\"\n          \"some\"\n        ].forEach (method) ->\n          self[method] = (args...) ->\n            magicDependency(self)\n            value[method](args...)\n\n        [\n          \"pop\"\n          \"push\"\n          \"reverse\"\n          \"shift\"\n          \"splice\"\n          \"sort\"\n          \"unshift\"\n        ].forEach (method) ->\n          self[method] = (args...) ->\n            notifyReturning value[method](args...)\n\n        try # Provide length on a best effort basis because older browsers choke\n          Object.defineProperty self, 'length',\n            get: ->\n              magicDependency(self)\n              value.length\n            set: (length) ->\n              value.length = length\n              notifyReturning(value.length)\n\n        notifyReturning = (returnValue) ->\n          notify(value)\n\n          return returnValue\n\nAdd some extra helpful methods to array observables.\n\n        extend self,\n          each: (callback) ->\n            self.forEach (item, index) ->\n              callback.call(item, item, index, self)\n\n            return self\n\nRemove an element from the array and notify observers of changes.\n\n          remove: (object) ->\n            index = value.indexOf(object)\n\n            if index >= 0\n              notifyReturning value.splice(index, 1)[0]\n\n          get: (index) ->\n            magicDependency(self)\n            value[index]\n\n          first: ->\n            magicDependency(self)\n            value[0]\n\n          last: ->\n            magicDependency(self)\n            value[value.length-1]\n\n          size: ->\n            magicDependency(self)\n            value.length\n\n      extend self,\n        listeners: listeners\n\n        observe: (listener) ->\n          listeners.push listener\n\n        stopObserving: (fn) ->\n          remove listeners, fn\n\n        toggle: ->\n          self !value\n\n        increment: (n) ->\n          self value + n\n\n        decrement: (n) ->\n          self value - n\n\n        toString: ->\n          \"Observable(#{value})\"\n\n      return self\n\n    Observable.concat = (args...) ->\n      args = Observable(args)\n\n      o = Observable ->\n        flatten args.map(splat)\n\n      o.push = args.push\n\n      return o\n\nExport `Observable`\n\n    module.exports = Observable\n\nAppendix\n--------\n\nThe extend method adds one objects properties to another.\n\n    extend = (target, sources...) ->\n      for source in sources\n        for name of source\n          target[name] = source[name]\n\n      return target\n\nSuper hax for computing dependencies. This needs to be a shared global so that\ndifferent bundled versions of observable libraries can interoperate.\n\n    global.OBSERVABLE_ROOT_HACK = []\n\n    magicDependency = (self) ->\n      observerSet = last(global.OBSERVABLE_ROOT_HACK)\n      if observerSet\n        observerSet.add self\n\nAutomagically compute dependencies.\n\n    computeDependencies = (self, fn, update, context) ->\n      deps = new Set\n\n      global.OBSERVABLE_ROOT_HACK.push(deps)\n\n      try\n        value = fn.call(context)\n      finally\n        global.OBSERVABLE_ROOT_HACK.pop()\n\n      self._deps?.forEach (observable) ->\n        observable.stopObserving update\n\n      self._deps = deps\n\n      deps.forEach (observable) ->\n        observable.observe update\n\n      return value\n\nRemove a value from an array.\n\n    remove = (array, value) ->\n      index = array.indexOf(value)\n\n      if index >= 0\n        array.splice(index, 1)[0]\n\n    copy = (array) ->\n      array.concat([])\n\n    get = (arg) ->\n      if typeof arg is \"function\"\n        arg()\n      else\n        arg\n\n    splat = (item) ->\n      results = []\n\n      return results unless item?\n\n      if typeof item.forEach is \"function\"\n        item.forEach (i) ->\n          results.push i\n      else\n        result = get item\n\n        results.push result if result?\n\n      results\n\n    last = (array) ->\n      array[array.length - 1]\n\n    flatten = (array) ->\n      array.reduce (a, b) ->\n        a.concat(b)\n      , []\n",
+          "content": "Observable\n==========\n\n`Observable` allows for observing arrays, functions, and objects.\n\nFunction dependencies are automagically observed.\n\nStandard array methods are proxied through to the underlying array.\n\n    module.exports = Observable = (value, context) ->\n\nReturn the object if it is already an observable object.\n\n      return value if typeof value?.observe is \"function\"\n\nMaintain a set of listeners to observe changes and provide a helper to notify each observer.\n\n      listeners = []\n\n      notify = (newValue) ->\n        copy(listeners).forEach (listener) ->\n          listener(newValue)\n\nOur observable function is stored as a reference to `self`.\n\nIf `value` is a function compute dependencies and listen to observables that it depends on.\n\n      if typeof value is 'function'\n        fn = value\n\nOur return function is a function that holds only a cached value which is updated\nwhen it's dependencies change.\n\nThe `magicDependency` call is so other functions can depend on this computed function the\nsame way we depend on other types of observables.\n\n        self = ->\n          # Automagic dependency observation\n          magicDependency(self)\n\n          return value\n\n        changed = ->\n          value = computeDependencies(self, fn, changed, context)\n          notify(value)\n\n        changed()\n\n      else\n\nWhen called with zero arguments it is treated as a getter. When called with one argument it is treated as a setter.\n\nChanges to the value will trigger notifications.\n\nThe value is always returned.\n\n        self = (newValue) ->\n          if arguments.length > 0\n            if value != newValue\n              value = newValue\n\n              notify(newValue)\n          else\n            # Automagic dependency observation\n            magicDependency(self)\n\n          return value\n\nThis `each` iterator is similar to [the Maybe monad](http://en.wikipedia.org/wiki/Monad_&#40;functional_programming&#41;#The_Maybe_monad) in that our observable may contain a single value or nothing at all.\n\n      self.each = (callback) ->\n        magicDependency(self)\n\n        if value?\n          [value].forEach (item) ->\n            callback.call(item, item)\n\n        return self\n\nIf the value is an array then proxy array methods and add notifications to mutation events.\n\n      if Array.isArray(value)\n        [\n          \"concat\"\n          \"every\"\n          \"filter\"\n          \"forEach\"\n          \"indexOf\"\n          \"join\"\n          \"lastIndexOf\"\n          \"map\"\n          \"reduce\"\n          \"reduceRight\"\n          \"slice\"\n          \"some\"\n        ].forEach (method) ->\n          self[method] = (args...) ->\n            magicDependency(self)\n            value[method](args...)\n\n        [\n          \"pop\"\n          \"push\"\n          \"reverse\"\n          \"shift\"\n          \"splice\"\n          \"sort\"\n          \"unshift\"\n        ].forEach (method) ->\n          self[method] = (args...) ->\n            notifyReturning value[method](args...)\n\n        # Provide length on a best effort basis because older browsers choke\n        if PROXY_LENGTH\n          Object.defineProperty self, 'length',\n            get: ->\n              magicDependency(self)\n              value.length\n            set: (length) ->\n              value.length = length\n              notifyReturning(value.length)\n\n        notifyReturning = (returnValue) ->\n          notify(value)\n\n          return returnValue\n\nAdd some extra helpful methods to array observables.\n\n        extend self,\n          each: (callback) ->\n            self.forEach (item, index) ->\n              callback.call(item, item, index, self)\n\n            return self\n\nRemove an element from the array and notify observers of changes.\n\n          remove: (object) ->\n            index = value.indexOf(object)\n\n            if index >= 0\n              notifyReturning value.splice(index, 1)[0]\n\n          get: (index) ->\n            magicDependency(self)\n            value[index]\n\n          first: ->\n            magicDependency(self)\n            value[0]\n\n          last: ->\n            magicDependency(self)\n            value[value.length-1]\n\n          size: ->\n            magicDependency(self)\n            value.length\n\n      extend self,\n        listeners: listeners\n\n        observe: (listener) ->\n          listeners.push listener\n\n        stopObserving: (fn) ->\n          remove listeners, fn\n\n        toggle: ->\n          self !value\n\n        increment: (n) ->\n          self value + n\n\n        decrement: (n) ->\n          self value - n\n\n        toString: ->\n          \"Observable(#{value})\"\n\n      return self\n\n    Observable.concat = ->\n      # Optimization: Manually copy arguments to an array\n      args = new Array(arguments.length)\n      for arg, i in arguments\n        args[i] = arguments[i]\n\n      collection = Observable(args)\n\n      o = Observable ->\n        flatten collection.map(splat)\n\n      o.push = collection.push\n\n      return o\n\nAppendix\n--------\n\nThe extend method adds one object's properties to another.\n\n    extend = (target) ->\n      # Optimization: iterate through arguments manually rather than pass to slice to create an array\n      for source, i in arguments\n        # The first argument is target, so skip it\n        if i > 0\n          for name of source\n            target[name] = source[name]\n\n      return target\n\nSuper hax for computing dependencies. This needs to be a shared global so that\ndifferent bundled versions of observable libraries can interoperate.\n\n    global.OBSERVABLE_ROOT_HACK = []\n\n    magicDependency = (self) ->\n      observerSet = last(global.OBSERVABLE_ROOT_HACK)\n      if observerSet\n        observerSet.add self\n\nOptimization: Keep the function containing the try-catch as small as possible.\n\n    tryCallWithFinallyPop = (fn, context) ->\n      try\n        fn.call(context)\n      finally\n        global.OBSERVABLE_ROOT_HACK.pop()\n\nAutomagically compute dependencies.\n\n    computeDependencies = (self, fn, update, context) ->\n      deps = new Set\n\n      global.OBSERVABLE_ROOT_HACK.push(deps)\n\n      value = tryCallWithFinallyPop fn, context\n\n      self._deps?.forEach (observable) ->\n        observable.stopObserving update\n\n      self._deps = deps\n\n      deps.forEach (observable) ->\n        observable.observe update\n\n      return value\n\nCheck if we can proxy function length property.\n\n    try\n      Object.defineProperty (->), 'length',\n        get: ->\n        set: ->\n\n      PROXY_LENGTH = true\n    catch\n      PROXY_LENGTH = false\n\nRemove a value from an array.\n\n    remove = (array, value) ->\n      index = array.indexOf(value)\n\n      if index >= 0\n        array.splice(index, 1)[0]\n\n    copy = (array) ->\n      array.concat([])\n\n    get = (arg) ->\n      if typeof arg is \"function\"\n        arg()\n      else\n        arg\n\n    splat = (item) ->\n      results = []\n\n      return results unless item?\n\n      if typeof item.forEach is \"function\"\n        item.forEach (i) ->\n          results.push i\n      else\n        result = get item\n\n        results.push result if result?\n\n      results\n\n    last = (array) ->\n      array[array.length - 1]\n\n    flatten = (array) ->\n      array.reduce (a, b) ->\n        a.concat(b)\n      , []\n",
           "mode": "100644",
           "type": "blob"
         },
         "pixie.cson": {
           "path": "pixie.cson",
-          "content": "version: \"0.3.7\"\n",
+          "content": "version: \"0.3.8\"\n",
           "mode": "100644",
           "type": "blob"
         },
@@ -3442,12 +3319,12 @@
       "distribution": {
         "main": {
           "path": "main",
-          "content": "(function() {\n  var Observable, computeDependencies, copy, extend, flatten, get, last, magicDependency, remove, splat,\n    __slice = [].slice;\n\n  Observable = function(value, context) {\n    var changed, fn, listeners, notify, notifyReturning, self;\n    if (typeof (value != null ? value.observe : void 0) === \"function\") {\n      return value;\n    }\n    listeners = [];\n    notify = function(newValue) {\n      return copy(listeners).forEach(function(listener) {\n        return listener(newValue);\n      });\n    };\n    if (typeof value === 'function') {\n      fn = value;\n      self = function() {\n        magicDependency(self);\n        return value;\n      };\n      changed = function() {\n        value = computeDependencies(self, fn, changed, context);\n        return notify(value);\n      };\n      changed();\n    } else {\n      self = function(newValue) {\n        if (arguments.length > 0) {\n          if (value !== newValue) {\n            value = newValue;\n            notify(newValue);\n          }\n        } else {\n          magicDependency(self);\n        }\n        return value;\n      };\n    }\n    self.each = function(callback) {\n      magicDependency(self);\n      if (value != null) {\n        [value].forEach(function(item) {\n          return callback.call(item, item);\n        });\n      }\n      return self;\n    };\n    if (Array.isArray(value)) {\n      [\"concat\", \"every\", \"filter\", \"forEach\", \"indexOf\", \"join\", \"lastIndexOf\", \"map\", \"reduce\", \"reduceRight\", \"slice\", \"some\"].forEach(function(method) {\n        return self[method] = function() {\n          var args;\n          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n          magicDependency(self);\n          return value[method].apply(value, args);\n        };\n      });\n      [\"pop\", \"push\", \"reverse\", \"shift\", \"splice\", \"sort\", \"unshift\"].forEach(function(method) {\n        return self[method] = function() {\n          var args;\n          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n          return notifyReturning(value[method].apply(value, args));\n        };\n      });\n      try {\n        Object.defineProperty(self, 'length', {\n          get: function() {\n            magicDependency(self);\n            return value.length;\n          },\n          set: function(length) {\n            value.length = length;\n            return notifyReturning(value.length);\n          }\n        });\n      } catch (_error) {}\n      notifyReturning = function(returnValue) {\n        notify(value);\n        return returnValue;\n      };\n      extend(self, {\n        each: function(callback) {\n          self.forEach(function(item, index) {\n            return callback.call(item, item, index, self);\n          });\n          return self;\n        },\n        remove: function(object) {\n          var index;\n          index = value.indexOf(object);\n          if (index >= 0) {\n            return notifyReturning(value.splice(index, 1)[0]);\n          }\n        },\n        get: function(index) {\n          magicDependency(self);\n          return value[index];\n        },\n        first: function() {\n          magicDependency(self);\n          return value[0];\n        },\n        last: function() {\n          magicDependency(self);\n          return value[value.length - 1];\n        },\n        size: function() {\n          magicDependency(self);\n          return value.length;\n        }\n      });\n    }\n    extend(self, {\n      listeners: listeners,\n      observe: function(listener) {\n        return listeners.push(listener);\n      },\n      stopObserving: function(fn) {\n        return remove(listeners, fn);\n      },\n      toggle: function() {\n        return self(!value);\n      },\n      increment: function(n) {\n        return self(value + n);\n      },\n      decrement: function(n) {\n        return self(value - n);\n      },\n      toString: function() {\n        return \"Observable(\" + value + \")\";\n      }\n    });\n    return self;\n  };\n\n  Observable.concat = function() {\n    var args, o;\n    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n    args = Observable(args);\n    o = Observable(function() {\n      return flatten(args.map(splat));\n    });\n    o.push = args.push;\n    return o;\n  };\n\n  module.exports = Observable;\n\n  extend = function() {\n    var name, source, sources, target, _i, _len;\n    target = arguments[0], sources = 2 <= arguments.length ? __slice.call(arguments, 1) : [];\n    for (_i = 0, _len = sources.length; _i < _len; _i++) {\n      source = sources[_i];\n      for (name in source) {\n        target[name] = source[name];\n      }\n    }\n    return target;\n  };\n\n  global.OBSERVABLE_ROOT_HACK = [];\n\n  magicDependency = function(self) {\n    var observerSet;\n    observerSet = last(global.OBSERVABLE_ROOT_HACK);\n    if (observerSet) {\n      return observerSet.add(self);\n    }\n  };\n\n  computeDependencies = function(self, fn, update, context) {\n    var deps, value, _ref;\n    deps = new Set;\n    global.OBSERVABLE_ROOT_HACK.push(deps);\n    try {\n      value = fn.call(context);\n    } finally {\n      global.OBSERVABLE_ROOT_HACK.pop();\n    }\n    if ((_ref = self._deps) != null) {\n      _ref.forEach(function(observable) {\n        return observable.stopObserving(update);\n      });\n    }\n    self._deps = deps;\n    deps.forEach(function(observable) {\n      return observable.observe(update);\n    });\n    return value;\n  };\n\n  remove = function(array, value) {\n    var index;\n    index = array.indexOf(value);\n    if (index >= 0) {\n      return array.splice(index, 1)[0];\n    }\n  };\n\n  copy = function(array) {\n    return array.concat([]);\n  };\n\n  get = function(arg) {\n    if (typeof arg === \"function\") {\n      return arg();\n    } else {\n      return arg;\n    }\n  };\n\n  splat = function(item) {\n    var result, results;\n    results = [];\n    if (item == null) {\n      return results;\n    }\n    if (typeof item.forEach === \"function\") {\n      item.forEach(function(i) {\n        return results.push(i);\n      });\n    } else {\n      result = get(item);\n      if (result != null) {\n        results.push(result);\n      }\n    }\n    return results;\n  };\n\n  last = function(array) {\n    return array[array.length - 1];\n  };\n\n  flatten = function(array) {\n    return array.reduce(function(a, b) {\n      return a.concat(b);\n    }, []);\n  };\n\n}).call(this);\n",
+          "content": "(function() {\n  var Observable, PROXY_LENGTH, computeDependencies, copy, extend, flatten, get, last, magicDependency, remove, splat, tryCallWithFinallyPop,\n    __slice = [].slice;\n\n  module.exports = Observable = function(value, context) {\n    var changed, fn, listeners, notify, notifyReturning, self;\n    if (typeof (value != null ? value.observe : void 0) === \"function\") {\n      return value;\n    }\n    listeners = [];\n    notify = function(newValue) {\n      return copy(listeners).forEach(function(listener) {\n        return listener(newValue);\n      });\n    };\n    if (typeof value === 'function') {\n      fn = value;\n      self = function() {\n        magicDependency(self);\n        return value;\n      };\n      changed = function() {\n        value = computeDependencies(self, fn, changed, context);\n        return notify(value);\n      };\n      changed();\n    } else {\n      self = function(newValue) {\n        if (arguments.length > 0) {\n          if (value !== newValue) {\n            value = newValue;\n            notify(newValue);\n          }\n        } else {\n          magicDependency(self);\n        }\n        return value;\n      };\n    }\n    self.each = function(callback) {\n      magicDependency(self);\n      if (value != null) {\n        [value].forEach(function(item) {\n          return callback.call(item, item);\n        });\n      }\n      return self;\n    };\n    if (Array.isArray(value)) {\n      [\"concat\", \"every\", \"filter\", \"forEach\", \"indexOf\", \"join\", \"lastIndexOf\", \"map\", \"reduce\", \"reduceRight\", \"slice\", \"some\"].forEach(function(method) {\n        return self[method] = function() {\n          var args;\n          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n          magicDependency(self);\n          return value[method].apply(value, args);\n        };\n      });\n      [\"pop\", \"push\", \"reverse\", \"shift\", \"splice\", \"sort\", \"unshift\"].forEach(function(method) {\n        return self[method] = function() {\n          var args;\n          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n          return notifyReturning(value[method].apply(value, args));\n        };\n      });\n      if (PROXY_LENGTH) {\n        Object.defineProperty(self, 'length', {\n          get: function() {\n            magicDependency(self);\n            return value.length;\n          },\n          set: function(length) {\n            value.length = length;\n            return notifyReturning(value.length);\n          }\n        });\n      }\n      notifyReturning = function(returnValue) {\n        notify(value);\n        return returnValue;\n      };\n      extend(self, {\n        each: function(callback) {\n          self.forEach(function(item, index) {\n            return callback.call(item, item, index, self);\n          });\n          return self;\n        },\n        remove: function(object) {\n          var index;\n          index = value.indexOf(object);\n          if (index >= 0) {\n            return notifyReturning(value.splice(index, 1)[0]);\n          }\n        },\n        get: function(index) {\n          magicDependency(self);\n          return value[index];\n        },\n        first: function() {\n          magicDependency(self);\n          return value[0];\n        },\n        last: function() {\n          magicDependency(self);\n          return value[value.length - 1];\n        },\n        size: function() {\n          magicDependency(self);\n          return value.length;\n        }\n      });\n    }\n    extend(self, {\n      listeners: listeners,\n      observe: function(listener) {\n        return listeners.push(listener);\n      },\n      stopObserving: function(fn) {\n        return remove(listeners, fn);\n      },\n      toggle: function() {\n        return self(!value);\n      },\n      increment: function(n) {\n        return self(value + n);\n      },\n      decrement: function(n) {\n        return self(value - n);\n      },\n      toString: function() {\n        return \"Observable(\" + value + \")\";\n      }\n    });\n    return self;\n  };\n\n  Observable.concat = function() {\n    var arg, args, collection, i, o, _i, _len;\n    args = new Array(arguments.length);\n    for (i = _i = 0, _len = arguments.length; _i < _len; i = ++_i) {\n      arg = arguments[i];\n      args[i] = arguments[i];\n    }\n    collection = Observable(args);\n    o = Observable(function() {\n      return flatten(collection.map(splat));\n    });\n    o.push = collection.push;\n    return o;\n  };\n\n  extend = function(target) {\n    var i, name, source, _i, _len;\n    for (i = _i = 0, _len = arguments.length; _i < _len; i = ++_i) {\n      source = arguments[i];\n      if (i > 0) {\n        for (name in source) {\n          target[name] = source[name];\n        }\n      }\n    }\n    return target;\n  };\n\n  global.OBSERVABLE_ROOT_HACK = [];\n\n  magicDependency = function(self) {\n    var observerSet;\n    observerSet = last(global.OBSERVABLE_ROOT_HACK);\n    if (observerSet) {\n      return observerSet.add(self);\n    }\n  };\n\n  tryCallWithFinallyPop = function(fn, context) {\n    try {\n      return fn.call(context);\n    } finally {\n      global.OBSERVABLE_ROOT_HACK.pop();\n    }\n  };\n\n  computeDependencies = function(self, fn, update, context) {\n    var deps, value, _ref;\n    deps = new Set;\n    global.OBSERVABLE_ROOT_HACK.push(deps);\n    value = tryCallWithFinallyPop(fn, context);\n    if ((_ref = self._deps) != null) {\n      _ref.forEach(function(observable) {\n        return observable.stopObserving(update);\n      });\n    }\n    self._deps = deps;\n    deps.forEach(function(observable) {\n      return observable.observe(update);\n    });\n    return value;\n  };\n\n  try {\n    Object.defineProperty((function() {}), 'length', {\n      get: function() {},\n      set: function() {}\n    });\n    PROXY_LENGTH = true;\n  } catch (_error) {\n    PROXY_LENGTH = false;\n  }\n\n  remove = function(array, value) {\n    var index;\n    index = array.indexOf(value);\n    if (index >= 0) {\n      return array.splice(index, 1)[0];\n    }\n  };\n\n  copy = function(array) {\n    return array.concat([]);\n  };\n\n  get = function(arg) {\n    if (typeof arg === \"function\") {\n      return arg();\n    } else {\n      return arg;\n    }\n  };\n\n  splat = function(item) {\n    var result, results;\n    results = [];\n    if (item == null) {\n      return results;\n    }\n    if (typeof item.forEach === \"function\") {\n      item.forEach(function(i) {\n        return results.push(i);\n      });\n    } else {\n      result = get(item);\n      if (result != null) {\n        results.push(result);\n      }\n    }\n    return results;\n  };\n\n  last = function(array) {\n    return array[array.length - 1];\n  };\n\n  flatten = function(array) {\n    return array.reduce(function(a, b) {\n      return a.concat(b);\n    }, []);\n  };\n\n}).call(this);\n",
           "type": "blob"
         },
         "pixie": {
           "path": "pixie",
-          "content": "module.exports = {\"version\":\"0.3.7\"};",
+          "content": "module.exports = {\"version\":\"0.3.8\"};",
           "type": "blob"
         },
         "test/observable": {
@@ -3459,14 +3336,17 @@
       "progenitor": {
         "url": "https://danielx.net/editor/"
       },
-      "version": "0.3.7",
+      "config": {
+        "version": "0.3.8"
+      },
+      "version": "0.3.8",
       "entryPoint": "main",
       "repository": {
-        "branch": "v0.3.7",
+        "branch": "v0.3.8",
         "default_branch": "master",
         "full_name": "distri/observable",
         "homepage": "http://observable.us",
-        "description": "",
+        "description": null,
         "html_url": "https://github.com/distri/observable",
         "url": "https://api.github.com/repos/distri/observable",
         "publishBranch": "gh-pages"
@@ -4316,167 +4196,6 @@
           "dependencies": {}
         }
       }
-    },
-    "util": {
-      "source": {
-        "LICENSE": {
-          "path": "LICENSE",
-          "mode": "100644",
-          "content": "The MIT License (MIT)\n\nCopyright (c) 2014 \n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.",
-          "type": "blob"
-        },
-        "README.md": {
-          "path": "README.md",
-          "mode": "100644",
-          "content": "util\n====\n\nSmall utility methods for JS\n",
-          "type": "blob"
-        },
-        "main.coffee.md": {
-          "path": "main.coffee.md",
-          "mode": "100644",
-          "content": "Util\n====\n\n    module.exports =\n      approach: (current, target, amount) ->\n        (target - current).clamp(-amount, amount) + current\n\nApply a stylesheet idempotently.\n\n      applyStylesheet: (style, id=\"primary\") ->\n        styleNode = document.createElement(\"style\")\n        styleNode.innerHTML = style\n        styleNode.id = id\n\n        if previousStyleNode = document.head.querySelector(\"style##{id}\")\n          previousStyleNode.parentNode.removeChild(prevousStyleNode)\n\n        document.head.appendChild(styleNode)\n\n      defaults: (target, objects...) ->\n        for object in objects\n          for name of object\n            unless target.hasOwnProperty(name)\n              target[name] = object[name]\n\n        return target\n\n      extend: (target, sources...) ->\n        for source in sources\n          for name of source\n            target[name] = source[name]\n\n        return target\n",
-          "type": "blob"
-        },
-        "pixie.cson": {
-          "path": "pixie.cson",
-          "mode": "100644",
-          "content": "version: \"0.1.0\"\n",
-          "type": "blob"
-        }
-      },
-      "distribution": {
-        "main": {
-          "path": "main",
-          "content": "(function() {\n  var __slice = [].slice;\n\n  module.exports = {\n    approach: function(current, target, amount) {\n      return (target - current).clamp(-amount, amount) + current;\n    },\n    applyStylesheet: function(style, id) {\n      var previousStyleNode, styleNode;\n      if (id == null) {\n        id = \"primary\";\n      }\n      styleNode = document.createElement(\"style\");\n      styleNode.innerHTML = style;\n      styleNode.id = id;\n      if (previousStyleNode = document.head.querySelector(\"style#\" + id)) {\n        previousStyleNode.parentNode.removeChild(prevousStyleNode);\n      }\n      return document.head.appendChild(styleNode);\n    },\n    defaults: function() {\n      var name, object, objects, target, _i, _len;\n      target = arguments[0], objects = 2 <= arguments.length ? __slice.call(arguments, 1) : [];\n      for (_i = 0, _len = objects.length; _i < _len; _i++) {\n        object = objects[_i];\n        for (name in object) {\n          if (!target.hasOwnProperty(name)) {\n            target[name] = object[name];\n          }\n        }\n      }\n      return target;\n    },\n    extend: function() {\n      var name, source, sources, target, _i, _len;\n      target = arguments[0], sources = 2 <= arguments.length ? __slice.call(arguments, 1) : [];\n      for (_i = 0, _len = sources.length; _i < _len; _i++) {\n        source = sources[_i];\n        for (name in source) {\n          target[name] = source[name];\n        }\n      }\n      return target;\n    }\n  };\n\n}).call(this);\n",
-          "type": "blob"
-        },
-        "pixie": {
-          "path": "pixie",
-          "content": "module.exports = {\"version\":\"0.1.0\"};",
-          "type": "blob"
-        }
-      },
-      "progenitor": {
-        "url": "http://strd6.github.io/editor/"
-      },
-      "version": "0.1.0",
-      "entryPoint": "main",
-      "repository": {
-        "id": 18501018,
-        "name": "util",
-        "full_name": "distri/util",
-        "owner": {
-          "login": "distri",
-          "id": 6005125,
-          "avatar_url": "https://avatars.githubusercontent.com/u/6005125?",
-          "gravatar_id": "192f3f168409e79c42107f081139d9f3",
-          "url": "https://api.github.com/users/distri",
-          "html_url": "https://github.com/distri",
-          "followers_url": "https://api.github.com/users/distri/followers",
-          "following_url": "https://api.github.com/users/distri/following{/other_user}",
-          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
-          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
-          "organizations_url": "https://api.github.com/users/distri/orgs",
-          "repos_url": "https://api.github.com/users/distri/repos",
-          "events_url": "https://api.github.com/users/distri/events{/privacy}",
-          "received_events_url": "https://api.github.com/users/distri/received_events",
-          "type": "Organization",
-          "site_admin": false
-        },
-        "private": false,
-        "html_url": "https://github.com/distri/util",
-        "description": "Small utility methods for JS",
-        "fork": false,
-        "url": "https://api.github.com/repos/distri/util",
-        "forks_url": "https://api.github.com/repos/distri/util/forks",
-        "keys_url": "https://api.github.com/repos/distri/util/keys{/key_id}",
-        "collaborators_url": "https://api.github.com/repos/distri/util/collaborators{/collaborator}",
-        "teams_url": "https://api.github.com/repos/distri/util/teams",
-        "hooks_url": "https://api.github.com/repos/distri/util/hooks",
-        "issue_events_url": "https://api.github.com/repos/distri/util/issues/events{/number}",
-        "events_url": "https://api.github.com/repos/distri/util/events",
-        "assignees_url": "https://api.github.com/repos/distri/util/assignees{/user}",
-        "branches_url": "https://api.github.com/repos/distri/util/branches{/branch}",
-        "tags_url": "https://api.github.com/repos/distri/util/tags",
-        "blobs_url": "https://api.github.com/repos/distri/util/git/blobs{/sha}",
-        "git_tags_url": "https://api.github.com/repos/distri/util/git/tags{/sha}",
-        "git_refs_url": "https://api.github.com/repos/distri/util/git/refs{/sha}",
-        "trees_url": "https://api.github.com/repos/distri/util/git/trees{/sha}",
-        "statuses_url": "https://api.github.com/repos/distri/util/statuses/{sha}",
-        "languages_url": "https://api.github.com/repos/distri/util/languages",
-        "stargazers_url": "https://api.github.com/repos/distri/util/stargazers",
-        "contributors_url": "https://api.github.com/repos/distri/util/contributors",
-        "subscribers_url": "https://api.github.com/repos/distri/util/subscribers",
-        "subscription_url": "https://api.github.com/repos/distri/util/subscription",
-        "commits_url": "https://api.github.com/repos/distri/util/commits{/sha}",
-        "git_commits_url": "https://api.github.com/repos/distri/util/git/commits{/sha}",
-        "comments_url": "https://api.github.com/repos/distri/util/comments{/number}",
-        "issue_comment_url": "https://api.github.com/repos/distri/util/issues/comments/{number}",
-        "contents_url": "https://api.github.com/repos/distri/util/contents/{+path}",
-        "compare_url": "https://api.github.com/repos/distri/util/compare/{base}...{head}",
-        "merges_url": "https://api.github.com/repos/distri/util/merges",
-        "archive_url": "https://api.github.com/repos/distri/util/{archive_format}{/ref}",
-        "downloads_url": "https://api.github.com/repos/distri/util/downloads",
-        "issues_url": "https://api.github.com/repos/distri/util/issues{/number}",
-        "pulls_url": "https://api.github.com/repos/distri/util/pulls{/number}",
-        "milestones_url": "https://api.github.com/repos/distri/util/milestones{/number}",
-        "notifications_url": "https://api.github.com/repos/distri/util/notifications{?since,all,participating}",
-        "labels_url": "https://api.github.com/repos/distri/util/labels{/name}",
-        "releases_url": "https://api.github.com/repos/distri/util/releases{/id}",
-        "created_at": "2014-04-06T22:42:56Z",
-        "updated_at": "2014-04-06T22:42:56Z",
-        "pushed_at": "2014-04-06T22:42:56Z",
-        "git_url": "git://github.com/distri/util.git",
-        "ssh_url": "git@github.com:distri/util.git",
-        "clone_url": "https://github.com/distri/util.git",
-        "svn_url": "https://github.com/distri/util",
-        "homepage": null,
-        "size": 0,
-        "stargazers_count": 0,
-        "watchers_count": 0,
-        "language": null,
-        "has_issues": true,
-        "has_downloads": true,
-        "has_wiki": true,
-        "forks_count": 0,
-        "mirror_url": null,
-        "open_issues_count": 0,
-        "forks": 0,
-        "open_issues": 0,
-        "watchers": 0,
-        "default_branch": "master",
-        "master_branch": "master",
-        "permissions": {
-          "admin": true,
-          "push": true,
-          "pull": true
-        },
-        "organization": {
-          "login": "distri",
-          "id": 6005125,
-          "avatar_url": "https://avatars.githubusercontent.com/u/6005125?",
-          "gravatar_id": "192f3f168409e79c42107f081139d9f3",
-          "url": "https://api.github.com/users/distri",
-          "html_url": "https://github.com/distri",
-          "followers_url": "https://api.github.com/users/distri/followers",
-          "following_url": "https://api.github.com/users/distri/following{/other_user}",
-          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
-          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
-          "organizations_url": "https://api.github.com/users/distri/orgs",
-          "repos_url": "https://api.github.com/users/distri/repos",
-          "events_url": "https://api.github.com/users/distri/events{/privacy}",
-          "received_events_url": "https://api.github.com/users/distri/received_events",
-          "type": "Organization",
-          "site_admin": false
-        },
-        "network_count": 0,
-        "subscribers_count": 2,
-        "branch": "v0.1.0",
-        "publishBranch": "gh-pages"
-      },
-      "dependencies": {}
     }
   }
 });

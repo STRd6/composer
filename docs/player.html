@@ -87,6 +87,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       buffer = self.samples.get(instrument).buffer
       self.playBufferNote(buffer, note, time)
 
+    about: -&gt;
+      console.log <span class="string">"about"</span>
+      <span class="comment"># TODO: Display About page</span>
+
     removeNote: -&gt;
       activePattern().removeNote arguments...
 
