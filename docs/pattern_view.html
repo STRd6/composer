@@ -131,7 +131,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     x = time * (canvas.width()<span class="regexp">/size) - width/</span><span class="number">2</span>
     y = noteToPosition(note) - height/<span class="number">2</span>
 
-    canvas.drawImage img, x, y
+    canvas.drawImage img, x|<span class="number">0</span>, y|<span class="number">0</span>
 
   <span class="function"><span class="title">drawTemporalGuides</span></span> = (canvas) -&gt;
     <span class="keyword">if</span> self.patternMode()
