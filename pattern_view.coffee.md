@@ -102,7 +102,7 @@ Pattern View
         x = time * (canvas.width()/size) - width/2
         y = noteToPosition(note) - height/2
 
-        canvas.drawImage img, x, y
+        canvas.drawImage img, x|0, y|0
 
       drawTemporalGuides = (canvas) ->
         if self.patternMode()
