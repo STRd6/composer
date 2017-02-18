@@ -15,22 +15,23 @@ canvas
   user-select: none
 
 .actions
+  border-bottom: 1px solid rgba(103, 58, 183, 0.5)
   position: absolute
   font-size: 14px
   top: 0
   left: 0
-  padding: 4px
+  padding: 4px 4px 6px 4px
   width: 100%
 
   > button, > label
     margin-right: 0.5em
-    
+
   > label
     border: 1px solid #673ab7
     border-radius: 4px
     color: #673ab7
     padding: 8px
-    
+
     &:hover
       background-color: lightyellow
 
@@ -72,12 +73,13 @@ button
     color: white
 
 .tools
-  background-color: rgba(0, 0, 0, 0.0625)
+  background-color: rgba(103, 58, 183, 0.19)
+  border-left: 1px solid rgba(103, 58, 183, 0.5)
   width: 40px
   height: 100%
   position: absolute
   right: 0
-  top: 0
+  top: 45px
 
   .tool
     width: 32px
@@ -89,12 +91,16 @@ button
     background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==")
 
 .position
-  position: absolute
-  top: 30px
-  right: 60px
+  color: #673ab7
   pointer-events: none
+  padding: 4px
+  position: absolute
+  right: 0px
+  top: 0px
+  
 
 .arranger-wrap
+  border-top: 1px solid rgba(103, 58, 183, 0.5)
   overflow-x: scroll
   overflow-y: hidden
   position: absolute
