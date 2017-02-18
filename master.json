@@ -14,7 +14,7 @@
     },
     "README.md": {
       "path": "README.md",
-      "content": "composer\n========\n\nCompose music on the internets?\n",
+      "content": "Paint Composer\n==============\n\nCreate music online with this simple Mario Paint inspired music composer.\n",
       "mode": "100644",
       "type": "blob"
     },
