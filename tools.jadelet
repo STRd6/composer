@@ -5,16 +5,15 @@ div
     button(click=@play) ►
     button(click=@patternPlay) P►
     label
-      Tempo
+      h2 Tempo
       input(value=@tempo)
     label
-      Length
+      h2 Length
       input(value=@beats)
     button(click=@saveAs) Save
     button(click=@loadSong) Load
     button(click=@publish) Publish
     button(click=@loadGistPrompt) Load Gist
-    button(click=@about) About
 
   .tools
     .instruments
