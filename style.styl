@@ -8,7 +8,7 @@ body
 
   & > canvas
     position: absolute
-    top: 25px
+    top: 45px
     left: 0px
 
 canvas
@@ -16,8 +16,60 @@ canvas
 
 .actions
   position: absolute
+  font-size: 14px
   top: 0
   left: 0
+  padding: 4px
+  width: 100%
+
+  > button, > label
+    margin-right: 0.5em
+    
+  > label
+    border: 1px solid #673ab7
+    border-radius: 4px
+    color: #673ab7
+    padding: 8px
+    
+    &:hover
+      background-color: lightyellow
+
+    > input
+      border: none
+      background-color: rgba(103, 58, 183, 0.19)
+      border-left: 1px solid rgba(103, 58, 183, 0.5)
+      border-top: 1px solid rgba(103, 58, 183, 0.5)
+      color: inherit
+      font-size: 1em
+      padding-right: 4px
+      text-align: right
+      width: 30px
+
+      &:focus
+        padding-right: 3px
+        margin-right: 1px
+
+    > h2
+      display: inline
+      font-size: 1em
+      font-weight: normal
+
+button
+  background-color: white
+  border 1px solid #673ab7
+  border-radius: 4px
+  color: #673ab7
+  cursor: pointer
+  font-size: inherit
+  line-height: 1em
+  padding: 9px 16px
+
+  &:hover
+    background-color: lightyellow
+
+  &:active
+    background-color: #673ab7
+    color: white
 
 .tools
   background-color: rgba(0, 0, 0, 0.0625)

@@ -14,3 +14,4 @@ dependencies:
   "jquery-utils": "distri/jquery-utils:v0.2.0"
   "observable": "distri/observable:v0.3.8"
   "touch-canvas": "distri/touch-canvas:v0.3.1"
+  postmaster: "distri/postmaster:master"
