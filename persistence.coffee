@@ -26,7 +26,8 @@ module.exports = (I={}, self) ->
   , 0
 
   # Demo song
-  localStorage.songs_demo ?= JSON.stringify require "./demo_song"
+  try
+    localStorage.songs_demo ?= JSON.stringify require "./demo_song"
 
   self.extend
     saveAs: ->
