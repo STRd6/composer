@@ -8,6 +8,7 @@ remoteDependencies: [
   "https://code.jquery.com/jquery-1.11.0.min.js"
 ]
 dependencies:
+  ajax: "distri/ajax:v0.1.5-pre.0"
   analytics: "distri/google-analytics:v0.1.0"
   cornerstone: "distri/cornerstone:v0.3.0-pre.2"
   hotkeys: "distri/hotkeys:v0.2.0"

@@ -1,7 +1,8 @@
 require "cornerstone"
 require "./extensions"
 
-UI = require "ui"
+Ajax = require "ajax"
+{Progress, Modal, Style} = UI = require "ui"
 Postmaster = require "postmaster"
 
 Sample = require "./sample"
@@ -9,11 +10,17 @@ Song = require "./song"
 
 PatternView = require "./pattern_view"
 
+style = document.createElement "style"
+style.innerHTML = Style.all
+document.head.appendChild style
+
 module.exports = (I={}, self=Model(I)) ->
   defaults I,
     samples: []
     patternMode: false
     lastChannelIndex: 0
+
+  ajax = Ajax()
 
   self.include Bindable
 
@@ -71,6 +78,29 @@ module.exports = (I={}, self=Model(I)) ->
       else
         song.upcomingNotes(current, dt)
 
+    loadFromURL: (url) ->
+      progressView = Progress
+        value: 0
+        message: "Loading..."
+
+      Modal.show progressView.element,
+        cancellable: false
+
+      ajax.ajax
+        url: url
+        responseType: "json"
+      .progress ({lengthComputable, loaded, total}) ->
+        if lengthComputable
+          progressView.value loaded / total
+      .then self.fromJSON
+      .then ->
+        Modal.hide()
+      .catch (e) ->
+        if e.statusText
+          Modal.alert "An error has occurred: #{e.status} - #{e.statusText}"
+        else
+          Modal.alert "An error has occurred: #{e.message}"
+
   self.include require "./player_audio"
   self.include require "./persistence"
 
@@ -106,6 +136,8 @@ module.exports = (I={}, self=Model(I)) ->
     loadFile: (blob) ->
       blob.readAsJSON()
       .then self.fromJSON
+
+    loadFromURL: self.loadFromURL
 
   return self
 
