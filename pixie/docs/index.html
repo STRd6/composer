@@ -40,7 +40,7 @@ style = document.createElement <span class="string">"style"</span>
 style.innerHTML = require <span class="string">"./style"</span>
 document.head.appendChild style
 
-player = require(<span class="string">"./player"</span>)()
+global.player = require(<span class="string">"./player"</span>)()
 
 require(<span class="string">"./lib/feedback-tab"</span>)(<span class="string">"https://docs.google.com/forms/d/e/1FAIpQLSeRz9rCsLJLacvpJNAtAPhj0AN0LM155INP01Y8Tt4k2pIlmA/viewform"</span>)</code></pre>
 </div>
