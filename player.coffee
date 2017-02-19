@@ -139,6 +139,10 @@ module.exports = (I={}, self=Model(I)) ->
 
     loadFromURL: self.loadFromURL
 
+  postmaster.invokeRemote "ready"
+  .catch (e) ->
+    console.warn e.message
+
   return self
 
 animate = (fn) ->
