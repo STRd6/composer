@@ -2,6 +2,6 @@ Colors
 ======
 
     module.exports =
-      LIGHT: "rgba(0, 0, 0, 0.0625)"
-      DARK: "rgba(0, 0, 0, 0.25)"
+      LIGHT: "rgba(103, 58, 183, 0.19)"
+      DARK: "rgba(103, 58, 183, 0.5)"
       CURSOR: "#F0F"

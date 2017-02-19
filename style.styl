@@ -2,6 +2,7 @@ html, body
   height: 100%
 
 body
+  color: #673ab7
   font-family: Sans-Serif
   margin: 0
   overflow: hidden
@@ -11,26 +12,32 @@ body
     top: 45px
     left: 0px
 
+input, textarea
+  color: inherit
+  padding: 3px 4px
+
 canvas
   user-select: none
 
 .actions
+  background-color: white
+  border-bottom: 1px solid rgba(103, 58, 183, 0.5)
   position: absolute
   font-size: 14px
   top: 0
   left: 0
-  padding: 4px
+  padding: 4px 4px 6px 4px
   width: 100%
 
   > button, > label
     margin-right: 0.5em
-    
+
   > label
     border: 1px solid #673ab7
     border-radius: 4px
     color: #673ab7
     padding: 8px
-    
+
     &:hover
       background-color: lightyellow
 
@@ -72,29 +79,34 @@ button
     color: white
 
 .tools
-  background-color: rgba(0, 0, 0, 0.0625)
+  background-color: rgba(103, 58, 183, 0.19)
+  border-left: 1px solid rgba(103, 58, 183, 0.5)
   width: 40px
   height: 100%
   position: absolute
   right: 0
-  top: 0
+  top: 45px
 
   .tool
-    width: 32px
-    height: 32px
+    width: 40px
+    height: 40px
     background-repeat: no-repeat
     background-position: 50% 50%
 
-  .eraser
+  > .eraser
     background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAAIdJREFUeJzNUsERwCAIw15n031wDt0Hl0s/9VoF9NnmZzRBCERfI2zusdOtDABmopRGVoRCrdviADNMiADM6L873Mql2NYiw3E2WItzVi2dSuw8JBHNvQyegcU4vmjNFesWZrHFTSlYQ/RhRDgatKZFnXPy7zMIoVaYa3fH5i3PTHira4r/gQv1W1E4p9FksQAAAABJRU5ErkJggg==")
 
 .position
-  position: absolute
-  top: 30px
-  right: 60px
+  color: #673ab7
   pointer-events: none
+  padding: 4px
+  position: absolute
+  right: 0px
+  top: 0px
+
 
 .arranger-wrap
+  border-top: 1px solid rgba(103, 58, 183, 0.5)
   overflow-x: scroll
   overflow-y: hidden
   position: absolute
@@ -102,6 +114,26 @@ button
   left: 0
   width: 100%
   height: 94px
+
+form.publish
+  border-radius: 4px
+  width: 350px
+
+  > label
+    display: block
+    margin-bottom: 1em
+
+    > h2
+      font-size: 1.25em
+      margin-top: 0
+      margin-bottom: 0.5em
+
+    > input
+      width: 100%
+
+    > textarea
+      resize: none
+      height: 180px
 
 #feedback
   background-color: rgb(103, 58, 183)

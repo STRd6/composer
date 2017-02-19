@@ -1,0 +1,9 @@
+form.publish
+  label
+    h2 Title
+    input(name="title" placeholder="My Awesome Tune")
+  label
+    h2 Description
+    textarea(name="description" resizable="false" placeholder="A fun song")
+
+  button Publish!

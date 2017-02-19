@@ -2,15 +2,16 @@
 
 div
   .actions
-    button(click=@play title="Play Song") ►
-    button(click=@patternPlay title="Play Pattern") P►
+    button(click=@play) ►
+    button(click=@patternPlay) P►
     label
       h2 Tempo
       input(value=@tempo)
     label
       h2 Length
       input(value=@beats)
-    button(click=@publish) 💾 Publish
+
+    button(click=@publish) Publish
 
   .tools
     .instruments

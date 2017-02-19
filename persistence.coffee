@@ -26,7 +26,8 @@ module.exports = (I={}, self) ->
   , 0
 
   # Demo song
-  localStorage.songs_demo ?= JSON.stringify require "./demo_song"
+  try
+    localStorage.songs_demo ?= JSON.stringify require "./demo_song"
 
   self.extend
     saveAs: ->
@@ -49,14 +50,6 @@ module.exports = (I={}, self) ->
       self.song().fromJSON(data)
 
       self.reset()
-
-    publish: ->
-      Gist.save(self.song().toJSON()).then (id) ->
-        location.hash = id
-
-        alert "Published as #{location}\nShare this by copying the url!"
-
-        self.unsaved false
 
     loadGist: (id) ->
       Gist.load(id).then (data) ->
