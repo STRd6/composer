@@ -85,8 +85,6 @@ module.exports = (I={}, self=Model(I)) ->
       .then (data) ->
         data.content = JSON.stringify self.song().toJSON()
 
-        console.log data
-
         postmaster.invokeRemote "save", data
         .then ->
           Modal.alert "Saved!"
