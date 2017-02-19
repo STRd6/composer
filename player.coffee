@@ -90,6 +90,7 @@ module.exports = (I={}, self=Model(I)) ->
         postmaster.invokeRemote "save", data
         .then ->
           Modal.alert "Saved!"
+          self.unsaved false
         .catch ({message}) ->
           Modal.alert "Error: #{message}"
 
