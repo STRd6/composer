@@ -85,6 +85,13 @@ module.exports = (I={}, self=Model(I)) ->
       .then (data) ->
         data.content = JSON.stringify self.song().toJSON()
 
+        progressView = Progress
+          value: 0
+          message: "Saving..."
+
+        Modal.show progressView.element,
+          cancellable: false
+
         postmaster.invokeRemote "save", data
         .then ->
           Modal.alert "Saved!"
