@@ -60,11 +60,6 @@ module.exports = (I={}, self=Model(I)) ->
 
     tempo: song.tempo
 
-    # TODO: Should different patterns have different sample banks?
-    playNote: (instrument, note, time) ->
-      buffer = self.samples.get(instrument).buffer
-      self.playBufferNote(buffer, note, time)
-
     about: ->
       console.log "about"
       # TODO: Display About page
@@ -101,7 +96,7 @@ module.exports = (I={}, self=Model(I)) ->
         else
           Modal.alert "An error has occurred: #{e.message}"
 
-  self.include require "./player_audio"
+  self.include require "./player-audio"
   self.include require "./persistence"
 
   element = document.body
