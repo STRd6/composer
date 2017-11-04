@@ -1,0 +1,9 @@
+form(@submit)
+  h2= @title
+  label
+    h3 File Name
+    input(value=@name)
+
+  .actions
+    button(click=@cancel) Cancel
+    button Export!

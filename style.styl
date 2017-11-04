@@ -2,6 +2,7 @@ html, body
   height: 100%
 
 body
+  color: #673ab7
   font-family: Sans-Serif
   margin: 0
   overflow: hidden
@@ -14,24 +15,39 @@ body
 canvas
   user-select: none
 
-.actions
+form 
+  > label
+    display: block
+
+    > input
+      width: 100%
+
+  > .actions
+    display: flex
+    justify-content: space-between
+    margin-top: 1em
+
+body > div > .actions
   background-color: white
   border-bottom: 1px solid rgba(103, 58, 183, 0.5)
   position: absolute
   font-size: 14px
   top: 0
   left: 0
-  padding: 4px 4px 6px 4px
+  padding: 4px 4px 0px 4px
   width: 100%
 
   > button, > label
+    margin-bottom: 6px
     margin-right: 0.5em
 
   > label
     border: 1px solid #673ab7
     border-radius: 4px
     color: #673ab7
-    padding: 8px
+    display: inline-block
+    padding: 6px 8px 7px
+    white-space: nowrap
 
     &:hover
       background-color: lightyellow

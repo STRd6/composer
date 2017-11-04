@@ -12,6 +12,8 @@ Needs tempo, playable, start beat, end beat, looping mode to play.
 Provides playTime and playing methods.
 ###
 
+{Progress, Modal} = UI = require "ui"
+
 context = require "./lib/audio-context"
 
 mp3Encode = require "./lib/mp3-worker"
@@ -56,11 +58,20 @@ module.exports = (I, self) ->
     # Schedule a note to be played, use the buffer at the given index, pitch shift by
     # `note` semitones, and play at `time` seconds in the future.
     
-    exportSong: (song) ->
+    exportSong: (song, name="song.mp3") ->
+      progressView = Progress
+        message: "Rendering Audio..."
+
+      Modal.show progressView.element,
+        cancellable: false
+
+      cleanup = ->
+        Modal.hide()
+
       beats = song.size()
       bpm = song.tempo()
       secondsPerBeat = 60 / bpm
-      
+
       audioChannels = 1
       samplesPerSecond = 44100
       lengthInSeconds = secondsPerBeat * beats + 2 # add two seconds padding at the end
@@ -71,7 +82,6 @@ module.exports = (I, self) ->
         dt = 1 # beats
 
         work = ->
-          console.log "rendering: #{t}"
           song.upcomingNotes(t, dt).forEach ([time, note, instrument]) ->
             self.playNote instrument, note, (t + time) * secondsPerBeat, offlineContext
 
@@ -85,14 +95,17 @@ module.exports = (I, self) ->
         work()
 
       .then self.audioBufferToInt16
-      .then mp3Encode
+      .then (buffer) ->
+        progressView.message "Encoding MP3..."
+        mp3Encode(buffer)
       .then (blob) ->
         url = window.URL.createObjectURL(blob)
         a = document.createElement("a")
         a.href = url
-        a.download = "song.mp3"
+        a.download = name
         a.click()
         window.URL.revokeObjectURL(url)
+      .then cleanup, cleanup
 
     audioBufferToWav: (audioBuffer) ->
       new Promise (resolve, reject) ->

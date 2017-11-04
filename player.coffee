@@ -5,6 +5,8 @@ Ajax = require "ajax"
 {Progress, Modal, Style} = UI = require "ui"
 Postmaster = require "postmaster"
 
+ExportTemplate = require "./templates/export"
+
 Sample = require "./sample"
 Song = require "./song"
 
@@ -65,8 +67,19 @@ module.exports = (I={}, self=Model(I)) ->
       # TODO: Display About page
 
     exportAudio: ->
-      self.exportSong(self.song())
-      .then console.log
+      name = Observable "song.mp3"
+
+      Modal.show ExportTemplate
+        name: name
+        title: generateExportTitle()
+        cancel: (e) ->
+          e.preventDefault()
+          Modal.hide()
+        submit: (e) ->
+          e.preventDefault()
+
+          self.exportSong(self.song(), name())
+          .then console.log
 
     removeNote: ->
       activePattern().removeNote arguments...
@@ -143,6 +156,26 @@ module.exports = (I={}, self=Model(I)) ->
     console.warn e.message
 
   return self
+
+generateExportTitle = ->
+  adjective = [
+    "cool"
+    "rad"
+    "kickin'"
+    "bumpin'" 
+    "sweet"
+    "tasty"
+  ].rand()
+
+  noun = [
+    "banger"
+    "track"
+    "song"
+    "tune"
+    "jam"
+  ].rand()
+  
+  "Export your #{adjective} #{noun}"
 
 animate = (fn) ->
   step = ->
