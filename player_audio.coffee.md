@@ -10,7 +10,7 @@ Needs tempo, playable, start beat, end beat, looping mode to play.
 
 Provides playTime and playing methods.
 
-    context = require "./lib/audio_context"
+    context = require "./lib/audio-context"
 
     module.exports = (I, self) ->
       playing = false
