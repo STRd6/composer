@@ -14,6 +14,8 @@ Provides playTime and playing methods.
 
 context = require "./lib/audio-context"
 
+mp3Encode = require "./lib/mp3-worker"
+
 module.exports = (I, self) ->
   playing = false
   playTime = 0
@@ -57,10 +59,11 @@ module.exports = (I, self) ->
     exportSong: (song) ->
       beats = song.size()
       bpm = song.tempo()
+      secondsPerBeat = 60 / bpm
       
       audioChannels = 1
       samplesPerSecond = 44100
-      lengthInSeconds = 60 * (beats / bpm) + 3 # Add 3s
+      lengthInSeconds = secondsPerBeat * beats + 2 # add two seconds padding at the end
       offlineContext = new OfflineAudioContext(audioChannels, samplesPerSecond * lengthInSeconds, samplesPerSecond)
 
       new Promise (resolve, reject) ->
@@ -70,9 +73,9 @@ module.exports = (I, self) ->
         work = ->
           console.log "rendering: #{t}"
           song.upcomingNotes(t, dt).forEach ([time, note, instrument]) ->
-            self.playNote instrument, note, t + time * minute / self.tempo(), offlineContext
+            self.playNote instrument, note, (t + time) * secondsPerBeat, offlineContext
 
-          t += 1
+          t += dt
 
           if t <= beats
             setTimeout work, 0
@@ -81,32 +84,41 @@ module.exports = (I, self) ->
 
         work()
 
-      .then (buffer) ->
-        self.audioBufferToWave(buffer)
+      .then self.audioBufferToInt16
+      .then mp3Encode
       .then (blob) ->
         url = window.URL.createObjectURL(blob)
         a = document.createElement("a")
         a.href = url
-        a.download = "song.wav"
+        a.download = "song.mp3"
         a.click()
         window.URL.revokeObjectURL(url)
 
-    audioBufferToWave: (audioBuffer) ->
+    audioBufferToWav: (audioBuffer) ->
       new Promise (resolve, reject) ->
         workerSource = new Blob [PACKAGE.distribution["lib/wave-worker"].content], type: "application/javascript"
 
         worker = new Worker(URL.createObjectURL(workerSource))
 
         worker.onmessage = (e) ->
-          blob = new Blob([e.data.buffer], {type:"audio/wav"})
-          resolve(blob)
+          blob = new Blob([e.data.buffer], {type:"audio/wav"});
+          resolve(blob);
 
-        pcmArrays = [audioBuffer.getChannelData(0)]
-
-        worker.postMessage 
-          pcmArrays: pcmArrays,
+        worker.postMessage
+          pcmArrays: [audioBuffer.getChannelData(0)]
           config:
             sampleRate: audioBuffer.sampleRate
+
+    audioBufferToInt16: (audioBuffer) ->
+      new Promise (resolve, reject) ->
+        workerSource = new Blob [PACKAGE.distribution["lib/pcm-worker"].content], type: "application/javascript"
+
+        worker = new Worker(URL.createObjectURL(workerSource))
+
+        worker.onmessage = (e) ->
+          resolve(e.data)
+
+        worker.postMessage audioBuffer.getChannelData(0)
 
     # TODO: Should different patterns have different sample banks?
     playNote: (instrument, note, time, _context) ->
@@ -119,6 +131,8 @@ module.exports = (I, self) ->
       self.playBuffer(buffer, rate, time, context)
 
     playBuffer: (buffer, rate=1, time=0, context) ->
+      console.log "T", context.currentTime
+
       source = context.createBufferSource()
       source.buffer = buffer
       source.connect(context.destination)
