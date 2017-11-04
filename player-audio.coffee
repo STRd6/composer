@@ -54,25 +54,71 @@ module.exports = (I, self) ->
     # Schedule a note to be played, use the buffer at the given index, pitch shift by
     # `note` semitones, and play at `time` seconds in the future.
     
-    exportAudio: ->
-      offlineContext = new OfflineAudioContext
+    exportSong: (song) ->
+      beats = song.size()
+      bpm = song.tempo()
+      
+      audioChannels = 1
+      samplesPerSecond = 44100
+      lengthInSeconds = 60 * (beats / bpm) + 3 # Add 3s
+      offlineContext = new OfflineAudioContext(audioChannels, samplesPerSecond * lengthInSeconds, samplesPerSecond)
+
       new Promise (resolve, reject) ->
-        # Connect up the nodes
-        # schedule the sounds
-        # render the stuff
-        offlineCtx.startRendering()
+        t = 0 # beats
+        dt = 1 # beats
+
+        work = ->
+          console.log "rendering: #{t}"
+          song.upcomingNotes(t, dt).forEach ([time, note, instrument]) ->
+            self.playNote instrument, note, t + time * minute / self.tempo(), offlineContext
+
+          t += 1
+
+          if t <= beats
+            setTimeout work, 0
+          else
+            offlineContext.startRendering().then(resolve, reject)
+
+        work()
+
+      .then (buffer) ->
+        self.audioBufferToWave(buffer)
+      .then (blob) ->
+        url = window.URL.createObjectURL(blob)
+        a = document.createElement("a")
+        a.href = url
+        a.download = "song.wav"
+        a.click()
+        window.URL.revokeObjectURL(url)
+
+    audioBufferToWave: (audioBuffer) ->
+      new Promise (resolve, reject) ->
+        workerSource = new Blob [PACKAGE.distribution["lib/wave-worker"].content], type: "application/javascript"
+
+        worker = new Worker(URL.createObjectURL(workerSource))
+
+        worker.onmessage = (e) ->
+          blob = new Blob([e.data.buffer], {type:"audio/wav"})
+          resolve(blob)
+
+        pcmArrays = [audioBuffer.getChannelData(0)]
+
+        worker.postMessage 
+          pcmArrays: pcmArrays,
+          config:
+            sampleRate: audioBuffer.sampleRate
 
     # TODO: Should different patterns have different sample banks?
-    playNote: (instrument, note, time) ->
+    playNote: (instrument, note, time, _context) ->
       buffer = self.samples.get(instrument).buffer
-      self.playBufferNote(buffer, note, time)
+      self.playBufferNote(buffer, note, time, _context or context)
 
-    playBufferNote: (buffer, note=0,  time=0) ->
+    playBufferNote: (buffer, note=0,  time=0, context) ->
       rate = Math.pow 2, note / 12
 
-      self.playBuffer(buffer, rate, time)
+      self.playBuffer(buffer, rate, time, context)
 
-    playBuffer: (buffer, rate=1, time=0) ->
+    playBuffer: (buffer, rate=1, time=0, context) ->
       source = context.createBufferSource()
       source.buffer = buffer
       source.connect(context.destination)

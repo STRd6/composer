@@ -64,6 +64,10 @@ module.exports = (I={}, self=Model(I)) ->
       console.log "about"
       # TODO: Display About page
 
+    exportAudio: ->
+      self.exportSong(self.song())
+      .then console.log
+
     removeNote: ->
       activePattern().removeNote arguments...
 
