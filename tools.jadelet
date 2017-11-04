@@ -13,7 +13,7 @@ div
     button(click=@saveAs) Save
     button(click=@loadSong) Load
     button(click=@publish) Publish
-    button(click=@loadGistPrompt) Load Gist
+    button(click=@exportAudio) Export
 
   .tools
     .instruments

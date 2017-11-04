@@ -5,6 +5,8 @@ Ajax = require "ajax"
 {Progress, Modal, Style} = UI = require "ui"
 Postmaster = require "postmaster"
 
+ExportTemplate = require "./templates/export"
+
 Sample = require "./sample"
 Song = require "./song"
 
@@ -60,14 +62,29 @@ module.exports = (I={}, self=Model(I)) ->
 
     tempo: song.tempo
 
-    # TODO: Should different patterns have different sample banks?
-    playNote: (instrument, note, time) ->
-      buffer = self.samples.get(instrument).buffer
-      self.playBufferNote(buffer, note, time)
-
     about: ->
       console.log "about"
       # TODO: Display About page
+
+    exportAudio: ->
+      name = Observable "song"
+      selectedType = Observable "mp3"
+
+      Modal.show ExportTemplate
+        name: name
+        title: generateExportTitle()
+        types: ["mp3", "wav"]
+        selectedType: selectedType
+        cancel: (e) ->
+          e.preventDefault()
+          Modal.hide()
+        submit: (e) ->
+          e.preventDefault()
+
+          self.exportSong self.song(), 
+            name: name()
+            type: selectedType()
+          .then console.log
 
     removeNote: ->
       activePattern().removeNote arguments...
@@ -101,7 +118,7 @@ module.exports = (I={}, self=Model(I)) ->
         else
           Modal.alert "An error has occurred: #{e.message}"
 
-  self.include require "./player_audio"
+  self.include require "./player-audio"
   self.include require "./persistence"
 
   element = document.body
@@ -144,6 +161,26 @@ module.exports = (I={}, self=Model(I)) ->
     console.warn e.message
 
   return self
+
+generateExportTitle = ->
+  adjective = [
+    "cool"
+    "rad"
+    "kickin'"
+    "bumpin'" 
+    "sweet"
+    "tasty"
+  ].rand()
+
+  noun = [
+    "banger"
+    "track"
+    "song"
+    "tune"
+    "jam"
+  ].rand()
+  
+  "Export your #{adjective} #{noun}"
 
 animate = (fn) ->
   step = ->
