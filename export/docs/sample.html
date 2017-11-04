@@ -16,64 +16,10 @@
     <div class="pilwrap">
       <a class="pilcrow" href="#section-1">&#182;</a>
     </div>
-    <h1 id="sample">Sample</h1>
-
+    
   </div>
   <div class="content"><pre><code class="lang-coffeescript">
 </code></pre>
-</div>
-</li>
-<li id="section-2">
-  <div class="annotation">
-    <div class="pilwrap">
-      <a class="pilcrow" href="#section-2">&#182;</a>
-    </div>
-    
-  </div>
-  <div class="content"><pre><code class="lang-coffeescript">bufferLoader = require <span class="string">"./lib/audio_loader"</span>
-
-<span class="function"><span class="title">urlFor</span></span> = (sha) -&gt;
-  n = <span class="number">4</span>
-  i = parseInt(sha.slice(-<span class="number">1</span>), <span class="number">0x10</span>) % n
-
-  <span class="string">"https://a<span class="subst">#{i}</span>.pixiecdn.com/composer/data/<span class="subst">#{sha}</span>?xdomain"</span>
-
-<span class="function"><span class="title">getImage</span></span> = (url) -&gt;
-  image = <span class="keyword">new</span> Image
-  image.crossOrigin = <span class="literal">true</span>
-  image.src = url
-
-  <span class="keyword">return</span> image</code></pre>
-</div>
-</li>
-<li id="section-3">
-  <div class="annotation">
-    <div class="pilwrap">
-      <a class="pilcrow" href="#section-3">&#182;</a>
-    </div>
-    <p>A sample has an image and a sound buffer. Both can be loaded from URLs. If they
-are loaded from URLs then they must allow CORS.</p>
-
-  </div>
-  <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Sample</span></span> = (I={}) -&gt;
-
-  self =
-    image: getImage(I.spriteURL)
-    buffer: <span class="literal">null</span>
-
-  <span class="keyword">return</span> self
-
-Sample.<span class="function"><span class="title">load</span></span> = (data) -&gt;
-  {sprite, sample} = data
-
-  <span class="comment"># Load audio buffer</span>
-  bufferLoader(urlFor(sample))
-  .<span class="keyword">then</span> (buffer) -&gt;
-    buffer: buffer
-    image: getImage(urlFor(sprite))
-
-Sample.<span class="function"><span class="title">loadPack</span></span> = (samplePack) -&gt;
-  Promise.all(samplePack.map(Sample.load))</code></pre>
 </div>
 </li>
     </ul>
