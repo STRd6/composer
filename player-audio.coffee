@@ -57,8 +57,15 @@ module.exports = (I, self) ->
   self.extend
     # Schedule a note to be played, use the buffer at the given index, pitch shift by
     # `note` semitones, and play at `time` seconds in the future.
-    
-    exportSong: (song, name="song.mp3") ->
+
+    exportSong: (song, opts={}) ->
+      {name, type} = opts
+
+      name ?= "song"
+      type ?= "mp3"
+
+      extension = ".#{type}"
+
       progressView = Progress
         message: "Rendering Audio..."
 
@@ -67,6 +74,11 @@ module.exports = (I, self) ->
 
       cleanup = ->
         Modal.hide()
+
+      err = (fn) ->
+        (e) ->
+          fn()
+          throw e
 
       beats = song.size()
       bpm = song.tempo()
@@ -94,18 +106,26 @@ module.exports = (I, self) ->
 
         work()
 
-      .then self.audioBufferToInt16
-      .then (buffer) ->
-        progressView.message "Encoding MP3..."
-        mp3Encode(buffer)
+      .then (audioBuffer) ->
+        if type is "mp3"
+          progressView.message "Encoding mp3..."
+          self.audioBufferToMP3(audioBuffer)
+        else
+          progressView.message "Encoding wav..."
+          self.audioBufferToWav(audioBuffer)
       .then (blob) ->
         url = window.URL.createObjectURL(blob)
         a = document.createElement("a")
         a.href = url
-        a.download = name
+        a.download = name + extension
         a.click()
         window.URL.revokeObjectURL(url)
-      .then cleanup, cleanup
+      .then cleanup, err cleanup
+
+    audioBufferToMP3: (audioBuffer) ->
+      self.audioBufferToInt16(audioBuffer) 
+      .then (buffer) ->
+        mp3Encode(buffer)
 
     audioBufferToWav: (audioBuffer) ->
       new Promise (resolve, reject) ->

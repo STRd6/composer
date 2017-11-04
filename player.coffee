@@ -67,18 +67,23 @@ module.exports = (I={}, self=Model(I)) ->
       # TODO: Display About page
 
     exportAudio: ->
-      name = Observable "song.mp3"
+      name = Observable "song"
+      selectedType = Observable "mp3"
 
       Modal.show ExportTemplate
         name: name
         title: generateExportTitle()
+        types: ["mp3", "wav"]
+        selectedType: selectedType
         cancel: (e) ->
           e.preventDefault()
           Modal.hide()
         submit: (e) ->
           e.preventDefault()
 
-          self.exportSong(self.song(), name())
+          self.exportSong self.song(), 
+            name: name()
+            type: selectedType()
           .then console.log
 
     removeNote: ->
