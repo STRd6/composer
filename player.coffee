@@ -63,11 +63,6 @@ module.exports = (I={}, self=Model(I)) ->
 
     tempo: song.tempo
 
-    # TODO: Should different patterns have different sample banks?
-    playNote: (instrument, note, time) ->
-      buffer = self.samples.get(instrument).buffer
-      self.playBufferNote(buffer, note, time)
-
     about: ->
       console.log "about"
       # TODO: Display About page
