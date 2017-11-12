@@ -12,6 +12,7 @@ div
       input(value=@beats)
 
     button(click=@publish) Publish
+    button(click=@exportAudio) Export
 
   .tools
     .instruments

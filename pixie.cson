@@ -4,6 +4,9 @@ This Mario Paint inspired composer tool is easy and fun. You can create simple a
 beautiful songs right in your browser and share them with the world!
 """
 version: "0.1.0"
+publish:
+  s3:
+    basePath: "public/danielx.net"
 remoteDependencies: [
   "https://code.jquery.com/jquery-1.11.0.min.js"
 ]
@@ -14,6 +17,6 @@ dependencies:
   hotkeys: "distri/hotkeys:v0.2.0"
   "jquery-utils": "distri/jquery-utils:v0.2.0"
   observable: "distri/observable:v0.3.8"
-  postmaster: "distri/postmaster:master"
+  postmaster: "distri/postmaster:v0.5.1"
   "touch-canvas": "distri/touch-canvas:v0.3.1"
   ui: "STRd6/ui:master"

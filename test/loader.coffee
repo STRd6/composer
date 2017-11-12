@@ -1,4 +1,4 @@
-loader = require "../lib/audio_loader"
+loader = require "../lib/audio-loader"
 
 describe "Loader", ->
   it "should load array buffers", (done) ->

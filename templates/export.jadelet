@@ -1,0 +1,12 @@
+form(@submit)
+  h2= @title
+  label
+    h3 File Name
+    input(value=@name)
+
+  label
+    h3.inline Format
+    select(options=@types value=@selectedType)
+  .actions
+    button(click=@cancel) Cancel
+    button Export!

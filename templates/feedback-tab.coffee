@@ -5,4 +5,4 @@ module.exports = (href) ->
   tab.href = href
   tab.target = "_blank"
 
-  document.body.appendChild(tab)
+  return tab
