@@ -10,6 +10,7 @@ Song = require "./song"
 
 PatternView = require "./pattern_view"
 
+ExportTemplate = require "../templates/export"
 PublishFormTemplate = require "../templates/publish-form"
 
 style = document.createElement "style"
@@ -86,7 +87,7 @@ module.exports = (I={}, self=Model(I)) ->
         submit: (e) ->
           e.preventDefault()
 
-          self.exportSong self.song(), 
+          self.exportSong self.song(),
             name: name()
             type: selectedType()
           .then console.log
@@ -191,7 +192,7 @@ generateExportTitle = ->
     "cool"
     "rad"
     "kickin'"
-    "bumpin'" 
+    "bumpin'"
     "sweet"
     "tasty"
   ].rand()
@@ -203,7 +204,7 @@ generateExportTitle = ->
     "tune"
     "jam"
   ].rand()
-  
+
   "Export your #{adjective} #{noun}"
 
 animate = (fn) ->
