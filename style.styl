@@ -12,6 +12,10 @@ body
     top: 45px
     left: 0px
 
+input, textarea
+  color: inherit
+  padding: 3px 4px
+
 canvas
   user-select: none
 
@@ -133,6 +137,26 @@ button
   left: 0
   width: 100%
   height: 94px
+
+form.publish
+  border-radius: 4px
+  width: 350px
+
+  > label
+    display: block
+    margin-bottom: 1em
+
+    > h2
+      font-size: 1.25em
+      margin-top: 0
+      margin-bottom: 0.5em
+
+    > input
+      width: 100%
+
+    > textarea
+      resize: none
+      height: 180px
 
 #feedback
   background-color: rgb(103, 58, 183)

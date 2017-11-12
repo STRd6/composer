@@ -10,8 +10,7 @@ div
     label
       h2 Length
       input(value=@beats)
-    button(click=@saveAs) Save
-    button(click=@loadSong) Load
+
     button(click=@publish) Publish
     button(click=@exportAudio) Export
 
