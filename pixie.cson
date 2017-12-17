@@ -9,6 +9,7 @@ publish:
     basePath: "public/danielx.net"
 remoteDependencies: [
   "https://code.jquery.com/jquery-1.11.0.min.js"
+  "https://checkout.stripe.com/checkout.js"
 ]
 dependencies:
   ajax: "distri/ajax:v0.1.5-pre.0"
