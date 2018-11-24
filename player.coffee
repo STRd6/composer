@@ -129,7 +129,7 @@ module.exports = (I={}, self=Model(I)) ->
   self.include require("./arranger_view")
 
   self.on "arrangerClick", (channel, beat) ->
-    if self.activeToolIndex() is 1 # Eraser
+    if self.activeToolIndex() is 1 or event?.which is 3 # Eraser or right click
       if song.removePattern channel, beat
         self.unsaved true
     else

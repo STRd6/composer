@@ -16,3 +16,7 @@ document.body.appendChild FeedbackTabTemplate
 
 DonateTabTemplate = require("./templates/donate-tab")
 document.body.appendChild DonateTabTemplate(require("./lib/stripe-payment")())
+
+# Remove right click context menu from canvases
+Array::forEach.call document.querySelectorAll('canvas'), (element) ->
+  element.oncontextmenu = (e) -> e.preventDefault()

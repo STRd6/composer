@@ -13,7 +13,7 @@ module.exports = ->
         description: description
         stripeEmail: token.email
         stripeToken: token.id
-  
+
   click: (e) ->
     e.preventDefault()
 

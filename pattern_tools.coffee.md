@@ -5,6 +5,11 @@ Pattern Tools
 
     tools = [
       (self, {beat, note}) ->
+        # Global event, erase with right click
+        if event?.which is 3
+          tools[1](self, {beat, note})
+          return
+
         # Add Note to Score
         instrument = self.activeInstrument()
 

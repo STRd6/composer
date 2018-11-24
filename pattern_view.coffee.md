@@ -76,7 +76,7 @@ Pattern View
               beat: beat - patternStart
 
         if data
-          self.activeTool()(self, data)
+          self.activeTool()(self, data, p)
 
       # TODO: Need to move this out
       document.body.appendChild canvas.element()
