@@ -34,6 +34,11 @@
 
 tools = [
   (self, {beat, note}) -&gt;
+    <span class="comment"># Global event, erase with right click</span>
+    <span class="keyword">if</span> event?.which <span class="keyword">is</span> <span class="number">3</span>
+      tools[<span class="number">1</span>](self, {beat, note})
+      <span class="keyword">return</span>
+
     <span class="comment"># Add Note to Score</span>
     instrument = self.activeInstrument()
 
