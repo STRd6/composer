@@ -51,14 +51,6 @@ module.exports = (I={}, self) ->
 
       self.reset()
 
-    publish: ->
-      Gist.save(self.song().toJSON()).then (id) ->
-        location.hash = id
-
-        alert "Published as #{location}\nShare this by copying the url!"
-
-        self.unsaved false
-
     loadGist: (id) ->
       Gist.load(id).then (data) ->
         self.fromJSON(data)
