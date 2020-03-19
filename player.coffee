@@ -5,12 +5,13 @@ Ajax = require "ajax"
 {Progress, Modal, Style} = UI = require "ui"
 Postmaster = require "postmaster"
 
-ExportTemplate = require "./templates/export"
-
 Sample = require "./sample"
 Song = require "./song"
 
 PatternView = require "./pattern_view"
+
+ExportTemplate = require "../templates/export"
+PublishFormTemplate = require "../templates/publish-form"
 
 style = document.createElement "style"
 style.innerHTML = Style.all
@@ -94,6 +95,25 @@ module.exports = (I={}, self=Model(I)) ->
         activePattern().upcomingNotes(current, dt)
       else
         song.upcomingNotes(current, dt)
+
+    publish: ->
+      Modal.form PublishFormTemplate()
+      .then (data) ->
+        data.content = JSON.stringify self.song().toJSON()
+
+        progressView = Progress
+          value: 0
+          message: "Saving..."
+
+        Modal.show progressView.element,
+          cancellable: false
+
+        postmaster.invokeRemote "save", data
+        .then ->
+          Modal.alert "Saved!"
+          self.unsaved false
+        .catch ({message}) ->
+          Modal.alert "Error: #{message}"
 
     loadFromURL: (url) ->
       progressView = Progress
